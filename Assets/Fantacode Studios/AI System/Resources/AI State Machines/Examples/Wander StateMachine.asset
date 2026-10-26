@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7223268042755112826
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b142a883fb06043904599bda9f5117, type: 3}
+  m_Name: Wander
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 5.975169, y: 45.646683}
+  _name: Wander
+  wanderRadius: 30
+  moveSpeed: 4
+  arrivalThreshold: 0.5
+--- !u!114 &-234081114010980742
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b142a883fb06043904599bda9f5117, type: 3}
+  m_Name: Wander
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 3.1052642, y: 55.721027}
+  _name: Wander
+  wanderRadius: 30
+  moveSpeed: 2
+  arrivalThreshold: 0.5
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Wander StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -7223268042755112826}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: 9157308924395807597}
+  stateTransitionCollections: []
+--- !u!114 &9157308924395807597
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 1, y: -44}

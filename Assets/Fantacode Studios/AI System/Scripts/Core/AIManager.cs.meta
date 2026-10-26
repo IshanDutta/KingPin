@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a7548e16100d65d42b7023cf34b9aea1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/Core/AIManager.cs
+  uploadId: 996758

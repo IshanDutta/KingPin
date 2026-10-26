@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7210858948627191005
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b3fef841-3f3f-4ea8-bc27-476bd1ee0356
+    name: IsDead
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-4136809900602151429
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a1bffff84ea00b4fa8b45dcf82a3e99, type: 3}
+  m_Name: Idle
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 1.8749619, y: 113.43754}
+  name: Idle
+  returnToInitialPosition: 1
+  returnToInitialFacing: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Idle StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 3030655376036288624}
+  - {fileID: 7909477359710102226}
+  initialStateIndex: 1
+  transitions: []
+  anyStateTransitions:
+  - {fileID: 6102577399194824919}
+  anyStateAsset: {fileID: 8434562362551103540}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 6102577399194824919}
+--- !u!114 &3030655376036288624
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd1c4a697de08a4ea23d9a06c0fb440, type: 3}
+  m_Name: Dead
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 201.77357, y: -91.70768}
+--- !u!114 &6102577399194824919
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Dead
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 8434562362551103540}
+  toState: {fileID: 3030655376036288624}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -7210858948627191005}
+--- !u!114 &7909477359710102226
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a1bffff84ea00b4fa8b45dcf82a3e99, type: 3}
+  m_Name: Idle
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 136.70493, y: 35.763027}
+  name: Idle
+  returnToInitialPosition: 1
+  returnToInitialFacing: 1
+--- !u!114 &8434562362551103540
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}

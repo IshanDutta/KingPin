@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Flee StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 828246169774156002}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: 4553449813897856883}
+  stateTransitionCollections: []
+--- !u!114 &828246169774156002
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3297e47e691a542a4911182cc0d0ef, type: 3}
+  m_Name: Flee
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 6.6346436, y: 96.919685}
+  _name: Flee
+  fleeDistance: 12
+  safeDistance: 18
+  repathInterval: 2
+  calculationType: 0
+--- !u!114 &4553449813897856883
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}

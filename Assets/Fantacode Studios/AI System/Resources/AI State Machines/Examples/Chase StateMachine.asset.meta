@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bead0385d8dd43f44b213a86565d689d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Resources/AI State Machines/Examples/Chase
+    StateMachine.asset
+  uploadId: 996758

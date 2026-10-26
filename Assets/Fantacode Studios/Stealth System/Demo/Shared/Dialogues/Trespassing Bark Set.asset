@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64d5672b773dbe84e8ce3ac6e4bf66e9, type: 3}
+  m_Name: Trespassing Bark Set
+  m_EditorClassIdentifier: 
+  barks:
+  - tags:
+    - initial
+    audioClips:
+    - clip: {fileID: 8300000, guid: e2e0788834c5a46888aa61b42ad818de, type: 3}
+    - clip: {fileID: 8300000, guid: 27fc56360a09f4c88a8947f59e388ea6, type: 3}
+    - clip: {fileID: 8300000, guid: 586588766903448309580a2bc4e87a5c, type: 3}
+    - clip: {fileID: 8300000, guid: 4196eafbd860b4a3ebcde0a95b3c5a93, type: 3}
+  - tags:
+    - ongoing
+    - warning_2
+    audioClips:
+    - clip: {fileID: 8300000, guid: 5fa466211024d4e0aa71bc87abc421a3, type: 3}
+    - clip: {fileID: 8300000, guid: 9c94c7cba907d4b8896d2bd5d446884e, type: 3}
+    - clip: {fileID: 8300000, guid: 1c9cbcfe14e9a48bd86c476b4b2d6e50, type: 3}
+  - tags:
+    - ongoing
+    - warning_3
+    audioClips:
+    - clip: {fileID: 8300000, guid: 077176e0bb125475197a49d999ec729f, type: 3}
+    - clip: {fileID: 8300000, guid: 3a716db2d147e4f198c94e8a30dd3774, type: 3}
+    - clip: {fileID: 8300000, guid: 6e20c479a86a74ff5831359ecdcb0db6, type: 3}
+  - tags:
+    - ended
+    audioClips:
+    - clip: {fileID: 8300000, guid: 2abc109f08efd4b5d9a8ed5ed12f0543, type: 3}
+    - clip: {fileID: 8300000, guid: 08e69aa0fee0444a8a1a34a4eb7b1494, type: 3}

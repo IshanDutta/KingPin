@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ee5dfd3b12618b44a9b05d5b46a714c8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/CoverSystem/Scripts/CoverUI.cs
+  uploadId: 996758

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 20182fa4cfd177f41bdfde7b23a62591
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/AIBehavior/Editor/AIBehaviorEditor.cs
+  uploadId: 996758

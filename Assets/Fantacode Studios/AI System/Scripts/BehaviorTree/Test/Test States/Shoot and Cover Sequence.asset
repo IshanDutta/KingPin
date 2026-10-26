@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef1b19b3644e9804984d74a81d407cb1, type: 3}
+  m_Name: Shoot and Cover Sequence
+  m_EditorClassIdentifier: 
+  nodeEditorPosition:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+  children:
+  - {fileID: 11400000, guid: 92bf3d5e8f6ddf644a36e66cfc5d35b1, type: 2}
+  - {fileID: 11400000, guid: f799da4fc608a3346b9c21054ef35055, type: 2}

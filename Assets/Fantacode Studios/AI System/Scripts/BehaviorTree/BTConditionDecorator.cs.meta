@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: feaf6d6813b966e4b81356ffe01ec53c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/BTConditionDecorator.cs
+  uploadId: 996758

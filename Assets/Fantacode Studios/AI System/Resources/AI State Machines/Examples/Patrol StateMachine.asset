@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Patrol StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 14309592999365142}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: 1926355223520569795}
+  stateTransitionCollections: []
+--- !u!114 &14309592999365142
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3aa9e4ab7799a74789551270a647dee, type: 3}
+  m_Name: Patrol
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 60.815918, y: 114.41788}
+  _name: Patrol
+  waypointsKey:
+    id: b3c04d1e-d382-427a-a45d-09a8d3797d61
+    name: PatrolWaypoints
+    type: 6
+    description: 
+  takeMoveSpeedFromBlackboard: 0
+  moveSpeed: 4.5
+  moveSpeedKey:
+    id: 
+    name: 
+    type: 0
+    description: 
+  arrivalThreshold: 0.5
+  loop: 1
+--- !u!114 &1926355223520569795
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}

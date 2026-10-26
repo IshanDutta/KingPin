@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cd0ab9812a1ae434f86c9be189a6225a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/Assets/BTPrintActionAsset.cs
+  uploadId: 996758

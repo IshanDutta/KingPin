@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8be440424f8fed941871eaf98def91cd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/Stealth System/Scripts/Situation.cs
+  uploadId: 996758

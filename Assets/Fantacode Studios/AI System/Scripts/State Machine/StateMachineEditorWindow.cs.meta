@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b87d7c81a7ec56c4bac7b204ad753a56
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/State Machine/StateMachineEditorWindow.cs
+  uploadId: 996758

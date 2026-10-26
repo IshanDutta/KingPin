@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a1871c9b218a94d44ba5d96715307816
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/AIBehavior/AIBehaviorNode.cs
+  uploadId: 996758

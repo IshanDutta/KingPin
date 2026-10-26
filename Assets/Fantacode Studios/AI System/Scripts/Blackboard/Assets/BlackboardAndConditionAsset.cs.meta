@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dbfbc3b47447e494e9b63c06a2678370
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/Blackboard/Assets/BlackboardAndConditionAsset.cs
+  uploadId: 996758

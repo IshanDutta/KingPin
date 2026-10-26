@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f799da4fc608a3346b9c21054ef35055
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/Test/Test States/Cover
+    State.asset
+  uploadId: 996758

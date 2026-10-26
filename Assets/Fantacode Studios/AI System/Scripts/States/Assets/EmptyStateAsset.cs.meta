@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f339e67d3145bc74eb74bdf9b32e4fca
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/States/Assets/EmptyStateAsset.cs
+  uploadId: 996758

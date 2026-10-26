@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ac609ea924c3280419ca9eb1366b52f3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/Test/Test Simple
+    Actions/Print Action 2.asset
+  uploadId: 996758

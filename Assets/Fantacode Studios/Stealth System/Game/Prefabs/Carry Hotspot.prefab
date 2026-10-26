@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7120012099106984417
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6443215354608350938}
+  - component: {fileID: 2721973177151031713}
+  - component: {fileID: 6760232500793477997}
+  m_Layer: 0
+  m_Name: Carry Hotspot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6443215354608350938
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7120012099106984417}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2721973177151031713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7120012099106984417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54429087d6c7ee44822bd145fbdb02f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactUIPrefab: {fileID: 0}
+  interactUIPositionOffset: {x: 0, y: 1.5, z: 0}
+  interactUIOffset: 1.5
+  interactUIOffsetMigrated: 1
+  interactionLabel: 'Carry '
+  OnStartInteractionEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnEndInteractionEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  disableObjectAfterCompletion: 0
+  disableHotspotAfterCompletion: 0
+  alignToHotspot: 1
+  snapToPosition: 0
+  useStoppingDistance: 0
+  stoppingDistance: 1.5
+  interactionPoints:
+  - positionOffset: {x: -0.6710743, y: -0.15792261, z: -0.19597998}
+    facingDirection: 89.42646
+  spaceCheckRadius: 0.05
+  spaceCheckHeight: 1.8
+  objectToCarry: {fileID: 0}
+  usePoseStandPoints: 1
+  debugStandPoint: 0
+--- !u!65 &6760232500793477997
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7120012099106984417}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

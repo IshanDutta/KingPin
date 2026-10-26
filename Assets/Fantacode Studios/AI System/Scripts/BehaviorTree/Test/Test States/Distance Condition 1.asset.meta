@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: af8857a5fc3054c40b21197f950be286
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/Test/Test States/Distance
+    Condition 1.asset
+  uploadId: 996758

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 66f52298f6ec3fc4eae89c725a72f80c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/Stealth System/Scripts/StealthBlackboardKeys.cs
+  uploadId: 996758

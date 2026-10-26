@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dcd0c3d9d7cee1a459090ba0d4ff6d83
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/States/Assets/WaitStateAsset.cs
+  uploadId: 996758

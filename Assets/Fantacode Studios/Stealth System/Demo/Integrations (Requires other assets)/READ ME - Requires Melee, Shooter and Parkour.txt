@@ -1,0 +1,25 @@
+INTEGRATION DEMO SCENES
+=======================
+
+These demo scenes show the Stealth System working together with our other systems. They are supplied as a .unitypackage rather than as loose scenes, because they reference scripts that are not part of the Stealth System.
+
+HOW TO IMPORT
+-------------
+Double click Integration Scenes.unitypackage to import it. The demo scenes are added to Assets/Fantacode Studios/System Integrations/Stealth Integrations:
+
+    * Stealth Combat Parkour Demo/Stealth Melee Demo Scene
+    * Stealth Shooter Demo/Stealth Shooter Demo Scene
+
+Make sure the assets listed below are installed before you import.
+
+REQUIRED ASSETS
+---------------
+Import Integration Scenes.unitypackage only after you have installed all of:
+
+    * Melee Combat System
+    * Shooter System
+    * Parkour & Climbing System
+
+Importing it without these will produce compile errors, and the demo scenes will open with missing script references.
+
+The Stealth System itself does not depend on any of the above. Everything outside this folder works on its own.

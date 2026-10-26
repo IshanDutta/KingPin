@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: d9c75142fbac5504a90034502965d5a1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Resources/AI State Machines/Examples/Run
+    From Target StateMachine.asset
+  uploadId: 996758

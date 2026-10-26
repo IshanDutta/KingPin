@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9199090182093568538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eb7083e2c709714dbbfc185cad52d24, type: 3}
+  m_Name: BTStateActionAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: -7532746132726290561}
+  nodePosition: {x: -395, y: 550}
+  stateid: 0
+--- !u!114 &-8658801010168308564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef1b19b3644e9804984d74a81d407cb1, type: 3}
+  m_Name: BTSequenceNodeAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: 3712045292036440565}
+  nodePosition: {x: 79.49998, y: 342}
+  children: []
+--- !u!114 &-7532746132726290561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef1b19b3644e9804984d74a81d407cb1, type: 3}
+  m_Name: BTSequenceNodeAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: 8154641277008134067}
+  nodePosition: {x: -175, y: 342}
+  children:
+  - {fileID: -9199090182093568538}
+  - {fileID: -2961014744731686733}
+  - {fileID: -2246689182646991139}
+--- !u!114 &-2961014744731686733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eb7083e2c709714dbbfc185cad52d24, type: 3}
+  m_Name: BTStateActionAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: -7532746132726290561}
+  nodePosition: {x: -175, y: 550}
+  stateid: 0
+--- !u!114 &-2246689182646991139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eb7083e2c709714dbbfc185cad52d24, type: 3}
+  m_Name: BTStateActionAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: -7532746132726290561}
+  nodePosition: {x: 45, y: 550}
+  stateid: 0
+--- !u!114 &-168656954678419822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8239b0044c3d9024f9c64269a7b011cc, type: 3}
+  m_Name: BTSelectorNodeAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: 11400000}
+  nodePosition: {x: -50, y: 150}
+  children:
+  - {fileID: 8154641277008134067}
+  - {fileID: 3712045292036440565}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe20214deaa8874d83aa587991c457b, type: 3}
+  m_Name: New Behavior Tree
+  m_EditorClassIdentifier: 
+  parent: {fileID: 0}
+  nodePosition: {x: -50, y: 0}
+  rootNode: {fileID: -168656954678419822}
+--- !u!114 &3712045292036440565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dbc509a72b2bf944a980da8d6d658f7, type: 3}
+  m_Name: BTConditionDecoratorAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: -168656954678419822}
+  nodePosition: {x: 54.5, y: 300}
+  condition: {fileID: 6655840940186003240}
+  child: {fileID: -8658801010168308564}
+--- !u!114 &8154641277008134067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dbc509a72b2bf944a980da8d6d658f7, type: 3}
+  m_Name: BTConditionDecoratorAsset
+  m_EditorClassIdentifier: 
+  parent: {fileID: -168656954678419822}
+  nodePosition: {x: -200, y: 300}
+  condition: {fileID: 0}
+  child: {fileID: -7532746132726290561}

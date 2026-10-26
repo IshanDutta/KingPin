@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64d5672b773dbe84e8ce3ac6e4bf66e9, type: 3}
+  m_Name: Suspicious Investigation Bark Set
+  m_EditorClassIdentifier: 
+  barks:
+  - tags:
+    - sound
+    - initial
+    audioClips:
+    - clip: {fileID: 8300000, guid: d8de6c9deaac442249effd5a749730db, type: 3}
+    - clip: {fileID: 8300000, guid: c34f1973b29344440bf43c30418674b4, type: 3}
+  - tags:
+    - sound
+    - ongoing
+    audioClips:
+    - clip: {fileID: 8300000, guid: e0cc0bb58ba7c459d96ad055bd11cc43, type: 3}
+    - clip: {fileID: 8300000, guid: bc704a66f55e74e1e8f3daeb4da92881, type: 3}
+    - clip: {fileID: 8300000, guid: 9ae2e401bddb74b55a4ea4249646e45a, type: 3}
+  - tags:
+    - sound
+    - ended
+    audioClips:
+    - clip: {fileID: 8300000, guid: f95b69ebdddd94d4d9007047bd0a9453, type: 3}
+    - clip: {fileID: 8300000, guid: 3b00861b7d6bb4b87a1f68f4cf5ce6bd, type: 3}

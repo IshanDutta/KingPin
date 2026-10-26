@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 51571c1f97b983e458ea5905b67d4995
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/Stealth System/Scripts/Sensors/VisionMeshCreator.cs
+  uploadId: 996758

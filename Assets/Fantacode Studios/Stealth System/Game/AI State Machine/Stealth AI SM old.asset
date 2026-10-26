@@ -1,0 +1,1741 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8661206488548679128
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Act To Search
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 4770453492640482262}
+  toState: {fileID: 8791095224884029630}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-8657333082856611386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Ranged Combat
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 47.241783, y: 171.46808}
+  name: Combat
+  childStateMachineAsset: {fileID: -3012095283312435441}
+  behavior: {fileID: 0}
+--- !u!114 &-8559878210722468519
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b032b9dbb9b9e4393056cbf32154df, type: 3}
+  m_Name: Move
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 86.9329, y: 117.073524}
+  name: Move
+  takeTargetPosFromBlackboard: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  blackboardKey:
+    id: 5346be31-7be1-46b4-801e-d8ddf5b568f9
+    name: SearchPosition
+    type: 5
+    description: 
+  stoppingDistance: 1
+  moveSpeed: 2
+  faceTargetPosition: 0
+--- !u!114 &-8406330093888664221
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Act To Wait (5s)
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 6331631840978431731}
+  toState: {fileID: 3300880820062412601}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-7759398325003958351
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263c4e0d13f44bf49a039e3031f052e7, type: 3}
+  m_Name: BlackboardTriggerConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 65f8b026-562a-4aee-92dc-247ad39a5fe0
+    name: TriggerAuthoredBehavior
+    type: 1
+    description: 
+--- !u!114 &-7671082199465381377
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 8416c01c-e055-4a83-bd5b-d79a0d77f1ae
+    name: IsAlertedInvestigation
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &-6874296943406310550
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4f875e8d89e9f448358fd0b8028ae7, type: 3}
+  m_Name: BlackboardIsSetConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b3c04d1e-d382-427a-a45d-09a8d3797d61
+    name: PatrolWaypoints
+    type: 6
+    description: 
+  expectedIsSet: 1
+--- !u!114 &-6666078024988461977
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Override Locomotion To Move Fast
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -4744236681538018200}
+  toState: {fileID: -2655132277835511361}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -839569781301273872}
+--- !u!114 &-6580020526808710436
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Wait (5s) To FindSearchPoint
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -6200101731452983999}
+  toState: {fileID: -6566862540231040882}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-6566862540231040882
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d6d818082f4e2f428bcc353a2ba5c2a, type: 3}
+  m_Name: FindSearchPoint
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -185.48093, y: 118.79762}
+  name: FindSearchPoint
+  searchRadius: 10
+--- !u!114 &-6200101731452983999
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd0c3d9d7cee1a459090ba0d4ff6d83, type: 3}
+  m_Name: Wait (5s)
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -182.3724, y: 257.67596}
+  waitForever: 0
+  duration: 5
+--- !u!114 &-5992445075548635051
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e8414d9ea81b3e428a182e37775d761, type: 3}
+  m_Name: Turn To Face
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -451.5285, y: 128.82864}
+  displayName: Turn To Face
+  positionKey:
+    id: 6ecf6ebc-10bb-4aa0-a088-7c0d3e0dcf9e
+    name: InvestigatePosition
+    type: 5
+    description: 
+  angleTolerance: 25
+  triggerThreshold: 0
+--- !u!114 &-5364929511510700748
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Authored Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5187312411827881416}
+  toState: {fileID: -146435364516979085}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 1267961698457117387}
+  - {fileID: -4586835750448796420}
+--- !u!114 &-5320471341106896972
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Investigate To Ambient Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7896078572048115292}
+  toState: {fileID: 7071209954977812539}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -2541501985163237841}
+--- !u!114 &-5220984549406231605
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Test StateMachine 1
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -6566862540231040882}
+  - {fileID: -8559878210722468519}
+  - {fileID: 7106086922354044501}
+  - {fileID: -6200101731452983999}
+  initialStateIndex: 0
+  transitions:
+  - {fileID: -3656410441630890345}
+  - {fileID: -352649284107468472}
+  - {fileID: -3298631220769668582}
+  - {fileID: -6580020526808710436}
+  anyStateTransitions: []
+  anyStateAsset: {fileID: 4043797970466282407}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: -3656410441630890345}
+  - Transitions:
+    - {fileID: -352649284107468472}
+  - Transitions:
+    - {fileID: -3298631220769668582}
+  - Transitions:
+    - {fileID: -6580020526808710436}
+--- !u!114 &-5187312411827881416
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Authored Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 108.70925, y: 112.25048}
+  name: Authored Behavior
+  childStateMachineAsset: {fileID: 3753254868307369403}
+  behavior: {fileID: 0}
+--- !u!114 &-4817451920524515569
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: c32651d4-d631-407a-b23a-8acd3bd31aba
+    name: Investigate
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-4775324591526075388
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd1c4a697de08a4ea23d9a06c0fb440, type: 3}
+  m_Name: Dead
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -0.4502395, y: -97.69309}
+--- !u!114 &-4744236681538018200
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47bb5e5fb46706b4db1adf959626718a, type: 3}
+  m_Name: Override Locomotion
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -238.45363, y: 177.63257}
+  name: Override Locomotion
+  idleClipKey:
+    id: 
+    name: NormalLookAround
+    type: 9
+    description: 
+  walkClipKey:
+    id: 
+    name: NormalLookAround
+    type: 9
+    description: 
+  runClipKey:
+    id: 
+    name: NormalLookAround
+    type: 9
+    description: 
+  transitionDuration: 0.25
+  disableTurningAnimations: 1
+--- !u!114 &-4586835750448796420
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 9eca3643-710b-4ef6-91f7-f6cb23316f5a
+    name: CanInterruptBehavior
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-3704948116000878464
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 76d48b09-8273-4b07-ae76-0c21ac92fe1c
+    name: Chase
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-3656410441630890345
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: FindSearchPoint To Move
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -6566862540231040882}
+  toState: {fileID: -8559878210722468519}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-3578119362132263229
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Override Locomotion To Search
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -4744236681538018200}
+  toState: {fileID: 8791095224884029630}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 3379158414708651603}
+--- !u!114 &-3298631220769668582
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Act To Wait (5s)
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7106086922354044501}
+  toState: {fileID: -6200101731452983999}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-3042717989373409951
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &-3024083035136211144
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Turn To Face To Override Locomotion
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5992445075548635051}
+  toState: {fileID: -4744236681538018200}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 9049684737246716946}
+--- !u!114 &-3012095283312435441
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 1725968200180847115}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: 542361494320587124}
+  stateTransitionCollections: []
+--- !u!114 &-2816341167893807270
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Move To Act
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 2691757006422761746}
+  toState: {fileID: 6331631840978431731}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-2655132277835511361
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b032b9dbb9b9e4393056cbf32154df, type: 3}
+  m_Name: Move
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -106.82373, y: 255.6817}
+  name: Move Fast
+  takeTargetPosFromBlackboard: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  blackboardKey:
+    id: 6ecf6ebc-10bb-4aa0-a088-7c0d3e0dcf9e
+    name: InvestigatePosition
+    type: 5
+    description: 
+  stoppingDistance: 1
+  moveSpeed: 4
+  faceTargetPosition: 0
+--- !u!114 &-2541501985163237841
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: c32651d4-d631-407a-b23a-8acd3bd31aba
+    name: Investigate
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &-1724218021535450086
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Dead
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -504509316243692602}
+  toState: {fileID: -4775324591526075388}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 2651794982556613934}
+--- !u!114 &-1215580417981187825
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Move Fast To Act
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -2655132277835511361}
+  toState: {fileID: 4770453492640482262}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-1091363753898701831
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Ambient Behavior To Investigate
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7071209954977812539}
+  toState: {fileID: 7896078572048115292}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -4817451920524515569}
+--- !u!114 &-1062171287059533383
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Idle To Patrol
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7940648379229502267}
+  toState: {fileID: 4873597974522349690}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -6874296943406310550}
+--- !u!114 &-839569781301273872
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 6438eab6-ac3c-4f0c-9c4b-9fcd3a518033
+    name: MoveToInvestigatePos
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-504509316243692602
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &-364194853213381781
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -83.52679, y: -62.232143}
+--- !u!114 &-352649284107468472
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Move To Act
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8559878210722468519}
+  toState: {fileID: 7106086922354044501}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-146435364516979085
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Default Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -133.96559, y: 115.43101}
+  name: Default Behavior
+  childStateMachineAsset: {fileID: 506798691927523535}
+  behavior: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Stealth AI SM old
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -146435364516979085}
+  - {fileID: -5187312411827881416}
+  - {fileID: -4775324591526075388}
+  initialStateIndex: 0
+  transitions:
+  - {fileID: 5970931548596011211}
+  - {fileID: 7736059620742548225}
+  - {fileID: -5364929511510700748}
+  anyStateTransitions:
+  - {fileID: -1724218021535450086}
+  anyStateAsset: {fileID: -504509316243692602}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 5970931548596011211}
+  - Transitions:
+    - {fileID: 7736059620742548225}
+    - {fileID: -5364929511510700748}
+  - Transitions:
+    - {fileID: -1724218021535450086}
+--- !u!114 &506798691927523535
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -8657333082856611386}
+  - {fileID: 7071209954977812539}
+  - {fileID: 7896078572048115292}
+  initialStateIndex: 1
+  transitions:
+  - {fileID: -5320471341106896972}
+  - {fileID: -1091363753898701831}
+  - {fileID: 7761682250194560626}
+  - {fileID: 3616527560729442480}
+  anyStateTransitions:
+  - {fileID: 8856270701622883953}
+  anyStateAsset: {fileID: 604703726499536659}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: -5320471341106896972}
+    - {fileID: 7761682250194560626}
+  - Transitions:
+    - {fileID: -1091363753898701831}
+  - Transitions:
+    - {fileID: 3616527560729442480}
+  - Transitions:
+    - {fileID: 8856270701622883953}
+--- !u!114 &542361494320587124
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -196, y: -108}
+--- !u!114 &604703726499536659
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 48.695396, y: 23.829344}
+--- !u!114 &903793001345859813
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Turn To Face
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 9194590664109458441}
+  toState: {fileID: -5992445075548635051}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 7115926051239011031}
+--- !u!114 &1267961698457117387
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b9084140-d503-44c5-80ea-8f7a37cdcd53
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &1725968200180847115
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b032b9dbb9b9e4393056cbf32154df, type: 3}
+  m_Name: Move
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -327.83856, y: -22.981695}
+  name: Chase
+  takeTargetPosFromBlackboard: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  blackboardKey:
+    id: 
+    name: TargetPosition
+    type: 5
+    description: 
+  stoppingDistance: 1
+  moveSpeed: 4
+  faceTargetPosition: 0
+--- !u!114 &2024224336089845108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &2418940216405686123
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Chase To Idle
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 2559929200979770596}
+  toState: {fileID: 7940648379229502267}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 8413004653274225590}
+--- !u!114 &2559929200979770596
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2544bca3f8b58c3429ac2fe237071cdf, type: 3}
+  m_Name: Chase
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -36.44932, y: 240.97678}
+  _name: Chase
+  keepDistance: 3
+  runDistance: 6
+  faceTarget: 1
+  targetKey:
+    id: 94c79759-3c08-4ad4-b001-13aad699c821
+    name: ChaseTarget
+    type: 6
+    description: 
+--- !u!114 &2651794982556613934
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b3fef841-3f3f-4ea8-bc27-476bd1ee0356
+    name: IsDead
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &2691757006422761746
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b032b9dbb9b9e4393056cbf32154df, type: 3}
+  m_Name: Move
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -226.66882, y: 49.943886}
+  name: Move
+  takeTargetPosFromBlackboard: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  blackboardKey:
+    id: 6ecf6ebc-10bb-4aa0-a088-7c0d3e0dcf9e
+    name: InvestigatePosition
+    type: 5
+    description: 
+  stoppingDistance: 1
+  moveSpeed: 2
+  faceTargetPosition: 0
+--- !u!114 &3300880820062412601
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd0c3d9d7cee1a459090ba0d4ff6d83, type: 3}
+  m_Name: Wait (5s)
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 281.755, y: 51.690147}
+  waitForever: 1
+  duration: 5
+--- !u!114 &3379158414708651603
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 6438eab6-ac3c-4f0c-9c4b-9fcd3a518033
+    name: MoveToInvestigatePos
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &3616527560729442480
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Combat To Ambient Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8657333082856611386}
+  toState: {fileID: 7071209954977812539}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 8956602876497162959}
+--- !u!114 &3753254868307369403
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 8890442166489421883}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -364194853213381781}
+  stateTransitionCollections: []
+--- !u!114 &4043797970466282407
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &4421780691345226863
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Test StateMachine 1
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 2691757006422761746}
+  - {fileID: 6331631840978431731}
+  - {fileID: 8791095224884029630}
+  - {fileID: -2655132277835511361}
+  - {fileID: -5992445075548635051}
+  - {fileID: 4770453492640482262}
+  - {fileID: 3300880820062412601}
+  - {fileID: -4744236681538018200}
+  initialStateIndex: 4
+  transitions:
+  - {fileID: -2816341167893807270}
+  - {fileID: 4903487986660788811}
+  - {fileID: -1215580417981187825}
+  - {fileID: -8406330093888664221}
+  - {fileID: -8661206488548679128}
+  - {fileID: -3024083035136211144}
+  - {fileID: -3578119362132263229}
+  - {fileID: -6666078024988461977}
+  anyStateTransitions:
+  - {fileID: 903793001345859813}
+  anyStateAsset: {fileID: 9194590664109458441}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: -2816341167893807270}
+  - Transitions:
+    - {fileID: 4903487986660788811}
+  - Transitions:
+    - {fileID: -1215580417981187825}
+  - Transitions:
+    - {fileID: -8406330093888664221}
+  - Transitions:
+    - {fileID: -8661206488548679128}
+  - Transitions:
+    - {fileID: -3024083035136211144}
+  - Transitions:
+    - {fileID: -3578119362132263229}
+  - Transitions:
+    - {fileID: -6666078024988461977}
+  - Transitions:
+    - {fileID: 903793001345859813}
+--- !u!114 &4770453492640482262
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd2c6bd83cf19046ac58f351067c478, type: 3}
+  m_Name: Act
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 104.56875, y: 256.06662}
+  name: Act
+  actionClip:
+    clip: {fileID: -8559118331507692685, guid: 3f2fbbc6f8f54614aacb3b2e7ed0930f, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  dialogueBarkSet: {fileID: 0}
+  waitForDialogue: 1
+  takeActionClipFromBlackboard: 1
+  actionClipBlackboardKey:
+    id: f4006eb7-c1a3-4726-815c-0c41697259b2
+    name: AlertedLookAround
+    type: 9
+    description: 
+--- !u!114 &4873597974522349690
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3aa9e4ab7799a74789551270a647dee, type: 3}
+  m_Name: Patrol
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 115.36786, y: 132.36145}
+  _name: Patrol
+  waypointsKey:
+    id: b3c04d1e-d382-427a-a45d-09a8d3797d61
+    name: PatrolWaypoints
+    type: 6
+    description: 
+  takeMoveSpeedFromBlackboard: 0
+  moveSpeed: 2
+  moveSpeedKey:
+    id: 
+    name: 
+    type: 0
+    description: 
+  arrivalThreshold: 0.5
+  loop: 1
+--- !u!114 &4903487986660788811
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Turn To Face To Move
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5992445075548635051}
+  toState: {fileID: 2691757006422761746}
+  transitionOnComplete: 1
+  conditions:
+  - {fileID: -7671082199465381377}
+--- !u!114 &5970931548596011211
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Default Behavior To Authored Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -146435364516979085}
+  toState: {fileID: -5187312411827881416}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -7759398325003958351}
+--- !u!114 &6331631840978431731
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd2c6bd83cf19046ac58f351067c478, type: 3}
+  m_Name: Act
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 23.290987, y: 50.108074}
+  name: Act
+  actionClip:
+    clip: {fileID: -8559118331507692685, guid: 3f2fbbc6f8f54614aacb3b2e7ed0930f, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  dialogueBarkSet: {fileID: 0}
+  waitForDialogue: 1
+  takeActionClipFromBlackboard: 1
+  actionClipBlackboardKey:
+    id: 
+    name: NormalLookAround
+    type: 9
+    description: 
+--- !u!114 &7071209954977812539
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Sub-State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -157.58899, y: 24.807764}
+  name: Ambient Behavior
+  childStateMachineAsset: {fileID: 8977759185171434104}
+  behavior: {fileID: 0}
+--- !u!114 &7106086922354044501
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd2c6bd83cf19046ac58f351067c478, type: 3}
+  m_Name: Act
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 86.065155, y: 256.96686}
+  name: Act
+  actionClip:
+    clip: {fileID: -1880569108107322972, guid: 37a9daa1a3eff764e91de3c70c09cd85, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  dialogueBarkSet: {fileID: 0}
+  waitForDialogue: 1
+  takeActionClipFromBlackboard: 1
+  actionClipBlackboardKey:
+    id: f4006eb7-c1a3-4726-815c-0c41697259b2
+    name: AlertedLookAround
+    type: 9
+    description: 
+--- !u!114 &7115926051239011031
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263c4e0d13f44bf49a039e3031f052e7, type: 3}
+  m_Name: BlackboardTriggerConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 7bd5631e-07c0-4aa5-a8f1-8b33df836154
+    name: RestartInvestigation
+    type: 1
+    description: 
+--- !u!114 &7736059620742548225
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Authored Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5187312411827881416}
+  toState: {fileID: -146435364516979085}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &7761682250194560626
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Investigate To Ambient Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7896078572048115292}
+  toState: {fileID: 7071209954977812539}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &7896078572048115292
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Investigate
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -405.2875, y: 156.65585}
+  name: Investigate
+  childStateMachineAsset: {fileID: 4421780691345226863}
+  behavior: {fileID: 0}
+--- !u!114 &7940648379229502267
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a1bffff84ea00b4fa8b45dcf82a3e99, type: 3}
+  m_Name: Idle
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -137.55174, y: 131.43288}
+  name: Idle
+  returnToInitialPosition: 1
+  returnToInitialFacing: 1
+--- !u!114 &8413004653274225590
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 76d48b09-8273-4b07-ae76-0c21ac92fe1c
+    name: Chase
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &8597917236955729887
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Idle To Chase
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7940648379229502267}
+  toState: {fileID: 2559929200979770596}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -3704948116000878464}
+--- !u!114 &8791095224884029630
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Sub-State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 279.24408, y: 177.84572}
+  name: Search
+  childStateMachineAsset: {fileID: -5220984549406231605}
+  behavior: {fileID: 0}
+--- !u!114 &8856270701622883953
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Combat
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 604703726499536659}
+  toState: {fileID: -8657333082856611386}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 2024224336089845108}
+--- !u!114 &8890442166489421883
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3aa9e4ab7799a74789551270a647dee, type: 3}
+  m_Name: Patrol
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -77.81639, y: 45.97988}
+  _name: Patrol
+  waypointsKey:
+    id: 
+    name: AuthoredWaypoints
+    type: 6
+    description: 
+  takeMoveSpeedFromBlackboard: 0
+  moveSpeed: 2
+  moveSpeedKey:
+    id: 
+    name: 
+    type: 0
+    description: 
+  arrivalThreshold: 0.5
+  loop: 1
+--- !u!114 &8956602876497162959
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &8977759185171434104
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Test StateMachine 1
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 7940648379229502267}
+  - {fileID: 4873597974522349690}
+  - {fileID: 2559929200979770596}
+  initialStateIndex: 0
+  transitions:
+  - {fileID: -1062171287059533383}
+  - {fileID: 8597917236955729887}
+  - {fileID: 2418940216405686123}
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -3042717989373409951}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: -1062171287059533383}
+  - Transitions:
+    - {fileID: 8597917236955729887}
+  - Transitions:
+    - {fileID: 2418940216405686123}
+--- !u!114 &9049684737246716946
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 8416c01c-e055-4a83-bd5b-d79a0d77f1ae
+    name: IsAlertedInvestigation
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &9194590664109458441
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -286.20694, y: -81.034485}

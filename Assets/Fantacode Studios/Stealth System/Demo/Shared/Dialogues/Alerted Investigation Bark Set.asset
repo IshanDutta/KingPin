@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64d5672b773dbe84e8ce3ac6e4bf66e9, type: 3}
+  m_Name: Alerted Investigation Bark Set
+  m_EditorClassIdentifier: 
+  barks:
+  - tags:
+    - ongoing
+    audioClips:
+    - clip: {fileID: 8300000, guid: 7c2a53112262a4b49904d8a66abcf2d9, type: 3}
+    - clip: {fileID: 8300000, guid: 9862b059812cf4e97be2aa6033f78868, type: 3}
+    - clip: {fileID: 8300000, guid: 91ab1600a65a342b0bfbd885ae192124, type: 3}
+    - clip: {fileID: 8300000, guid: e3db7f1eb1da1459698ebf27f409a2fa, type: 3}
+  - tags:
+    - sound
+    - gunshot
+    - initial
+    audioClips:
+    - clip: {fileID: 8300000, guid: 025adc359df7b457fa5d71d9c8a6d946, type: 3}
+    - clip: {fileID: 8300000, guid: 5270e1bcb74d140d2a56726f3e642d76, type: 3}
+  - tags:
+    - visual
+    - initial
+    audioClips:
+    - clip: {fileID: 8300000, guid: 968a54c6a570b4e71941c17542f38a9b, type: 3}
+    - clip: {fileID: 8300000, guid: db619cdf3af914bb5aefc1b7a1734d85, type: 3}
+  - tags:
+    - deadbody
+    - arrived
+    audioClips:
+    - clip: {fileID: 8300000, guid: 603f3b80d3a354a438a545d3f3385c2f, type: 3}
+    - clip: {fileID: 8300000, guid: d63015602172746ca9cc1c319c796704, type: 3}
+    - clip: {fileID: 8300000, guid: 35686a646347c4f29ba43b8fcb44d6fa, type: 3}
+    - clip: {fileID: 8300000, guid: e9f39e174b3f545d1ad12af00ccd6684, type: 3}
+  - tags:
+    - sound
+    - ended
+    audioClips:
+    - clip: {fileID: 8300000, guid: 2045bac3339ea4c82b834cf77f6a65ce, type: 3}
+    - clip: {fileID: 8300000, guid: 82e8b685409f044ec91654f5245b6611, type: 3}
+  - tags:
+    - ended
+    audioClips:
+    - clip: {fileID: 8300000, guid: 2045bac3339ea4c82b834cf77f6a65ce, type: 3}
+    - clip: {fileID: 8300000, guid: 82e8b685409f044ec91654f5245b6611, type: 3}

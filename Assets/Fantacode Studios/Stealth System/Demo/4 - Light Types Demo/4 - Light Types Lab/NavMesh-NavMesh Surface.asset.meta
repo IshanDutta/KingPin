@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e97143a16c5c74cd1868a69f60c211b8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/Stealth System/Demo/4 - Light Types Demo/4
+    - Light Types Lab/NavMesh-NavMesh Surface.asset
+  uploadId: 996758

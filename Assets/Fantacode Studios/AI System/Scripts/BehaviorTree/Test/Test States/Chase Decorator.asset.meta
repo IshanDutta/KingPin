@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e0a1f252a4c477b46b5e0bdde7c88de7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/AI System/Scripts/BehaviorTree/Test/Test States/Chase
+    Decorator.asset
+  uploadId: 996758

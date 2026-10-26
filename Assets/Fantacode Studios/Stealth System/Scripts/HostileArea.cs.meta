@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5cb11c7086baa2d4cb49fa3d8f199d22
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407220
+  packageName: FS Stealth System 2
+  packageVersion: 2
+  assetPath: Assets/Fantacode Studios/Stealth System/Scripts/HostileArea.cs
+  uploadId: 996758
