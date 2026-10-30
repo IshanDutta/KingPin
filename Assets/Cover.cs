@@ -30,6 +30,21 @@ public class Cover : MonoBehaviour
     [SerializeField]
     private bool inheritMaterial = true;
 
+    [Header("Fragment Interaction")]
+    [Tooltip(
+        "Put fragments on Ignore Raycast so traversal " +
+        "and vault raycasts do not detect them."
+    )]
+    [SerializeField]
+    private bool preventFragmentVaulting = true;
+
+    [Tooltip(
+        "Keep physical colliders on fragments " +
+        "so they can bounce and tumble."
+    )]
+    [SerializeField]
+    private bool fragmentCollisions = true;
+
     private bool destroyed;
 
     public float CurrentHealth => currentHealth;
@@ -53,9 +68,7 @@ public class Cover : MonoBehaviour
         );
 
         if (currentHealth <= 0f)
-        {
             Fracture();
-        }
     }
 
     private void Fracture()
@@ -76,9 +89,7 @@ public class Cover : MonoBehaviour
         Material material = null;
 
         if (inheritMaterial && originalRenderer != null)
-        {
             material = originalRenderer.sharedMaterial;
-        }
 
         int count = fragmentsPerAxis;
 
@@ -93,7 +104,13 @@ public class Cover : MonoBehaviour
 
         Vector3 explosionCenter = bounds.center;
 
-        // Generate fragments entirely in code.
+        // Immediately remove the original collider
+        // from physics queries.
+        originalCollider.enabled = false;
+
+        // The original Cover is no longer interactable.
+        enabled = false;
+
         for (int x = 0; x < count; x++)
         {
             for (int y = 0; y < count; y++)
@@ -125,6 +142,8 @@ public class Cover : MonoBehaviour
             this
         );
 
+        // Destroy the original GameObject,
+        // including its Cover component.
         Destroy(gameObject);
     }
 
@@ -132,10 +151,8 @@ public class Cover : MonoBehaviour
         Vector3 position,
         Vector3 size,
         Material material,
-        Vector3 explosionCenter
-    )
+        Vector3 explosionCenter)
     {
-        // Create a new cube fragment.
         GameObject fragment =
             GameObject.CreatePrimitive(
                 PrimitiveType.Cube
@@ -143,19 +160,26 @@ public class Cover : MonoBehaviour
 
         fragment.name = "Cover_Fragment";
 
+        // Layer 2 is Unity's Ignore Raycast layer.
+        // Set before adding physics components.
+        if (preventFragmentVaulting)
+            fragment.layer = 2;
+
         fragment.transform.position = position;
         fragment.transform.localScale = size;
 
-        // Copy original material.
         Renderer fragmentRenderer =
             fragment.GetComponent<Renderer>();
 
         if (material != null)
-        {
             fragmentRenderer.sharedMaterial = material;
-        }
 
-        // Add physics.
+        BoxCollider fragmentCollider =
+            fragment.GetComponent<BoxCollider>();
+
+        if (fragmentCollider != null)
+            fragmentCollider.enabled = fragmentCollisions;
+
         Rigidbody rb =
             fragment.AddComponent<Rigidbody>();
 
@@ -174,7 +198,6 @@ public class Cover : MonoBehaviour
             ForceMode.Impulse
         );
 
-        // Random spin.
         rb.AddTorque(
             Random.insideUnitSphere *
             explosionForce,
@@ -182,11 +205,6 @@ public class Cover : MonoBehaviour
         );
 
         if (fragmentLifetime > 0f)
-        {
-            Destroy(
-                fragment,
-                fragmentLifetime
-            );
-        }
+            Destroy(fragment, fragmentLifetime);
     }
 }

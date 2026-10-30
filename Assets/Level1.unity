@@ -399,6 +399,7 @@ GameObject:
   m_Component:
   - component: {fileID: 41787002}
   - component: {fileID: 41787003}
+  - component: {fileID: 41787004}
   m_Layer: 0
   m_Name: TrashCan_B (2)
   m_TagString: Untagged
@@ -449,6 +450,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &41787004
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41787001}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &42692898 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 687123546943990975, guid: 5c4b34eaf6ac712488c628705779a924, type: 3}
@@ -622,6 +650,7 @@ GameObject:
   - component: {fileID: 75301774}
   - component: {fileID: 75301773}
   - component: {fileID: 75301772}
+  - component: {fileID: 75301776}
   m_Layer: 0
   m_Name: Unbreakable_Wall1
   m_TagString: Untagged
@@ -722,6 +751,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &75301776
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75301771}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &80520023
 GameObject:
   m_ObjectHideFlags: 0
@@ -734,6 +779,7 @@ GameObject:
   - component: {fileID: 80520026}
   - component: {fileID: 80520025}
   - component: {fileID: 80520024}
+  - component: {fileID: 80520028}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (12)
   m_TagString: Untagged
@@ -834,6 +880,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &80520028
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80520023}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &88185738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1207,6 +1269,7 @@ GameObject:
   - component: {fileID: 125813730}
   - component: {fileID: 125813729}
   - component: {fileID: 125813732}
+  - component: {fileID: 125813733}
   m_Layer: 0
   m_Name: Wall_GoalRoom_S
   m_TagString: Untagged
@@ -1327,6 +1390,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &125813733
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 125813727}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &138975615
 GameObject:
   m_ObjectHideFlags: 0
@@ -1430,6 +1511,7 @@ GameObject:
   - component: {fileID: 139790949}
   - component: {fileID: 139790948}
   - component: {fileID: 139790947}
+  - component: {fileID: 139790951}
   m_Layer: 0
   m_Name: Wall_GoalRoom_S (4)
   m_TagString: Untagged
@@ -1472,6 +1554,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &139790948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1550,6 +1634,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 139790945}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &139790951
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139790945}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &173996050
 GameObject:
   m_ObjectHideFlags: 0
@@ -1563,6 +1663,7 @@ GameObject:
   - component: {fileID: 173996054}
   - component: {fileID: 173996053}
   - component: {fileID: 173996052}
+  - component: {fileID: 173996056}
   m_Layer: 0
   m_Name: Wall_StartPocket (1)
   m_TagString: Untagged
@@ -1605,6 +1706,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &173996053
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1683,6 +1786,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 173996050}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &173996056
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173996050}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &176935455
 GameObject:
   m_ObjectHideFlags: 0
@@ -1696,6 +1815,7 @@ GameObject:
   - component: {fileID: 176935459}
   - component: {fileID: 176935458}
   - component: {fileID: 176935457}
+  - component: {fileID: 176935461}
   m_Layer: 0
   m_Name: Crate_Arrival (2)
   m_TagString: Untagged
@@ -1730,7 +1850,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -1738,6 +1858,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &176935458
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1816,6 +1938,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 176935455}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &176935461
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176935455}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &181318982
 GameObject:
   m_ObjectHideFlags: 0
@@ -2252,6 +2390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 220940778}
   - component: {fileID: 220940779}
+  - component: {fileID: 220940780}
   m_Layer: 0
   m_Name: TrashCan_A
   m_TagString: Untagged
@@ -2302,6 +2441,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &220940780
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 220940777}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &222151922
 GameObject:
   m_ObjectHideFlags: 0
@@ -2312,6 +2478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 222151923}
   - component: {fileID: 222151924}
+  - component: {fileID: 222151925}
   m_Layer: 0
   m_Name: TrashCan_A (4)
   m_TagString: Untagged
@@ -2362,6 +2529,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &222151925
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222151922}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &229394554
 GameObject:
   m_ObjectHideFlags: 0
@@ -2465,6 +2659,7 @@ GameObject:
   - component: {fileID: 248307917}
   - component: {fileID: 248307916}
   - component: {fileID: 248307919}
+  - component: {fileID: 248307920}
   m_Layer: 0
   m_Name: Crate_Mid_B
   m_TagString: Untagged
@@ -2577,7 +2772,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -2585,6 +2780,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &248307920
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248307914}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &263433608
 GameObject:
   m_ObjectHideFlags: 0
@@ -2905,6 +3118,7 @@ GameObject:
   - component: {fileID: 308487228}
   - component: {fileID: 308487227}
   - component: {fileID: 308487231}
+  - component: {fileID: 308487232}
   m_Layer: 0
   m_Name: Wall_Corridor_East
   m_TagString: Untagged
@@ -3025,6 +3239,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &308487232
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308487225}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &323853156
 GameObject:
   m_ObjectHideFlags: 0
@@ -3035,6 +3267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 323853157}
   - component: {fileID: 323853158}
+  - component: {fileID: 323853159}
   m_Layer: 0
   m_Name: TrashCan_A (1)
   m_TagString: Untagged
@@ -3085,6 +3318,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &323853159
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323853156}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &334238040
 GameObject:
   m_ObjectHideFlags: 0
@@ -3098,6 +3358,7 @@ GameObject:
   - component: {fileID: 334238043}
   - component: {fileID: 334238042}
   - component: {fileID: 334238045}
+  - component: {fileID: 334238046}
   m_Layer: 0
   m_Name: Wall_Muster_E
   m_TagString: Untagged
@@ -3218,6 +3479,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &334238046
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334238040}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &348872593
 GameObject:
   m_ObjectHideFlags: 0
@@ -3681,6 +3960,7 @@ GameObject:
   - component: {fileID: 421192372}
   - component: {fileID: 421192371}
   - component: {fileID: 421192374}
+  - component: {fileID: 421192375}
   m_Layer: 0
   m_Name: Wall_GoalRoom_W
   m_TagString: Untagged
@@ -3801,6 +4081,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &421192375
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421192369}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &440628143
 GameObject:
   m_ObjectHideFlags: 0
@@ -3848,7 +4146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -3856,6 +4154,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &440628146
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3944,6 +4244,7 @@ GameObject:
   m_Component:
   - component: {fileID: 456112783}
   - component: {fileID: 456112784}
+  - component: {fileID: 456112785}
   m_Layer: 0
   m_Name: TrashCan_A (2)
   m_TagString: Untagged
@@ -3994,6 +4295,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &456112785
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456112782}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &457400016
 GameObject:
   m_ObjectHideFlags: 0
@@ -4096,6 +4424,7 @@ GameObject:
   - component: {fileID: 497901131}
   - component: {fileID: 497901130}
   - component: {fileID: 497901129}
+  - component: {fileID: 497901133}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (5)
   m_TagString: Untagged
@@ -4196,6 +4525,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -65.06, z: 0}
+--- !u!208 &497901133
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497901128}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &516530724
 GameObject:
   m_ObjectHideFlags: 0
@@ -4692,6 +5037,7 @@ GameObject:
   m_Component:
   - component: {fileID: 539553619}
   - component: {fileID: 539553620}
+  - component: {fileID: 539553621}
   m_Layer: 0
   m_Name: TrashCan_B
   m_TagString: Untagged
@@ -4742,6 +5088,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &539553621
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 539553618}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &551447557
 GameObject:
   m_ObjectHideFlags: 0
@@ -5177,6 +5550,7 @@ GameObject:
   m_Component:
   - component: {fileID: 613714260}
   - component: {fileID: 613714261}
+  - component: {fileID: 613714262}
   m_Layer: 0
   m_Name: TrashCan_C (1)
   m_TagString: Untagged
@@ -5227,6 +5601,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &613714262
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 613714259}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &631072295
 GameObject:
   m_ObjectHideFlags: 0
@@ -5439,6 +5840,7 @@ GameObject:
   m_Component:
   - component: {fileID: 670197955}
   - component: {fileID: 670197956}
+  - component: {fileID: 670197957}
   m_Layer: 0
   m_Name: TrashCan_B (5)
   m_TagString: Untagged
@@ -5489,6 +5891,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &670197957
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 670197954}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &688714227
 GameObject:
   m_ObjectHideFlags: 0
@@ -6098,6 +6527,7 @@ GameObject:
   m_Component:
   - component: {fileID: 755657971}
   - component: {fileID: 755657972}
+  - component: {fileID: 755657973}
   m_Layer: 0
   m_Name: TrashCan_A (3)
   m_TagString: Untagged
@@ -6148,6 +6578,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &755657973
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755657970}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &758082453
 GameObject:
   m_ObjectHideFlags: 0
@@ -6161,6 +6618,7 @@ GameObject:
   - component: {fileID: 758082457}
   - component: {fileID: 758082456}
   - component: {fileID: 758082455}
+  - component: {fileID: 758082459}
   m_Layer: 0
   m_Name: Wall_StartPocket (4)
   m_TagString: Untagged
@@ -6203,6 +6661,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &758082456
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6281,6 +6741,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 758082453}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &758082459
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758082453}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &758246053
 GameObject:
   m_ObjectHideFlags: 0
@@ -6294,6 +6770,7 @@ GameObject:
   - component: {fileID: 758246057}
   - component: {fileID: 758246056}
   - component: {fileID: 758246055}
+  - component: {fileID: 758246059}
   m_Layer: 0
   m_Name: Wall_Corridor_East (2)
   m_TagString: Untagged
@@ -6336,6 +6813,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &758246056
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6414,6 +6893,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 758246053}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &758246059
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758246053}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &812412772
 GameObject:
   m_ObjectHideFlags: 0
@@ -6517,6 +7012,7 @@ GameObject:
   - component: {fileID: 832367681}
   - component: {fileID: 832367680}
   - component: {fileID: 832367679}
+  - component: {fileID: 832367683}
   m_Layer: 0
   m_Name: Crate_Muster (3)
   m_TagString: Untagged
@@ -6551,7 +7047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 100
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -6559,6 +7055,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &832367680
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6637,6 +7135,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 832367677}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &832367683
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832367677}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &832979730
 GameObject:
   m_ObjectHideFlags: 0
@@ -6957,6 +7471,7 @@ GameObject:
   - component: {fileID: 868936304}
   - component: {fileID: 868936303}
   - component: {fileID: 868936302}
+  - component: {fileID: 868936306}
   m_Layer: 0
   m_Name: Wall_GoalRoom_W (1)
   m_TagString: Untagged
@@ -6999,6 +7514,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &868936303
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7077,6 +7594,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 868936300}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &868936306
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868936300}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &878477173
 GameObject:
   m_ObjectHideFlags: 0
@@ -7087,6 +7620,7 @@ GameObject:
   m_Component:
   - component: {fileID: 878477174}
   - component: {fileID: 878477175}
+  - component: {fileID: 878477176}
   m_Layer: 0
   m_Name: TrashCan_B (4)
   m_TagString: Untagged
@@ -7137,6 +7671,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &878477176
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878477173}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &885750937
 GameObject:
   m_ObjectHideFlags: 0
@@ -7147,6 +7708,7 @@ GameObject:
   m_Component:
   - component: {fileID: 885750938}
   - component: {fileID: 885750939}
+  - component: {fileID: 885750940}
   m_Layer: 0
   m_Name: TrashCan_C (5)
   m_TagString: Untagged
@@ -7197,6 +7759,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &885750940
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885750937}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &889002135
 GameObject:
   m_ObjectHideFlags: 0
@@ -7210,6 +7799,7 @@ GameObject:
   - component: {fileID: 889002139}
   - component: {fileID: 889002138}
   - component: {fileID: 889002137}
+  - component: {fileID: 889002141}
   m_Layer: 0
   m_Name: Wall_GoalRoom_S (2)
   m_TagString: Untagged
@@ -7252,6 +7842,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &889002138
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7330,6 +7922,51 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889002135}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &889002141
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889002135}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
+--- !u!1 &896568825 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2252111698189781708, guid: 5c4b34eaf6ac712488c628705779a924, type: 3}
+  m_PrefabInstance: {fileID: 5975755690045294639}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &896568827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896568825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6874fcb01a12c2349b8455dde7e2c378, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  forwardRoll: RollForward
+  backwardRoll: RollBackward
+  leftRoll: RollLeft
+  rightRoll: RollRight
+  dodgeKey: 114
+  requireGrounded: 1
+  dodgeCooldown: 0.25
+  transitionDuration: 0.08
+  maximumRollDuration: 2
+  useRootMovement: 1
+  useRootRotation: 0
+  debugLogs: 1
 --- !u!1 &898832992
 GameObject:
   m_ObjectHideFlags: 0
@@ -7343,6 +7980,7 @@ GameObject:
   - component: {fileID: 898832995}
   - component: {fileID: 898832994}
   - component: {fileID: 898832997}
+  - component: {fileID: 898832998}
   m_Layer: 0
   m_Name: Wall_StartPocket
   m_TagString: Untagged
@@ -7463,6 +8101,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &898832998
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898832992}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &908901557
 GameObject:
   m_ObjectHideFlags: 0
@@ -7566,6 +8222,7 @@ GameObject:
   - component: {fileID: 936821739}
   - component: {fileID: 936821738}
   - component: {fileID: 936821741}
+  - component: {fileID: 936821742}
   m_Layer: 0
   m_Name: Crate_Distraction
   m_TagString: Untagged
@@ -7678,7 +8335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -7686,6 +8343,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &936821742
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936821736}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &938607752
 GameObject:
   m_ObjectHideFlags: 0
@@ -7699,6 +8374,7 @@ GameObject:
   - component: {fileID: 938607756}
   - component: {fileID: 938607755}
   - component: {fileID: 938607754}
+  - component: {fileID: 938607758}
   m_Layer: 0
   m_Name: Wall_GoalRoom_W (2)
   m_TagString: Untagged
@@ -7741,6 +8417,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &938607755
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7819,6 +8497,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938607752}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &938607758
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938607752}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &939906688
 GameObject:
   m_ObjectHideFlags: 0
@@ -7832,6 +8526,7 @@ GameObject:
   - component: {fileID: 939906692}
   - component: {fileID: 939906691}
   - component: {fileID: 939906690}
+  - component: {fileID: 939906694}
   m_Layer: 0
   m_Name: LowCover_A (2)
   m_TagString: Untagged
@@ -7866,7 +8561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -7874,6 +8569,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &939906691
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7952,6 +8649,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 939906688}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &939906694
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939906688}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &949259279
 GameObject:
   m_ObjectHideFlags: 0
@@ -8264,6 +8977,7 @@ GameObject:
   - component: {fileID: 975568890}
   - component: {fileID: 975568889}
   - component: {fileID: 975568892}
+  - component: {fileID: 975568893}
   m_Layer: 0
   m_Name: LowCover_A
   m_TagString: Untagged
@@ -8376,7 +9090,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -8384,6 +9098,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &975568893
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975568887}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &982983406
 GameObject:
   m_ObjectHideFlags: 0
@@ -8688,6 +9420,7 @@ GameObject:
   - component: {fileID: 1012154334}
   - component: {fileID: 1012154333}
   - component: {fileID: 1012154332}
+  - component: {fileID: 1012154336}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (7)
   m_TagString: Untagged
@@ -8788,6 +9521,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -7.46, z: 0}
+--- !u!208 &1012154336
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012154331}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1027944600
 GameObject:
   m_ObjectHideFlags: 0
@@ -8832,6 +9581,7 @@ GameObject:
   - component: {fileID: 1045818631}
   - component: {fileID: 1045818630}
   - component: {fileID: 1045818629}
+  - component: {fileID: 1045818633}
   m_Layer: 0
   m_Name: Wall_Muster_E (2)
   m_TagString: Untagged
@@ -8874,6 +9624,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1045818630
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8952,6 +9704,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1045818627}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1045818633
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045818627}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1066547444
 GameObject:
   m_ObjectHideFlags: 0
@@ -9055,6 +9823,7 @@ GameObject:
   - component: {fileID: 1079465136}
   - component: {fileID: 1079465135}
   - component: {fileID: 1079465134}
+  - component: {fileID: 1079465138}
   m_Layer: 0
   m_Name: Crate_Muster (1)
   m_TagString: Untagged
@@ -9089,7 +9858,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 100
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -9097,6 +9866,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1079465135
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9175,6 +9946,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079465132}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1079465138
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079465132}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1083027681
 GameObject:
   m_ObjectHideFlags: 0
@@ -9413,6 +10200,7 @@ GameObject:
   - component: {fileID: 1127055666}
   - component: {fileID: 1127055665}
   - component: {fileID: 1127055664}
+  - component: {fileID: 1127055668}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (11)
   m_TagString: Untagged
@@ -9513,6 +10301,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -91.358, z: 0}
+--- !u!208 &1127055668
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127055663}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1139194639
 GameObject:
   m_ObjectHideFlags: 0
@@ -9886,6 +10690,7 @@ GameObject:
   - component: {fileID: 1167872048}
   - component: {fileID: 1167872047}
   - component: {fileID: 1167872046}
+  - component: {fileID: 1167872050}
   m_Layer: 0
   m_Name: Wall_GoalRoom_W (3)
   m_TagString: Untagged
@@ -9928,6 +10733,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1167872047
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10006,6 +10813,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167872044}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1167872050
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167872044}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1171988259
 GameObject:
   m_ObjectHideFlags: 0
@@ -10053,6 +10876,7 @@ GameObject:
   - component: {fileID: 1180665797}
   - component: {fileID: 1180665796}
   - component: {fileID: 1180665795}
+  - component: {fileID: 1180665799}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (9)
   m_TagString: Untagged
@@ -10153,6 +10977,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -90.511, z: 0}
+--- !u!208 &1180665799
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180665794}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1212222845
 GameObject:
   m_ObjectHideFlags: 0
@@ -10346,6 +11186,7 @@ GameObject:
   - component: {fileID: 1230138842}
   - component: {fileID: 1230138841}
   - component: {fileID: 1230138840}
+  - component: {fileID: 1230138844}
   m_Layer: 0
   m_Name: Wall_StartPocket (3)
   m_TagString: Untagged
@@ -10388,6 +11229,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1230138841
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10466,6 +11309,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1230138838}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1230138844
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230138838}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1252293895
 GameObject:
   m_ObjectHideFlags: 0
@@ -10569,6 +11428,7 @@ GameObject:
   - component: {fileID: 1270959841}
   - component: {fileID: 1270959840}
   - component: {fileID: 1270959843}
+  - component: {fileID: 1270959844}
   m_Layer: 0
   m_Name: Wall_Entrance_E
   m_TagString: Untagged
@@ -10689,6 +11549,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &1270959844
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1270959838}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1283564684
 GameObject:
   m_ObjectHideFlags: 0
@@ -11062,6 +11940,7 @@ GameObject:
   - component: {fileID: 1324734421}
   - component: {fileID: 1324734420}
   - component: {fileID: 1324734419}
+  - component: {fileID: 1324734423}
   m_Layer: 0
   m_Name: Crate_Muster (2)
   m_TagString: Untagged
@@ -11096,7 +11975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 100
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -11104,6 +11983,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1324734420
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11182,6 +12063,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1324734417}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1324734423
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324734417}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1336805799
 GameObject:
   m_ObjectHideFlags: 0
@@ -11340,6 +12237,7 @@ GameObject:
   - component: {fileID: 1338364621}
   - component: {fileID: 1338364620}
   - component: {fileID: 1338364619}
+  - component: {fileID: 1338364623}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (6)
   m_TagString: Untagged
@@ -11440,6 +12338,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -7.46, z: 0}
+--- !u!208 &1338364623
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338364618}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1340719779
 GameObject:
   m_ObjectHideFlags: 0
@@ -11452,6 +12366,7 @@ GameObject:
   - component: {fileID: 1340719782}
   - component: {fileID: 1340719781}
   - component: {fileID: 1340719780}
+  - component: {fileID: 1340719784}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (14)
   m_TagString: Untagged
@@ -11552,6 +12467,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -91.874, z: 0}
+--- !u!208 &1340719784
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1340719779}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1352922922
 GameObject:
   m_ObjectHideFlags: 0
@@ -11745,6 +12676,7 @@ GameObject:
   - component: {fileID: 1360206540}
   - component: {fileID: 1360206539}
   - component: {fileID: 1360206542}
+  - component: {fileID: 1360206543}
   m_Layer: 0
   m_Name: Wall_Courtyard_W
   m_TagString: Untagged
@@ -11865,6 +12797,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &1360206543
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360206537}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1371437694
 GameObject:
   m_ObjectHideFlags: 0
@@ -11968,6 +12918,7 @@ GameObject:
   - component: {fileID: 1392938992}
   - component: {fileID: 1392938991}
   - component: {fileID: 1392938994}
+  - component: {fileID: 1392938995}
   m_Layer: 0
   m_Name: LowCover_B
   m_TagString: Untagged
@@ -12080,7 +13031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -12088,6 +13039,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &1392938995
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392938989}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1412465244
 GameObject:
   m_ObjectHideFlags: 0
@@ -12101,6 +13070,7 @@ GameObject:
   - component: {fileID: 1412465248}
   - component: {fileID: 1412465247}
   - component: {fileID: 1412465246}
+  - component: {fileID: 1412465250}
   m_Layer: 0
   m_Name: Wall_GoalRoom_S (1)
   m_TagString: Untagged
@@ -12143,6 +13113,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1412465247
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12221,6 +13193,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412465244}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1412465250
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1412465244}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1437547584
 GameObject:
   m_ObjectHideFlags: 0
@@ -12231,6 +13219,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1437547585}
   - component: {fileID: 1437547586}
+  - component: {fileID: 1437547587}
   m_Layer: 0
   m_Name: TrashCan_A (5)
   m_TagString: Untagged
@@ -12281,6 +13270,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &1437547587
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437547584}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1439746240
 GameObject:
   m_ObjectHideFlags: 0
@@ -12553,6 +13569,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1469631814}
   - component: {fileID: 1469631815}
+  - component: {fileID: 1469631816}
   m_Layer: 0
   m_Name: TrashCan_C
   m_TagString: Untagged
@@ -12603,6 +13620,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &1469631816
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1469631813}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1496200017
 GameObject:
   m_ObjectHideFlags: 0
@@ -12706,6 +13750,7 @@ GameObject:
   - component: {fileID: 1496793982}
   - component: {fileID: 1496793981}
   - component: {fileID: 1496793984}
+  - component: {fileID: 1496793985}
   m_Layer: 0
   m_Name: Crate_Muster
   m_TagString: Untagged
@@ -12818,7 +13863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 100
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -12826,6 +13871,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &1496793985
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1496793979}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1496824703
 GameObject:
   m_ObjectHideFlags: 0
@@ -13019,6 +14082,7 @@ GameObject:
   - component: {fileID: 1505487898}
   - component: {fileID: 1505487897}
   - component: {fileID: 1505487900}
+  - component: {fileID: 1505487901}
   m_Layer: 0
   m_Name: Crate_Mid_A
   m_TagString: Untagged
@@ -13131,7 +14195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -13139,6 +14203,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &1505487901
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505487895}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1513381494
 GameObject:
   m_ObjectHideFlags: 0
@@ -13152,6 +14234,7 @@ GameObject:
   - component: {fileID: 1513381498}
   - component: {fileID: 1513381497}
   - component: {fileID: 1513381496}
+  - component: {fileID: 1513381500}
   m_Layer: 0
   m_Name: Wall_StartPocket (6)
   m_TagString: Untagged
@@ -13194,6 +14277,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1513381497
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13272,6 +14357,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1513381494}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1513381500
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1513381494}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1515076826
 GameObject:
   m_ObjectHideFlags: 0
@@ -13465,6 +14566,7 @@ GameObject:
   - component: {fileID: 1542164659}
   - component: {fileID: 1542164658}
   - component: {fileID: 1542164657}
+  - component: {fileID: 1542164661}
   m_Layer: 0
   m_Name: Wall_StartPocket (7)
   m_TagString: Untagged
@@ -13507,6 +14609,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1542164658
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13585,6 +14689,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1542164655}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1542164661
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542164655}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1566943996
 GameObject:
   m_ObjectHideFlags: 0
@@ -13598,6 +14718,7 @@ GameObject:
   - component: {fileID: 1566944000}
   - component: {fileID: 1566943999}
   - component: {fileID: 1566943998}
+  - component: {fileID: 1566944002}
   m_Layer: 0
   m_Name: Wall_GoalRoom_S (3)
   m_TagString: Untagged
@@ -13640,6 +14761,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1566943999
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13718,6 +14841,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1566943996}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1566944002
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566943996}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1578381294
 GameObject:
   m_ObjectHideFlags: 0
@@ -14102,6 +15241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1707153496}
   - component: {fileID: 1707153497}
+  - component: {fileID: 1707153498}
   m_Layer: 0
   m_Name: TrashCan_C (3)
   m_TagString: Untagged
@@ -14152,6 +15292,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &1707153498
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707153495}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1712910175
 GameObject:
   m_ObjectHideFlags: 0
@@ -14162,6 +15329,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1712910176}
   - component: {fileID: 1712910177}
+  - component: {fileID: 1712910178}
   m_Layer: 0
   m_Name: TrashCan_B (3)
   m_TagString: Untagged
@@ -14212,6 +15380,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &1712910178
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712910175}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1733161234
 GameObject:
   m_ObjectHideFlags: 0
@@ -14222,6 +15417,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1733161235}
   - component: {fileID: 1733161236}
+  - component: {fileID: 1733161237}
   m_Layer: 0
   m_Name: TrashCan_C (2)
   m_TagString: Untagged
@@ -14272,6 +15468,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &1733161237
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733161234}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1734475514
 GameObject:
   m_ObjectHideFlags: 0
@@ -14799,7 +16022,9 @@ MonoBehaviour:
   runState: Run
   attackState: Attack
   detectedState: Detected
+  suspiciousState: Suspicious
   animationBlend: 0.15
+  suspiciousFallbackDuration: 1.5
   movementThreshold: 0.08
   player: {fileID: 973643951}
   visionDistance: 50
@@ -14829,6 +16054,8 @@ MonoBehaviour:
   chaseStoppingDistance: 1.5
   chasePathRefreshInterval: 0.15
   losePlayerAfter: 4
+  postChargeVisionCooldown: 2.5
+  suppressHearingAfterCharge: 1
   searchDuration: 15
   searchRadius: 8
   maximumSearchRadius: 25
@@ -14845,7 +16072,6 @@ MonoBehaviour:
   coverDamage: 25
   coverSearchInterval: 1
   coverPathRefreshInterval: 0.25
-  coverAttackTurnSpeed: 720
   coverAttackRotationOffset: 0
   logEvents: 1
   logMovementChecks: 0
@@ -14953,6 +16179,7 @@ GameObject:
   - component: {fileID: 1761481716}
   - component: {fileID: 1761481715}
   - component: {fileID: 1761481714}
+  - component: {fileID: 1761481718}
   m_Layer: 0
   m_Name: Wall_Muster_E (1)
   m_TagString: Untagged
@@ -14995,6 +16222,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1761481715
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15073,6 +16302,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1761481712}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1761481718
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761481712}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1775518431
 GameObject:
   m_ObjectHideFlags: 0
@@ -15085,6 +16330,7 @@ GameObject:
   - component: {fileID: 1775518434}
   - component: {fileID: 1775518433}
   - component: {fileID: 1775518432}
+  - component: {fileID: 1775518436}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (13)
   m_TagString: Untagged
@@ -15185,6 +16431,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -59.81, z: 0}
+--- !u!208 &1775518436
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1775518431}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1808016788
 GameObject:
   m_ObjectHideFlags: 0
@@ -15288,6 +16550,7 @@ GameObject:
   - component: {fileID: 1816846521}
   - component: {fileID: 1816846520}
   - component: {fileID: 1816846519}
+  - component: {fileID: 1816846523}
   m_Layer: 0
   m_Name: Wall_StartPocket (5)
   m_TagString: Untagged
@@ -15330,6 +16593,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1816846520
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15408,6 +16673,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1816846517}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1816846523
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1816846517}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1817601837
 GameObject:
   m_ObjectHideFlags: 0
@@ -15871,6 +17152,7 @@ GameObject:
   - component: {fileID: 1856803278}
   - component: {fileID: 1856803277}
   - component: {fileID: 1856803276}
+  - component: {fileID: 1856803280}
   m_Layer: 0
   m_Name: Crate_Muster (4)
   m_TagString: Untagged
@@ -15905,7 +17187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 100
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -15913,6 +17195,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &1856803277
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15991,6 +17275,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1856803274}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1856803280
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1856803274}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1859496242
 GameObject:
   m_ObjectHideFlags: 0
@@ -16961,6 +18261,7 @@ GameObject:
   - component: {fileID: 1952645852}
   - component: {fileID: 1952645851}
   - component: {fileID: 1952645850}
+  - component: {fileID: 1952645854}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (10)
   m_TagString: Untagged
@@ -17061,6 +18362,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -0.184, z: 0}
+--- !u!208 &1952645854
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952645849}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1968587989
 GameObject:
   m_ObjectHideFlags: 0
@@ -17104,6 +18421,7 @@ GameObject:
   - component: {fileID: 1973299759}
   - component: {fileID: 1973299758}
   - component: {fileID: 1973299757}
+  - component: {fileID: 1973299761}
   m_Layer: 0
   m_Name: Unbreakable_Wall1 (8)
   m_TagString: Untagged
@@ -17204,6 +18522,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1083027682}
   m_LocalEulerAnglesHint: {x: 0, y: -0.184, z: 0}
+--- !u!208 &1973299761
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973299756}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2009518723
 GameObject:
   m_ObjectHideFlags: 0
@@ -17307,6 +18641,7 @@ GameObject:
   - component: {fileID: 2037579060}
   - component: {fileID: 2037579059}
   - component: {fileID: 2037579062}
+  - component: {fileID: 2037579063}
   m_Layer: 0
   m_Name: Crate_Arrival
   m_TagString: Untagged
@@ -17419,7 +18754,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -17427,6 +18762,24 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
+--- !u!208 &2037579063
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037579057}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2051648504
 GameObject:
   m_ObjectHideFlags: 0
@@ -17440,6 +18793,7 @@ GameObject:
   - component: {fileID: 2051648508}
   - component: {fileID: 2051648507}
   - component: {fileID: 2051648506}
+  - component: {fileID: 2051648510}
   m_Layer: 0
   m_Name: Crate_Arrival (1)
   m_TagString: Untagged
@@ -17474,7 +18828,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e76070b25c7904d9a026e0d3b818b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cover
-  maxHealth: 10000
+  maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
   explosionForce: 5
@@ -17482,6 +18836,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &2051648507
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -17560,6 +18916,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2051648504}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &2051648510
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2051648504}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2054183582
 GameObject:
   m_ObjectHideFlags: 0
@@ -17750,6 +19122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2086579490}
   - component: {fileID: 2086579491}
+  - component: {fileID: 2086579492}
   m_Layer: 0
   m_Name: TrashCan_B (1)
   m_TagString: Untagged
@@ -17800,6 +19173,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &2086579492
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086579489}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &2101589299
 GameObject:
   m_ObjectHideFlags: 0
@@ -17813,6 +19213,7 @@ GameObject:
   - component: {fileID: 2101589303}
   - component: {fileID: 2101589302}
   - component: {fileID: 2101589301}
+  - component: {fileID: 2101589305}
   m_Layer: 0
   m_Name: Wall_Corridor_East (1)
   m_TagString: Untagged
@@ -17855,6 +19256,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &2101589302
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -17933,6 +19336,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2101589299}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &2101589305
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101589299}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2113316602
 GameObject:
   m_ObjectHideFlags: 0
@@ -17946,6 +19365,7 @@ GameObject:
   - component: {fileID: 2113316606}
   - component: {fileID: 2113316605}
   - component: {fileID: 2113316604}
+  - component: {fileID: 2113316608}
   m_Layer: 0
   m_Name: Wall_StartPocket (2)
   m_TagString: Untagged
@@ -17988,6 +19408,8 @@ MonoBehaviour:
   upwardModifier: 0.5
   fragmentLifetime: 10
   inheritMaterial: 1
+  preventFragmentVaulting: 1
+  fragmentCollisions: 1
 --- !u!23 &2113316605
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18066,6 +19488,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2113316602}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &2113316608
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113316602}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2119387597
 GameObject:
   m_ObjectHideFlags: 0
@@ -18076,6 +19514,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2119387598}
   - component: {fileID: 2119387599}
+  - component: {fileID: 2119387600}
   m_Layer: 0
   m_Name: TrashCan_C (4)
   m_TagString: Untagged
@@ -18126,6 +19565,33 @@ CapsuleCollider:
   m_Height: 1.3
   m_Direction: 1
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!54 &2119387600
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119387597}
+  serializedVersion: 5
+  m_Mass: 20
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &2124000562
 GameObject:
   m_ObjectHideFlags: 0
@@ -18468,6 +19934,7 @@ GameObject:
   - component: {fileID: 752160430223573341}
   - component: {fileID: 5638914110146950503}
   - component: {fileID: 1752041448}
+  - component: {fileID: 9168955719751804500}
   m_Layer: 9
   m_Name: Boss
   m_TagString: Untagged
@@ -18870,6 +20337,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2252111698189781708, guid: 5c4b34eaf6ac712488c628705779a924, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 896568827}
     - targetCorrespondingSourceObject: {fileID: 687123546943990975, guid: 5c4b34eaf6ac712488c628705779a924, type: 3}
       insertIndex: -1
       addedObject: {fileID: 42692899}
@@ -18895,7 +20365,7 @@ Transform:
   m_GameObject: {fileID: 3491479883620514406}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.9679963, z: -0, w: 0.2509643}
-  m_LocalPosition: {x: 3.6699016, y: 0.049999952, z: 6.338787}
+  m_LocalPosition: {x: 29.05, y: 0.049999952, z: -4.93}
   m_LocalScale: {x: 1.2828, y: 1.2828, z: 1.2828}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20729,6 +22199,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+--- !u!114 &9168955719751804500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3491479883620514406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91007b9fc615fa44da62edbcf8460b42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  player: {fileID: 0}
+  bossAnimator: {fileID: 0}
+  dashAnimation: Dash
+  stunnedAnimation: Stunned
+  dashCrossfade: 0.1
+  stunnedCrossfade: 0.12
+  holdStunnedUntilRecoveryEnds: 1
+  minimumChargeDistance: 13
+  maximumChargeDistance: 24
+  chargeCooldown: 5
+  chargeSpeed: 9
+  chargeDuration: 1000000
+  chargeTurnSpeed: 440
+  recoveryDuration: 3
+  navMeshRecoverySampleRadius: 3
+  collisionRadius: 0.65
+  collisionHeight: 1
+  coverDamage: 25
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ignoreCoverFragments: 1
+  fragmentNamePrefix: Cover_Fragment
+  debugLogs: 1
+  logMovement: 0
 --- !u!4 &9178667915729141861
 Transform:
   m_ObjectHideFlags: 0

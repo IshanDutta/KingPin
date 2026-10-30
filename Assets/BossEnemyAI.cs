@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -18,20 +19,23 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private string runState = "run";
     [SerializeField] private string attackState = "attack";
     [SerializeField] private string detectedState = "Detected";
+    [SerializeField] private string suspiciousState = "Suspicious";
     [SerializeField] private float animationBlend = 0.12f;
+    [SerializeField] private float suspiciousFallbackDuration = 1.5f;
     [SerializeField] private float movementThreshold = 0.08f;
 
-    [Header("Player (assign the player root or LocomotionCore object)")]
+    [Header("Player")]
     [SerializeField] private Transform player;
 
     [Header("Vision")]
     [SerializeField] private float visionDistance = 25f;
-    [SerializeField, Range(1f, 360f)] private float visionAngle = 140f;
+    [SerializeField, Range(1f, 360f)]
+    private float visionAngle = 140f;
     [SerializeField] private float eyeHeight = 1.7f;
     [SerializeField] private float targetHeight = 1f;
     [SerializeField] private LayerMask visionBlockingLayers = ~0;
 
-    [Header("Direct Locomotion Hearing")]
+    [Header("Hearing")]
     [SerializeField] private float sprintHearingRange = 100f;
     [SerializeField] private float runningHearingRange = 100f;
     [SerializeField] private float walkingHearingRange = 25f;
@@ -41,7 +45,7 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float movementInvestigationInterval = 0.5f;
     [SerializeField] private float minimumNewSoundDistance = 1.5f;
 
-    [Header("Movement Investigation")]
+    [Header("Investigation")]
     [SerializeField] private float investigateSpeed = 4.5f;
     [SerializeField] private float investigateStoppingDistance = 1.1f;
     [SerializeField] private float investigateTimeout = 12f;
@@ -56,6 +60,13 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float chaseStoppingDistance = 1.5f;
     [SerializeField] private float chasePathRefreshInterval = 0.15f;
     [SerializeField] private float losePlayerAfter = 4f;
+
+    [Header("Post-Charge Recovery")]
+    [SerializeField, Min(0f)]
+    private float postChargeVisionCooldown = 2.5f;
+
+    [SerializeField]
+    private bool suppressHearingAfterCharge = true;
 
     [Header("Searching")]
     [SerializeField] private float searchDuration = 18f;
@@ -74,7 +85,6 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float coverDamage = 25f;
     [SerializeField] private float coverSearchInterval = 1f;
     [SerializeField] private float coverPathRefreshInterval = 0.25f;
-    [SerializeField] private float coverAttackTurnSpeed = 720f;
     [SerializeField] private float coverAttackRotationOffset = 0f;
 
     [Header("Debug")]
@@ -85,6 +95,7 @@ public class BossEnemyAI : MonoBehaviour
     private enum BossMode
     {
         Cover,
+        Suspicious,
         InvestigateTravel,
         InvestigateLook,
         Search,
@@ -94,10 +105,10 @@ public class BossEnemyAI : MonoBehaviour
 
     private BossMode mode = BossMode.Cover;
 
+    private BossChargeAttack chargeAttack;
     private AIController ai;
     private AwarenessSystem awareness;
     private NavMeshAgent agent;
-    private Animator parentAnimator;
     private Animator bossAnimator;
     private LocomotionCore playerLocomotion;
     private Transform trackedPlayer;
@@ -121,37 +132,63 @@ public class BossEnemyAI : MonoBehaviour
     private float nextChasePath;
     private float nextMovementCheck;
     private float nextMovementInvestigation;
+    private float suspicionStartTime;
     private float investigationStartTime;
     private float investigationLookStartTime;
     private float detectionEndTime;
-    private float lastPlayerSeenTime;
+    private float lastPlayerSeenTime = float.NegativeInfinity;
     private float searchStartTime;
     private float searchPointStartTime;
     private float searchPauseEndTime;
+    private float visionSuppressedUntil;
+    private float hearingSuppressedUntil;
 
+    private bool pendingPostChargeSearch;
+    private bool suspicionAnimationEntered;
     private bool attackingCover;
-
-    // Cover rotation is calculated once per attack.
-    private Quaternion lockedCoverRotation;
     private bool hasLockedCoverRotation;
-
     private bool hasSearchPoint;
     private bool searchPaused;
     private bool initialized;
     private bool warnedMissingLocomotion;
 
+    private Quaternion lockedCoverRotation;
+
     private int idleHash;
     private int runHash;
     private int attackHash;
     private int detectedHash;
+    private int suspiciousHash;
     private int currentAnimationHash;
+
+    private bool ChargeBusy =>
+        chargeAttack != null && chargeAttack.IsBusy;
+
+    // Visual awareness remains available during charging.
+    // Hearing alone never makes this true.
+    public bool HasVisualCombatTarget =>
+        (mode == BossMode.Detected || mode == BossMode.Chase) &&
+        trackedPlayer != null &&
+        (
+            (chargeAttack != null && chargeAttack.IsCharging) ||
+            (
+                Time.time - lastPlayerSeenTime <= 0.2f &&
+                Time.time >= visionSuppressedUntil &&
+                !ChargeBusy
+            )
+        );
+
+    public Transform VisualCombatTarget =>
+        HasVisualCombatTarget ? trackedPlayer : null;
 
     private void Awake()
     {
         ai = GetComponent<AIController>();
         awareness = GetComponent<AwarenessSystem>();
         agent = GetComponent<NavMeshAgent>();
-        parentAnimator = GetComponent<Animator>();
+        chargeAttack = GetComponent<BossChargeAttack>();
+
+        Animator parentAnimator = GetComponent<Animator>();
 
         foreach (Animator animator in
             GetComponentsInChildren<Animator>(true))
@@ -166,9 +203,9 @@ public class BossEnemyAI : MonoBehaviour
         if (bossAnimator == null)
         {
             Debug.LogError(
-                "BossEnemyAI: No child Animator found. " +
-                "Assign an Animator to the Enemy child.",
-                this);
+                "BossEnemyAI: No child Animator found.",
+                this
+            );
 
             enabled = false;
             return;
@@ -184,11 +221,11 @@ public class BossEnemyAI : MonoBehaviour
         runHash = Animator.StringToHash(runState);
         attackHash = Animator.StringToHash(attackState);
         detectedHash = Animator.StringToHash(detectedState);
+        suspiciousHash = Animator.StringToHash(suspiciousState);
 
         originalAgentSpeed = agent.speed;
         originalStoppingDistance = agent.stoppingDistance;
 
-        // BossEnemyAI handles facing manually.
         agent.updateRotation = false;
 
         previousPosition = transform.position;
@@ -197,7 +234,8 @@ public class BossEnemyAI : MonoBehaviour
 
     private void Start()
     {
-        if (!initialized) return;
+        if (!initialized)
+            return;
 
         RefreshPlayers();
 
@@ -207,26 +245,16 @@ public class BossEnemyAI : MonoBehaviour
         ResolvePlayerLocomotion();
         ForceAnimation(idleHash);
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS AI READY | Player: " +
-                (player != null ? player.name : "NOT FOUND") +
-                " | Locomotion: " +
-                (playerLocomotion != null
-                    ? playerLocomotion.name
-                    : "NOT FOUND") +
-                " | Sprint Hearing: " + sprintHearingRange +
-                " | Run Hearing: " + runningHearingRange +
-                " | Walk Hearing: " + walkingHearingRange +
-                " | Crouch Hearing: " + crouchingHearingRange,
-                this);
-        }
+        Log(
+            "BOSS AI READY | Player: " +
+            (player != null ? player.name : "NOT FOUND")
+        );
     }
 
     private void OnDisable()
     {
-        if (!AgentReady()) return;
+        if (!AgentReady())
+            return;
 
         agent.isStopped = false;
         agent.speed = originalAgentSpeed;
@@ -241,6 +269,29 @@ public class BossEnemyAI : MonoBehaviour
         if (!initialized || ai.Damagable.IsDead)
             return;
 
+        if (ChargeBusy)
+        {
+            // Keep checking vision during the charge.
+            // Do not run normal AI or overwrite Dash/Stunned.
+            if (chargeAttack.IsCharging)
+                CheckVision();
+
+            previousPosition = transform.position;
+            measuredVelocity = Vector3.zero;
+            return;
+        }
+
+        if (pendingPostChargeSearch)
+        {
+            pendingPostChargeSearch = false;
+
+            StartSearch(lastKnownPlayerPosition);
+
+            Log(
+                "BOSS RECOVERED - SEARCHING LAST SEEN POSITION"
+            );
+        }
+
         UpdateMeasuredVelocity();
         CheckVision();
         CheckPlayerMovement();
@@ -249,6 +300,10 @@ public class BossEnemyAI : MonoBehaviour
         {
             case BossMode.Cover:
                 UpdateCoverHunting();
+                break;
+
+            case BossMode.Suspicious:
+                UpdateSuspicious();
                 break;
 
             case BossMode.InvestigateTravel:
@@ -277,11 +332,13 @@ public class BossEnemyAI : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!initialized || ai.Damagable.IsDead)
+        if (!initialized ||
+            ai.Damagable.IsDead ||
+            ChargeBusy)
+        {
             return;
+        }
 
-        // Keep the boss facing the same direction throughout
-        // the entire cover attack.
         if (mode == BossMode.Cover &&
             attackingCover &&
             hasLockedCoverRotation)
@@ -292,11 +349,55 @@ public class BossEnemyAI : MonoBehaviour
         if (mode == BossMode.Detected &&
             trackedPlayer != null)
         {
-            FacePosition(
-                trackedPlayer.position,
-                turnSpeed);
+            FacePosition(trackedPlayer.position, turnSpeed);
         }
     }
+
+    // =====================================================
+    // CHARGE RECOVERY
+    // =====================================================
+
+    public void ForgetPlayerAfterCharge()
+    {
+        // lastKnownPlayerPosition has been updated
+        // by CheckVision during the charge.
+
+        if (ai != null && ai.Target != null)
+            ai.TargetHandler.TrySetTarget(null);
+
+        trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
+
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        currentCover = null;
+
+        CancelSearch();
+
+        float remaining =
+            chargeAttack != null
+                ? chargeAttack.RecoveryTimeRemaining
+                : 0f;
+
+        visionSuppressedUntil = Mathf.Max(
+            visionSuppressedUntil,
+            Time.time + remaining + postChargeVisionCooldown
+        );
+
+        if (suppressHearingAfterCharge)
+            hearingSuppressedUntil = visionSuppressedUntil;
+
+        pendingPostChargeSearch = true;
+        currentAnimationHash = 0;
+
+        Log(
+            "BOSS LOST PLAYER AFTER CHARGE - STUNNED"
+        );
+    }
+
+    // =====================================================
+    // PLAYER REFERENCES
+    // =====================================================
 
     private void RefreshPlayers()
     {
@@ -322,8 +423,10 @@ public class BossEnemyAI : MonoBehaviour
 
             if (loco == null)
             {
-                loco = stimulus.GetComponentInChildren<
-                    LocomotionCore>(true);
+                loco =
+                    stimulus.GetComponentInChildren<LocomotionCore>(
+                        true
+                    );
             }
 
             player = loco != null
@@ -337,8 +440,9 @@ public class BossEnemyAI : MonoBehaviour
         {
             Debug.LogWarning(
                 "BossEnemyAI: Player not found. " +
-                "Assign the Player field in the Inspector.",
-                this);
+                "Assign Player in Inspector.",
+                this
+            );
         }
     }
 
@@ -356,8 +460,9 @@ public class BossEnemyAI : MonoBehaviour
         if (playerLocomotion == null)
         {
             playerLocomotion =
-                player.GetComponentInChildren<
-                    LocomotionCore>(true);
+                player.GetComponentInChildren<LocomotionCore>(
+                    true
+                );
         }
 
         if (playerLocomotion == null)
@@ -371,10 +476,9 @@ public class BossEnemyAI : MonoBehaviour
             if (!warnedMissingLocomotion)
             {
                 Debug.LogWarning(
-                    "BOSS HEARING: Cannot find LocomotionCore " +
-                    "on or under Player. Assign the actual " +
-                    "player movement root.",
-                    this);
+                    "BossEnemyAI: Cannot find player LocomotionCore.",
+                    this
+                );
 
                 warnedMissingLocomotion = true;
             }
@@ -384,19 +488,23 @@ public class BossEnemyAI : MonoBehaviour
 
         warnedMissingLocomotion = false;
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS CONNECTED TO PLAYER LOCOMOTION: " +
-                playerLocomotion.name,
-                this);
-        }
+        Log(
+            "BOSS CONNECTED TO PLAYER LOCOMOTION: " +
+            playerLocomotion.name
+        );
 
         return true;
     }
 
+    // =====================================================
+    // HEARING
+    // =====================================================
+
     private void CheckPlayerMovement()
     {
+        if (Time.time < hearingSuppressedUntil)
+            return;
+
         if (player == null)
         {
             FindPlayerAutomatically();
@@ -422,12 +530,11 @@ public class BossEnemyAI : MonoBehaviour
 
         float speed = velocity.magnitude;
         MoveType moveType = playerLocomotion.moveType;
-        bool crouching = playerLocomotion.IsCrouching;
 
         float hearingRange;
         string movementName;
 
-        if (crouching)
+        if (playerLocomotion.IsCrouching)
         {
             hearingRange = crouchingHearingRange;
             movementName = "CROUCHING";
@@ -451,21 +558,22 @@ public class BossEnemyAI : MonoBehaviour
         Vector3 heardPosition =
             playerLocomotion.transform.position;
 
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                heardPosition);
+        float distance = Vector3.Distance(
+            transform.position,
+            heardPosition
+        );
 
         if (logMovementChecks)
         {
             Debug.Log(
-                "[BOSS DIRECT HEARING] State=" + movementName +
+                "[BOSS HEARING] " +
+                movementName +
                 " | Speed=" + speed.ToString("F2") +
                 " | Distance=" + distance.ToString("F1") +
                 " | Range=" + hearingRange.ToString("F1") +
-                " | Mode=" + mode +
-                " | AttackingCover=" + attackingCover,
-                this);
+                " | Mode=" + mode,
+                this
+            );
         }
 
         if (speed < minimumMovementSpeed ||
@@ -475,55 +583,26 @@ public class BossEnemyAI : MonoBehaviour
         }
 
         if (mode == BossMode.Detected ||
-            mode == BossMode.Chase)
+            mode == BossMode.Chase ||
+            mode == BossMode.Suspicious ||
+            mode == BossMode.InvestigateTravel ||
+            mode == BossMode.InvestigateLook)
         {
-            return;
-        }
-
-        // Hearing immediately interrupts cover attacks.
-        if (mode == BossMode.Cover)
-        {
-            if (logEvents)
-            {
-                Debug.Log(
-                    "BOSS HEARD " + movementName +
-                    " WHILE IN COVER MODE - INTERRUPTING NOW!",
-                    this);
-            }
-
-            BeginMovementInvestigation(heardPosition);
-
-            nextMovementInvestigation =
-                Time.time + movementInvestigationInterval;
-
             return;
         }
 
         if (Time.time < nextMovementInvestigation)
             return;
 
-        bool alreadyInvestigating =
-            mode == BossMode.InvestigateTravel ||
-            mode == BossMode.InvestigateLook;
-
-        if (alreadyInvestigating &&
-            Vector3.Distance(
-                soundLocation,
-                heardPosition) < minimumNewSoundDistance)
-        {
-            return;
-        }
-
         nextMovementInvestigation =
             Time.time + movementInvestigationInterval;
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS HEARD PLAYER " +
-                movementName + " AT " + heardPosition,
-                this);
-        }
+        Log(
+            "BOSS HEARD " +
+            movementName +
+            " AT " +
+            heardPosition
+        );
 
         BeginMovementInvestigation(heardPosition);
     }
@@ -531,17 +610,13 @@ public class BossEnemyAI : MonoBehaviour
     private void BeginMovementInvestigation(Vector3 position)
     {
         if (mode == BossMode.Detected ||
-            mode == BossMode.Chase)
+            mode == BossMode.Chase ||
+            mode == BossMode.Suspicious ||
+            mode == BossMode.InvestigateTravel ||
+            mode == BossMode.InvestigateLook)
         {
             return;
         }
-
-        bool wasAttackingCover =
-            mode == BossMode.Cover && attackingCover;
-
-        bool alreadyInvestigating =
-            mode == BossMode.InvestigateTravel ||
-            mode == BossMode.InvestigateLook;
 
         if (mode == BossMode.Cover)
             InterruptCoverAttack();
@@ -549,69 +624,152 @@ public class BossEnemyAI : MonoBehaviour
         CancelSearch();
 
         soundLocation = position;
-        investigationStartTime = Time.time;
-        mode = BossMode.InvestigateTravel;
+        mode = BossMode.Suspicious;
+        suspicionStartTime = Time.time;
+        suspicionAnimationEntered = false;
 
-        if (wasAttackingCover)
+        StopAgent();
+
+        if (AgentReady())
+            agent.velocity = Vector3.zero;
+
+        if (bossAnimator.HasState(0, suspiciousHash))
         {
-            bossAnimator.Play(runHash, 0, 0f);
-            bossAnimator.Update(0f);
-            currentAnimationHash = runHash;
+            ForceAnimation(suspiciousHash);
         }
-        else if (!alreadyInvestigating)
+        else
         {
-            ForceAnimation(runHash);
+            Debug.LogWarning(
+                "BossEnemyAI: Missing Suspicious Animator state.",
+                this
+            );
         }
+
+        Log(
+            "BOSS SUSPICIOUS - WAITING BEFORE INVESTIGATION"
+        );
+    }
+
+    // =====================================================
+    // SUSPICIOUS
+    // =====================================================
+
+    private void UpdateSuspicious()
+    {
+        StopAgent();
+
+        if (AgentReady())
+            agent.velocity = Vector3.zero;
+
+        float elapsed =
+            Time.time - suspicionStartTime;
+
+        bool completed = false;
+
+        if (bossAnimator.HasState(0, suspiciousHash))
+        {
+            AnimatorStateInfo current =
+                bossAnimator.GetCurrentAnimatorStateInfo(0);
+
+            AnimatorStateInfo next =
+                bossAnimator.GetNextAnimatorStateInfo(0);
+
+            bool inCurrent =
+                current.shortNameHash == suspiciousHash;
+
+            bool inNext =
+                bossAnimator.IsInTransition(0) &&
+                next.shortNameHash == suspiciousHash;
+
+            if (inCurrent || inNext)
+                suspicionAnimationEntered = true;
+
+            if (suspicionAnimationEntered &&
+                inCurrent &&
+                !bossAnimator.IsInTransition(0) &&
+                current.normalizedTime >= 1f)
+            {
+                completed = true;
+            }
+
+            float timeout = Mathf.Max(
+                suspiciousFallbackDuration,
+                GetSuspiciousClipDuration() +
+                animationBlend + 0.2f
+            );
+
+            if (elapsed >= timeout)
+                completed = true;
+        }
+        else
+        {
+            completed =
+                elapsed >= suspiciousFallbackDuration;
+        }
+
+        if (completed)
+            BeginInvestigationTravel();
+    }
+
+    private float GetSuspiciousClipDuration()
+    {
+        if (bossAnimator.runtimeAnimatorController == null)
+            return suspiciousFallbackDuration;
+
+        foreach (AnimationClip clip in
+            bossAnimator.runtimeAnimatorController.animationClips)
+        {
+            if (clip != null &&
+                clip.name == suspiciousState)
+            {
+                return clip.length;
+            }
+        }
+
+        return suspiciousFallbackDuration;
+    }
+
+    private void BeginInvestigationTravel()
+    {
+        mode = BossMode.InvestigateTravel;
+        investigationStartTime = Time.time;
+        currentAnimationHash = 0;
 
         if (!AgentReady())
         {
             Debug.LogWarning(
-                "BOSS HEARD PLAYER BUT NAVMESH AGENT IS NOT READY",
-                this);
+                "BossEnemyAI: NavMeshAgent unavailable for investigation.",
+                this
+            );
 
             return;
         }
 
-        agent.isStopped = false;
-        agent.speed = investigateSpeed;
-        agent.stoppingDistance = investigateStoppingDistance;
-
         NavMeshHit hit;
 
-        if (NavMesh.SamplePosition(
+        if (!NavMesh.SamplePosition(
             soundLocation,
             out hit,
             soundPositionSampleRadius,
             NavMesh.AllAreas))
         {
-            bool pathSet =
-                agent.SetDestination(hit.position);
-
-            if (logEvents)
-            {
-                Debug.Log(
-                    "BOSS INVESTIGATION PATH SET: " +
-                    pathSet +
-                    " | Destination: " +
-                    hit.position,
-                    this);
-            }
-        }
-        else
-        {
-            Debug.LogWarning(
-                "BOSS HEARD PLAYER BUT NO NAVMESH FOUND NEAR: " +
-                soundLocation,
-                this);
+            StartSearch(soundLocation);
+            return;
         }
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS STOPPED ATTACKING COVER AND IS INVESTIGATING: " +
-                soundLocation,
-                this);
-        }
+        agent.isStopped = false;
+        agent.speed = investigateSpeed;
+        agent.stoppingDistance =
+            investigateStoppingDistance;
+
+        bool pathSet =
+            agent.SetDestination(hit.position);
+
+        Log(
+            "BOSS INVESTIGATING SOUND: " +
+            hit.position +
+            " | Path: " + pathSet
+        );
     }
 
     private void UpdateInvestigationTravel()
@@ -628,7 +786,8 @@ public class BossEnemyAI : MonoBehaviour
 
         agent.isStopped = false;
         agent.speed = investigateSpeed;
-        agent.stoppingDistance = investigateStoppingDistance;
+        agent.stoppingDistance =
+            investigateStoppingDistance;
 
         NavMeshHit hit;
 
@@ -652,15 +811,13 @@ public class BossEnemyAI : MonoBehaviour
             investigateStoppingDistance + 0.25f)
         {
             StopAgent();
+
             mode = BossMode.InvestigateLook;
             investigationLookStartTime = Time.time;
 
-            if (logEvents)
-            {
-                Debug.Log(
-                    "BOSS REACHED LAST HEARD POSITION",
-                    this);
-            }
+            Log(
+                "BOSS REACHED LAST HEARD POSITION"
+            );
         }
     }
 
@@ -671,7 +828,8 @@ public class BossEnemyAI : MonoBehaviour
         transform.Rotate(
             Vector3.up,
             investigateLookTurnSpeed * Time.deltaTime,
-            Space.World);
+            Space.World
+        );
 
         if (Time.time - investigationLookStartTime >=
             investigateLookDuration)
@@ -680,8 +838,15 @@ public class BossEnemyAI : MonoBehaviour
         }
     }
 
+    // =====================================================
+    // VISION
+    // =====================================================
+
     private void CheckVision()
     {
+        if (Time.time < visionSuppressedUntil)
+            return;
+
         if (Time.time >= nextVisionScan)
         {
             RefreshPlayers();
@@ -720,8 +885,11 @@ public class BossEnemyAI : MonoBehaviour
 
             lastPlayerSeenTime = Time.time;
 
+            // During a charge, vision may update,
+            // but must not trigger new animation/state changes.
             if (mode != BossMode.Detected &&
-                mode != BossMode.Chase)
+                mode != BossMode.Chase &&
+                !ChargeBusy)
             {
                 DetectPlayer(stimulus.transform);
             }
@@ -733,12 +901,15 @@ public class BossEnemyAI : MonoBehaviour
     private bool CanSeePlayer(Transform target)
     {
         Vector3 eye =
-            transform.position + Vector3.up * eyeHeight;
+            transform.position +
+            Vector3.up * eyeHeight;
 
         Vector3 targetPoint =
-            target.position + Vector3.up * targetHeight;
+            target.position +
+            Vector3.up * targetHeight;
 
-        Vector3 direction = targetPoint - eye;
+        Vector3 direction =
+            targetPoint - eye;
 
         if (direction.magnitude > visionDistance)
             return false;
@@ -746,7 +917,8 @@ public class BossEnemyAI : MonoBehaviour
         Vector3 flatDirection =
             Vector3.ProjectOnPlane(
                 direction,
-                Vector3.up);
+                Vector3.up
+            );
 
         if (flatDirection.sqrMagnitude > 0.001f &&
             Vector3.Angle(
@@ -761,7 +933,8 @@ public class BossEnemyAI : MonoBehaviour
             eye,
             targetPoint,
             visionBlockingLayers,
-            target);
+            target
+        );
     }
 
     private bool IsBlocked(
@@ -775,13 +948,13 @@ public class BossEnemyAI : MonoBehaviour
         if (direction.sqrMagnitude < 0.0001f)
             return false;
 
-        RaycastHit[] hits =
-            Physics.RaycastAll(
-                from,
-                direction.normalized,
-                direction.magnitude,
-                layers,
-                QueryTriggerInteraction.Ignore);
+        RaycastHit[] hits = Physics.RaycastAll(
+            from,
+            direction.normalized,
+            direction.magnitude,
+            layers,
+            QueryTriggerInteraction.Ignore
+        );
 
         foreach (RaycastHit hit in hits)
         {
@@ -808,10 +981,18 @@ public class BossEnemyAI : MonoBehaviour
         return false;
     }
 
+    // =====================================================
+    // DETECTION / CHASE
+    // =====================================================
+
     private void DetectPlayer(Transform target)
     {
-        if (target == null)
+        if (target == null ||
+            Time.time < visionSuppressedUntil ||
+            ChargeBusy)
+        {
             return;
+        }
 
         trackedPlayer = target;
         lastKnownPlayerPosition = target.position;
@@ -840,12 +1021,7 @@ public class BossEnemyAI : MonoBehaviour
         FacePosition(target.position, turnSpeed);
         ForceAnimation(detectedHash);
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS SEES PLAYER - DETECTED ANIMATION",
-                this);
-        }
+        Log("BOSS SEES PLAYER - DETECTED ANIMATION");
     }
 
     private void UpdateDetection()
@@ -853,14 +1029,17 @@ public class BossEnemyAI : MonoBehaviour
         StopAgent();
 
         if (trackedPlayer != null)
-        {
-            FacePosition(
-                trackedPlayer.position,
-                turnSpeed);
-        }
+            FacePosition(trackedPlayer.position, turnSpeed);
 
         if (Time.time < detectionEndTime)
             return;
+
+        if (trackedPlayer == null ||
+            Time.time - lastPlayerSeenTime > losePlayerAfter)
+        {
+            LosePlayer();
+            return;
+        }
 
         mode = BossMode.Chase;
         nextChasePath = 0f;
@@ -870,8 +1049,7 @@ public class BossEnemyAI : MonoBehaviour
 
         currentAnimationHash = 0;
 
-        if (logEvents)
-            Debug.Log("BOSS CHASING PLAYER", this);
+        Log("BOSS CHASING PLAYER");
     }
 
     private void UpdateChasing()
@@ -882,8 +1060,7 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
-        if (Time.time - lastPlayerSeenTime >
-            losePlayerAfter)
+        if (Time.time - lastPlayerSeenTime > losePlayerAfter)
         {
             LosePlayer();
             return;
@@ -898,9 +1075,7 @@ public class BossEnemyAI : MonoBehaviour
 
         if (Time.time >= nextChasePath)
         {
-            agent.SetDestination(
-                trackedPlayer.position);
-
+            agent.SetDestination(trackedPlayer.position);
             nextChasePath =
                 Time.time + chasePathRefreshInterval;
         }
@@ -914,16 +1089,18 @@ public class BossEnemyAI : MonoBehaviour
             ai.TargetHandler.TrySetTarget(null);
 
         trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
 
         StartSearch(lastKnownPlayerPosition);
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS LOST SIGHT - SEARCHING LAST SEEN POSITION",
-                this);
-        }
+        Log(
+            "BOSS LOST SIGHT - SEARCHING LAST SEEN POSITION"
+        );
     }
+
+    // =====================================================
+    // SEARCH
+    // =====================================================
 
     private void StartSearch(Vector3 center)
     {
@@ -935,20 +1112,17 @@ public class BossEnemyAI : MonoBehaviour
         soundLocation = center;
         searchStartTime = Time.time;
         mode = BossMode.Search;
+        currentAnimationHash = 0;
 
         StopAgent();
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS SEARCHING AROUND: " + center,
-                this);
-        }
+        Log("BOSS SEARCHING AROUND: " + center);
     }
 
     private void UpdateSearching()
     {
-        if (!AgentReady()) return;
+        if (!AgentReady())
+            return;
 
         if (Time.time - searchStartTime > searchDuration)
         {
@@ -963,7 +1137,8 @@ public class BossEnemyAI : MonoBehaviour
             transform.Rotate(
                 Vector3.up,
                 investigateLookTurnSpeed * Time.deltaTime,
-                Space.World);
+                Space.World
+            );
 
             if (Time.time >= searchPauseEndTime)
             {
@@ -1002,8 +1177,10 @@ public class BossEnemyAI : MonoBehaviour
         FaceMovementDirection();
 
         if (!agent.pathPending &&
-            Vector3.Distance(transform.position, searchPoint)
-                <= searchArrivalDistance + 0.25f)
+            Vector3.Distance(
+                transform.position,
+                searchPoint) <=
+            searchArrivalDistance + 0.25f)
         {
             visitedPoints.Add(searchPoint);
             StopAgent();
@@ -1025,12 +1202,14 @@ public class BossEnemyAI : MonoBehaviour
     {
         float progress = Mathf.Clamp01(
             (Time.time - searchStartTime) /
-            Mathf.Max(1f, searchDuration));
+            Mathf.Max(1f, searchDuration)
+        );
 
         float radius = Mathf.Lerp(
             searchRadius,
             maximumSearchRadius,
-            progress);
+            progress
+        );
 
         float bestScore = float.NegativeInfinity;
         bool found = false;
@@ -1125,12 +1304,9 @@ public class BossEnemyAI : MonoBehaviour
 
         nextCoverSearch = 0f;
 
-        if (logEvents)
-        {
-            Debug.Log(
-                "BOSS FINISHED SEARCH - RETURNING TO COVER",
-                this);
-        }
+        Log(
+            "BOSS FINISHED SEARCH - RETURNING TO COVER"
+        );
     }
 
     // =====================================================
@@ -1154,7 +1330,6 @@ public class BossEnemyAI : MonoBehaviour
             if (Time.time >= nextCoverSearch)
             {
                 FindNearestCover();
-
                 nextCoverSearch =
                     Time.time + coverSearchInterval;
             }
@@ -1171,12 +1346,12 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
-        Collider collider =
+        Collider coverCollider =
             currentCover.GetComponentInChildren<Collider>();
 
         Vector3 navigationPoint =
-            collider != null
-                ? collider.ClosestPoint(transform.position)
+            coverCollider != null
+                ? coverCollider.ClosestPoint(transform.position)
                 : currentCover.transform.position;
 
         Vector3 offset =
@@ -1191,19 +1366,13 @@ public class BossEnemyAI : MonoBehaviour
                 attackingCover = true;
 
                 StopAgent();
-
-                // Lock facing exactly once at attack start.
                 LockCoverAttackRotation();
-
                 ForceAnimation(attackHash);
 
-                if (logEvents)
-                {
-                    Debug.Log(
-                        "BOSS ATTACKING COVER: " +
-                        currentCover.name,
-                        this);
-                }
+                Log(
+                    "BOSS ATTACKING COVER: " +
+                    currentCover.name
+                );
             }
 
             StopAgent();
@@ -1224,7 +1393,6 @@ public class BossEnemyAI : MonoBehaviour
         if (Time.time >= nextCoverPath)
         {
             agent.SetDestination(navigationPoint);
-
             nextCoverPath =
                 Time.time + coverPathRefreshInterval;
         }
@@ -1234,13 +1402,10 @@ public class BossEnemyAI : MonoBehaviour
 
     private void FindNearestCover()
     {
-        float nearestDistance =
-            float.PositiveInfinity;
-
+        float nearestDistance = float.PositiveInfinity;
         Cover nearest = null;
 
-        foreach (Cover cover in
-            FindObjectsOfType<Cover>())
+        foreach (Cover cover in FindObjectsOfType<Cover>())
         {
             if (cover == null ||
                 !cover.isActiveAndEnabled ||
@@ -1250,18 +1415,16 @@ public class BossEnemyAI : MonoBehaviour
                 continue;
             }
 
-            Collider collider =
+            Collider coverCollider =
                 cover.GetComponentInChildren<Collider>();
 
             Vector3 point =
-                collider != null
-                    ? collider.ClosestPoint(transform.position)
+                coverCollider != null
+                    ? coverCollider.ClosestPoint(transform.position)
                     : cover.transform.position;
 
             float distance =
-                Vector3.Distance(
-                    transform.position,
-                    point);
+                Vector3.Distance(transform.position, point);
 
             if (distance < nearestDistance)
             {
@@ -1272,10 +1435,6 @@ public class BossEnemyAI : MonoBehaviour
 
         currentCover = nearest;
     }
-
-    // =====================================================
-    // LOCKED COVER ROTATION
-    // =====================================================
 
     private void LockCoverAttackRotation()
     {
@@ -1308,7 +1467,8 @@ public class BossEnemyAI : MonoBehaviour
                 Quaternion.Euler(
                     0f,
                     coverAttackRotationOffset,
-                    0f);
+                    0f
+                );
         }
 
         hasLockedCoverRotation = true;
@@ -1316,21 +1476,17 @@ public class BossEnemyAI : MonoBehaviour
         if (AgentReady())
         {
             agent.updateRotation = false;
-
             StopAgent();
-
             agent.velocity = Vector3.zero;
         }
 
-        // Snap once to the desired facing direction.
         transform.rotation = lockedCoverRotation;
     }
 
     // =====================================================
-    // COVER DAMAGE / INTERRUPTION
+    // COVER DAMAGE / ANIMATION EVENT
     // =====================================================
 
-    // Call this from the attack animation event.
     public void DamageCover()
     {
         if (mode != BossMode.Cover ||
@@ -1343,8 +1499,7 @@ public class BossEnemyAI : MonoBehaviour
 
         currentCover.TakeDamage(coverDamage);
 
-        if (currentCover != null &&
-            currentCover.IsDestroyed)
+        if (currentCover != null && currentCover.IsDestroyed)
         {
             currentCover = null;
             attackingCover = false;
@@ -1373,28 +1528,14 @@ public class BossEnemyAI : MonoBehaviour
             agent.velocity = Vector3.zero;
         }
 
-        if (bossAnimator != null && wasAttacking)
-        {
-            bossAnimator.Play(runHash, 0, 0f);
-            bossAnimator.Update(0f);
+        currentAnimationHash = 0;
 
-            currentAnimationHash = runHash;
-        }
-        else
-        {
-            currentAnimationHash = 0;
-        }
-
-        if (logEvents && wasAttacking)
-        {
-            Debug.Log(
-                "BOSS INTERRUPTED COVER ATTACK!",
-                this);
-        }
+        if (wasAttacking)
+            Log("BOSS INTERRUPTED COVER ATTACK!");
     }
 
     // =====================================================
-    // SEARCH / MOVEMENT HELPERS
+    // MOVEMENT / ANIMATION
     // =====================================================
 
     private void CancelSearch()
@@ -1406,8 +1547,7 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateMeasuredVelocity()
     {
-        float dt =
-            Mathf.Max(Time.deltaTime, 0.0001f);
+        float dt = Mathf.Max(Time.deltaTime, 0.0001f);
 
         measuredVelocity =
             (transform.position - previousPosition) / dt;
@@ -1419,13 +1559,14 @@ public class BossEnemyAI : MonoBehaviour
     private void UpdateMovementAnimation()
     {
         if (bossAnimator == null ||
-            mode == BossMode.Detected)
+            ChargeBusy ||
+            mode == BossMode.Detected ||
+            mode == BossMode.Suspicious)
         {
             return;
         }
 
-        if (mode == BossMode.Cover &&
-            attackingCover)
+        if (mode == BossMode.Cover && attackingCover)
         {
             PlayAnimation(attackHash);
             return;
@@ -1438,15 +1579,14 @@ public class BossEnemyAI : MonoBehaviour
             Vector3 velocity = agent.velocity;
             velocity.y = 0f;
 
-            speed = Mathf.Max(
-                speed,
-                velocity.magnitude);
+            speed = Mathf.Max(speed, velocity.magnitude);
         }
 
         PlayAnimation(
             speed > movementThreshold
                 ? runHash
-                : idleHash);
+                : idleHash
+        );
     }
 
     private void PlayAnimation(int hash)
@@ -1463,7 +1603,8 @@ public class BossEnemyAI : MonoBehaviour
         bossAnimator.CrossFadeInFixedTime(
             hash,
             animationBlend,
-            0);
+            0
+        );
 
         currentAnimationHash = hash;
     }
@@ -1499,12 +1640,11 @@ public class BossEnemyAI : MonoBehaviour
 
         FacePosition(
             transform.position + direction,
-            turnSpeed);
+            turnSpeed
+        );
     }
 
-    private void FacePosition(
-        Vector3 position,
-        float speed)
+    private void FacePosition(Vector3 position, float speed)
     {
         Vector3 direction =
             position - transform.position;
@@ -1515,14 +1655,20 @@ public class BossEnemyAI : MonoBehaviour
             return;
 
         Quaternion targetRotation =
-            Quaternion.LookRotation(
-                direction.normalized);
+            Quaternion.LookRotation(direction.normalized);
 
         transform.rotation =
             Quaternion.RotateTowards(
                 transform.rotation,
                 targetRotation,
-                speed * Time.deltaTime);
+                speed * Time.deltaTime
+            );
+    }
+
+    private void Log(string message)
+    {
+        if (logEvents)
+            Debug.Log(message, this);
     }
 
     // =====================================================
@@ -1535,60 +1681,55 @@ public class BossEnemyAI : MonoBehaviour
             return;
 
         Gizmos.color = Color.red;
-
         Gizmos.DrawWireSphere(
             transform.position,
-            sprintHearingRange);
+            sprintHearingRange
+        );
 
-        Gizmos.color =
-            new Color(1f, 0.5f, 0f);
-
+        Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(
             transform.position,
-            runningHearingRange);
+            runningHearingRange
+        );
 
         Gizmos.color = Color.yellow;
-
         Gizmos.DrawWireSphere(
             transform.position,
-            walkingHearingRange);
+            walkingHearingRange
+        );
 
         Gizmos.color = Color.cyan;
-
         Gizmos.DrawWireSphere(
             transform.position,
-            crouchingHearingRange);
+            crouchingHearingRange
+        );
 
         if (!Application.isPlaying)
             return;
 
-        if (mode == BossMode.InvestigateTravel ||
+        if (mode == BossMode.Suspicious ||
+            mode == BossMode.InvestigateTravel ||
             mode == BossMode.InvestigateLook ||
             mode == BossMode.Search)
         {
             Gizmos.color = Color.magenta;
 
-            Gizmos.DrawSphere(
-                soundLocation,
-                0.35f);
-
+            Gizmos.DrawSphere(soundLocation, 0.35f);
             Gizmos.DrawLine(
                 transform.position,
-                soundLocation);
+                soundLocation
+            );
 
             Gizmos.DrawWireSphere(
                 soundLocation,
-                searchRadius);
+                searchRadius
+            );
         }
 
-        if (mode == BossMode.Search &&
-            hasSearchPoint)
+        if (mode == BossMode.Search && hasSearchPoint)
         {
             Gizmos.color = Color.green;
-
-            Gizmos.DrawSphere(
-                searchPoint,
-                0.25f);
+            Gizmos.DrawSphere(searchPoint, 0.25f);
         }
     }
 }
