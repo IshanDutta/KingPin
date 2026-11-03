@@ -4,11 +4,13 @@ using System.Collections;
 using UnityEngine;
 using FS_Core;
 using FS_LocomotionSystem;
+using FS_ParkourSystem;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
+[DefaultExecutionOrder(1000)]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(LocomotionController))]
@@ -23,8 +25,8 @@ public class PlayerDodgeRoll : SystemBase
     public string rightRoll = "RollRight";
 
     [Header("Input")]
-    [Tooltip("Press R once to dodge in the held movement direction.")]
-    public KeyCode dodgeKey = KeyCode.R;
+    [Tooltip("Press Space once to dodge when no parkour action has priority.")]
+    public KeyCode dodgeKey = KeyCode.Space;
 
     [Header("Dodge")]
     public bool requireGrounded = true;
@@ -46,7 +48,7 @@ public class PlayerDodgeRoll : SystemBase
     public bool debugLogs = true;
 
     public override SystemState State => SystemState.Action;
-    public override float Priority => 10f;
+    public override float Priority => 1f;
 
     public bool IsDodging { get; private set; }
     public int DodgeSequence { get; private set; }
@@ -58,9 +60,13 @@ public class PlayerDodgeRoll : SystemBase
     public event Action OnDodgeFinished;
 
     private PlayerController player;
+    private ICharacter character;
     private LocomotionController locomotion;
     private LocomotionCore core;
     private Animator animator;
+    private ParkourController parkour;
+    private EnvironmentScanner scanner;
+    private ClimbController climb;
 
     private bool registered;
     private bool ownsFocus;
@@ -79,9 +85,13 @@ public class PlayerDodgeRoll : SystemBase
     private void Awake()
     {
         player = GetComponent<PlayerController>();
+        character = GetComponent<ICharacter>();
         locomotion = GetComponent<LocomotionController>();
         core = GetComponent<LocomotionCore>();
         animator = GetComponent<Animator>();
+        parkour = GetComponent<ParkourController>();
+        scanner = GetComponent<EnvironmentScanner>();
+        climb = GetComponent<ClimbController>();
     }
 
     private void Start()
@@ -113,7 +123,7 @@ public class PlayerDodgeRoll : SystemBase
 
         RegisterDodgeSystem();
 
-        Log("Dodge system initialized. Press R to dodge.");
+        Log("Dodge system initialized. Press Space to dodge when vault/predictive jump is unavailable.");
     }
 
     private void RegisterDodgeSystem()
@@ -164,53 +174,79 @@ public class PlayerDodgeRoll : SystemBase
             return;
         }
 
+        if (ParkourHasPriority())
+        {
+            Log("Space reserved for vault/predictive jump/climb.");
+            return;
+        }
+
         TryStartDodge();
     }
 
     private bool WasDodgePressedThisFrame()
     {
         bool pressed = false;
-
 #if ENABLE_LEGACY_INPUT_MANAGER
         pressed |= Input.GetKeyDown(dodgeKey);
 #endif
-
 #if ENABLE_INPUT_SYSTEM
         if (Keyboard.current != null)
         {
-            // Supports the configurable dodge key
-            // when using Unity's New Input System.
-            UnityEngine.InputSystem.Key inputKey =
-                (UnityEngine.InputSystem.Key)(int)dodgeKey;
-
-            // KeyCode and Input System Key enums do not
-            // share numeric values, so explicitly map R.
-            if (dodgeKey == KeyCode.R)
-            {
-                pressed |=
-                    Keyboard.current.rKey.wasPressedThisFrame;
-            }
-            else
-            {
-                // Support additional letter keys.
-                string keyName = dodgeKey.ToString().ToLowerInvariant();
-
-                if (Enum.TryParse(
-                    keyName,
-                    true,
-                    out UnityEngine.InputSystem.Key parsedKey))
-                {
-                    var keyControl =
-                        Keyboard.current[parsedKey];
-
-                    if (keyControl != null)
-                        pressed |= keyControl.wasPressedThisFrame;
-                }
-            }
+            if (dodgeKey == KeyCode.Space)
+                pressed |= Keyboard.current.spaceKey.wasPressedThisFrame;
+            else if (dodgeKey == KeyCode.R)
+                pressed |= Keyboard.current.rKey.wasPressedThisFrame;
         }
 #endif
-
         return pressed;
+    }
+
+    // Same-frame eligibility checks based on ParkourController's own
+    // HandleParkourAction and HandlePredictiveJumpAndClimb conditions.
+    // These do not trigger parkour; they only reserve Space for it.
+    private bool ParkourHasPriority()
+    {
+        if (parkour == null || !parkour.enabled)
+            return false;
+
+        if (parkour.ControlledByParkour)
+            return true;
+
+        if (scanner == null || !locomotion.IsGrounded)
+            return false;
+
+        var hit = scanner.ObstacleCheck();
+        if (hit.forwardHitFound && hit.heightHitFound && hit.hasSpace &&
+            Vector3.Angle(Vector3.up, hit.forwardHit.normal) > 45f &&
+            Vector3.Angle(Vector3.up, hit.heightHit.normal) <= 45f)
+        {
+            foreach (var action in parkour.parkourActions)
+            {
+                if (action != null && action.CheckIfPossible(hit, transform))
+                    return true;
+            }
+        }
+
+        if (parkour.enablePredictiveJump ||
+            (climb != null && climb.enableClimbing))
+        {
+            // This intentionally errs on the side of preserving parkour.
+            // The controller performs more detailed ledge/distance checks.
+            var jump = scanner.FindPointToJump(
+                character != null ? character.MoveDir : transform.forward,
+                parkour.MaxJumpDistance,
+                parkour.MaxJumpHeight);
+
+            if (jump != null)
+            {
+                if (parkour.enablePredictiveJump && jump.jumpPointFound)
+                    return true;
+                if (climb != null && climb.enableClimbing && jump.isClimbable)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private bool IsKeyHeld(KeyCode key)
@@ -323,6 +359,12 @@ public class PlayerDodgeRoll : SystemBase
             return;
 
         Log("Attempting dodge...");
+
+        if (ParkourHasPriority())
+        {
+            Log("Rejected: parkour has priority.");
+            return;
+        }
 
         if (player.IsDead)
         {

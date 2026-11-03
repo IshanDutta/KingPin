@@ -7959,7 +7959,7 @@ MonoBehaviour:
   backwardRoll: RollBackward
   leftRoll: RollLeft
   rightRoll: RollRight
-  dodgeKey: 114
+  dodgeKey: 32
   requireGrounded: 1
   dodgeCooldown: 0.25
   transitionDuration: 0.08
@@ -16020,16 +16020,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossEnemyAI
   idleState: Idle
   runState: Run
-  attackState: Attack
+  attackState: attack
   detectedState: Detected
   suspiciousState: Suspicious
   animationBlend: 0.15
   suspiciousFallbackDuration: 1.5
   movementThreshold: 0.08
   player: {fileID: 973643951}
-  visionDistance: 50
-  visionAngle: 107.2
-  eyeHeight: 4
+  visionDistance: 70
+  visionAngle: 180
+  eyeHeight: 2.86
   targetHeight: 1
   visionBlockingLayers:
     serializedVersion: 2
@@ -16039,7 +16039,7 @@ MonoBehaviour:
   walkingHearingRange: 9.9
   crouchingHearingRange: 8
   minimumMovementSpeed: 0.05
-  movementCheckInterval: 0.1
+  movementCheckInterval: 0.05
   movementInvestigationInterval: 0.5
   minimumNewSoundDistance: 1.5
   investigateSpeed: 4.5
@@ -16047,7 +16047,7 @@ MonoBehaviour:
   investigateTimeout: 12
   investigateLookDuration: 3
   investigateLookTurnSpeed: 110
-  soundPositionSampleRadius: 3
+  soundPositionSampleRadius: 5
   detectedDuration: 1.5
   turnSpeed: 720
   chaseSpeed: 5
@@ -16068,14 +16068,65 @@ MonoBehaviour:
   searchObstructionLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  minimumWallChecksBeforeBreakingCover: 4
+  wallInspectionRadius: 7
+  wallFlankOffset: 2.5
+  wallFlankPriority: 6
+  wallCheckPauseSeconds: 2.5
+  wallCheckExtraTime: 18
+  perimeterClearance: 1
+  perimeterSearchRadius: 10
+  cornerLookSeconds: 0.15
+  wallScanPause: 0.3
+  searchMaxRepaths: 3
+  investigationArrivalTolerance: 1.2
+  investigationProgressInterval: 2.5
+  investigationMinimumMovement: 0.25
+  investigationMaxFailedPaths: 5
+  investigationMaximumTravelSeconds: 35
+  investigationScanAngle: 75
+  investigationScanSpeed: 135
+  investigationScanHold: 0.45
+  minimumSearchStops: 5
+  nearbyCoverSearchRadius: 9
+  maximumCoverTargetsPerInvestigation: 3
+  investigationCoverTimeout: 18
+  coverSearchPause: 1.5
+  destroyCoverDuringChase: 1
+  chaseObstacleCheckInterval: 0.2
+  chaseObstacleCheckDistance: 4
+  chaseObstacleProbeRadius: 0.45
+  chaseCoverAttackTimeout: 12
+  chaseCoverRetryDelay: 1.25
   attackDistance: 2
   coverDamage: 25
   coverSearchInterval: 1
   coverPathRefreshInterval: 0.25
   coverAttackRotationOffset: 0
+  wanderRadius: 18
+  wanderSpeed: 2.7
+  wanderPauseSeconds: {x: 1, y: 3}
+  coverDecisionSeconds: {x: 30, y: 60}
+  coverDestructionChance: 0.25
+  randomCoverMaxDistance: 12
+  suspicionBuildSeconds: 2.5
+  suspicionFadeSeconds: 8
+  investigateSuspicionThreshold: 0.22
+  meleeState: MeleeAttack
+  meleeRange: 2.5
+  meleeDuration: 1.1
+  meleeCooldown: 2
   logEvents: 1
   logMovementChecks: 0
   showGizmos: 1
+  hearingAwarenessLevel: 0.42
+  hearingAwarenessHoldSeconds: 1.1
+  hearingAwarenessFadeSeconds: 2.5
+  partialSightLossGrace: 0.2
+  stuckCheckSeconds: 2.5
+  stuckMinimumProgress: 0.3
+  searchRestartCooldown: 3
+  coverHitFallbackSeconds: 1.4
 --- !u!1 &1758792925
 GameObject:
   m_ObjectHideFlags: 0
@@ -22213,6 +22264,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   player: {fileID: 0}
   bossAnimator: {fileID: 0}
+  detectedAnimation: Detected
+  chargeWindupDuration: 0.8
+  detectedCrossfade: 0.12
+  facePlayerDuringWindup: 1
   dashAnimation: Dash
   stunnedAnimation: Stunned
   dashCrossfade: 0.1

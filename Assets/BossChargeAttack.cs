@@ -16,6 +16,10 @@ public class BossChargeAttack : MonoBehaviour
     [SerializeField] private Animator bossAnimator;
 
     [Header("Animation")]
+    [SerializeField] private string detectedAnimation = "Detected";
+    [SerializeField, Min(0f)] private float chargeWindupDuration = 0.8f;
+    [SerializeField, Min(0f)] private float detectedCrossfade = 0.12f;
+    [SerializeField] private bool facePlayerDuringWindup = true;
     [SerializeField] private string dashAnimation = "Dash";
     [SerializeField] private string stunnedAnimation = "Stunned";
     [SerializeField, Min(0f)] private float dashCrossfade = 0.1f;
@@ -52,13 +56,14 @@ public class BossChargeAttack : MonoBehaviour
     [SerializeField] private bool debugLogs = true;
     [SerializeField] private bool logMovement = false;
 
+    public bool IsWindingUp { get; private set; }
     public bool IsCharging { get; private set; }
     public bool IsRecovering { get; private set; }
 
     // Legacy name: means steering is locked, NOT sight lost.
     public bool HasLostTracking { get; private set; }
 
-    public bool IsBusy => IsCharging || IsRecovering;
+    public bool IsBusy => IsWindingUp || IsCharging || IsRecovering;
 
     public float RecoveryTimeRemaining =>
         IsRecovering
@@ -80,6 +85,7 @@ public class BossChargeAttack : MonoBehaviour
 
     private float nextChargeTime;
     private float chargeStartTime;
+    private float windupEndTime;
     private float recoveryEndTime;
 
     private Vector3 chargeDirection;
@@ -141,6 +147,12 @@ public class BossChargeAttack : MonoBehaviour
 
     private void Update()
     {
+        if (IsWindingUp)
+        {
+            UpdateWindup();
+            return;
+        }
+
         if (IsCharging)
         {
             UpdateCharge();
@@ -169,7 +181,7 @@ public class BossChargeAttack : MonoBehaviour
         if (distance >= minimumChargeDistance &&
             distance <= maximumChargeDistance)
         {
-            BeginCharge();
+            BeginWindup();
         }
     }
 
@@ -196,6 +208,44 @@ public class BossChargeAttack : MonoBehaviour
                 player.root.GetComponentInChildren<PlayerDodgeRoll>(true);
 
         return true;
+    }
+
+    private void BeginWindup()
+    {
+        if (IsBusy || player == null)
+            return;
+
+        Vector3 direction = player.position - transform.position;
+        direction.y = 0f;
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+
+        // Claim animation and movement ownership before playing the tell.
+        SaveAndPauseControllers();
+        transform.rotation = Quaternion.LookRotation(direction.normalized);
+        IsWindingUp = true;
+        windupEndTime = Time.time + chargeWindupDuration;
+        PlayState(detectedAnimation, detectedCrossfade);
+        Log("CHARGE WINDUP STARTED");
+    }
+
+    private void UpdateWindup()
+    {
+        if (facePlayerDuringWindup && player != null)
+        {
+            Vector3 direction = player.position - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 0.0001f)
+                transform.rotation = Quaternion.RotateTowards(
+                    transform.rotation, Quaternion.LookRotation(direction.normalized),
+                    chargeTurnSpeed * Time.deltaTime);
+        }
+
+        if (Time.time >= windupEndTime)
+        {
+            IsWindingUp = false;
+            BeginCharge();
+        }
     }
 
     private void BeginCharge()
@@ -227,6 +277,20 @@ public class BossChargeAttack : MonoBehaviour
         destroyedCoverRoots.Clear();
         ignoredDebrisColliders.Clear();
 
+        // Controllers were already paused during the wind-up.
+
+        transform.rotation =
+            Quaternion.LookRotation(chargeDirection);
+
+        IsCharging = true;
+
+        PlayState(dashAnimation, dashCrossfade);
+
+        Log("CHARGE STARTED | Speed=" + chargeSpeed);
+    }
+
+    private void SaveAndPauseControllers()
+    {
         aiWasEnabled = ai != null && ai.enabled;
 
         agentWasStopped =
@@ -267,14 +331,6 @@ public class BossChargeAttack : MonoBehaviour
             bossAnimator.applyRootMotion = false;
         }
 
-        transform.rotation =
-            Quaternion.LookRotation(chargeDirection);
-
-        IsCharging = true;
-
-        PlayState(dashAnimation, dashCrossfade);
-
-        Log("CHARGE STARTED | Speed=" + chargeSpeed);
     }
 
     private void UpdateCharge()
@@ -671,6 +727,7 @@ public class BossChargeAttack : MonoBehaviour
     {
         RestoreControllers();
 
+        IsWindingUp = false;
         IsCharging = false;
         IsRecovering = false;
     }
