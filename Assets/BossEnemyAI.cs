@@ -15,7 +15,7 @@ using FS_LocomotionSystem;
 public class BossEnemyAI : MonoBehaviour
 {
     [Header("Animation States")]
-    [SerializeField] private string idleState = "idle";
+    [SerializeField] private string idleState = "Idle";
     [SerializeField] private string runState = "run";
     [SerializeField] private string attackState = "Attack";
     [SerializeField] private string detectedState = "Detected";
@@ -41,6 +41,24 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float walkingHearingRange = 25f;
     [SerializeField] private float crouchingHearingRange = 8f;
     [SerializeField] private float minimumMovementSpeed = 0.05f;
+    [Tooltip("Crouching is silent by default. Enable if crouched footsteps should still be audible at close range.")]
+    [SerializeField] private bool hearCrouchedFootsteps = false;
+    [Header("Reliable Footstep Detection")]
+    [Tooltip("Minimum horizontal speed for footsteps. Checks both Fantacode velocity and actual transform movement.")]
+    [SerializeField, Min(0.02f)] private float minimumAudibleFootstepSpeed = 0.12f;
+    [Tooltip("Optional: walls attenuate footstep hearing. Off by default to restore the normal hearing ranges.")]
+    [SerializeField] private bool muffleFootstepsThroughWalls = false;
+    [Tooltip("Enable to see once-per-second hearing diagnostics, including why a sound was rejected.")]
+    [SerializeField] private bool debugFootstepHearing = false;
+    private bool hasPreviousFootstepPosition;
+    private Vector3 previousFootstepPosition;
+    private float previousFootstepSampleTime;
+    private float nextFootstepDebugTime;
+    [Header("Realistic Sound Occlusion")]
+    [Tooltip("Which solid obstacles muffle movement sounds. Match your wall/cover layers.")]
+    [SerializeField] private LayerMask hearingOcclusionLayers = ~0;
+    [Tooltip("A wall reduces the effective hearing range to this fraction. A nearby loud sound can still be heard.")]
+    [SerializeField, Range(0.01f, 1f)] private float obstructedHearingMultiplier = 0.75f;
     [SerializeField] private float movementCheckInterval = 0.05f;
     [SerializeField] private float movementInvestigationInterval = 0.5f;
     [SerializeField] private float minimumNewSoundDistance = 1.5f;
@@ -49,13 +67,13 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float investigateSpeed = 4.5f;
     [SerializeField] private float investigateStoppingDistance = 1.1f;
     [SerializeField] private float investigateTimeout = 12f;
-    [SerializeField] private float investigateLookDuration = 3f;
+    [SerializeField] private float investigateLookDuration = 3.2f;
     [SerializeField] private float investigateLookTurnSpeed = 110f;
     [SerializeField] private float soundPositionSampleRadius = 5f;
 
     [Header("Detection and Chase")]
     [SerializeField] private float detectedDuration = 1.5f;
-    [SerializeField] private float turnSpeed = 720f;
+    [SerializeField] private float turnSpeed = 220f;
     [SerializeField] private float chaseSpeed = 5f;
     [SerializeField] private float chaseStoppingDistance = 1.5f;
     [SerializeField] private float chasePathRefreshInterval = 0.15f;
@@ -73,10 +91,10 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float searchRadius = 9f;
     [SerializeField] private float maximumSearchRadius = 22f;
     [SerializeField] private int searchCandidates = 25;
-    [SerializeField] private float searchPointTimeout = 7f;
-    [SerializeField] private float searchPauseDuration = 1.2f;
+    [SerializeField] private float searchPointTimeout = 16f;
+    [SerializeField] private float searchPauseDuration = 0.4f;
     [SerializeField] private float searchArrivalDistance = 1.1f;
-    [SerializeField] private float minimumPointSeparation = 2.5f;
+    [SerializeField] private float minimumPointSeparation = 3.0f;
     [SerializeField] private float blindSpotPriority = 2.5f;
     [SerializeField] private LayerMask searchObstructionLayers = ~0;
 
@@ -92,7 +110,7 @@ public class BossEnemyAI : MonoBehaviour
     private int perimeterChecksPlanned;
     [SerializeField, Min(0.2f)] private float perimeterClearance = 1.0f;
     [SerializeField, Min(0.5f)] private float perimeterSearchRadius = 10f;
-    [SerializeField, Min(0f)] private float cornerLookSeconds = 0.15f;
+    [SerializeField, Min(0f)] private float cornerLookSeconds = 0.0f;
     private int searchRepathAttempts;
     private Vector3 investigationApproachPosition;
     [SerializeField, Min(0.1f)] private float wallScanPause = 0.3f;
@@ -104,14 +122,142 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField, Min(0.01f)] private float investigationMinimumMovement = 0.25f;
     [SerializeField, Min(1)] private int investigationMaxFailedPaths = 5;
     [SerializeField, Min(1f)] private float investigationMaximumTravelSeconds = 35f;
-    [SerializeField, Min(0f)] private float investigationScanAngle = 75f;
-    [SerializeField, Min(1f)] private float investigationScanSpeed = 135f;
-    [SerializeField, Min(0f)] private float investigationScanHold = 0.45f;
+    [SerializeField, Min(0f)] private float investigationScanAngle = 55f;
+    [SerializeField, Min(1f)] private float investigationScanSpeed = 95f;
+    [SerializeField, Min(0f)] private float investigationScanHold = 0.18f;
     [SerializeField, Min(1)] private int minimumSearchStops = 5;
-    [SerializeField, Min(0f)] private float nearbyCoverSearchRadius = 15f;
-    [SerializeField, Min(0)] private int maximumCoverTargetsPerInvestigation = 30;
-    [SerializeField, Min(1f)] private float investigationCoverTimeout = 18f;
-    [SerializeField, Min(0f)] private float coverSearchPause = 1.5f;
+    [SerializeField, Min(0f)] private float nearbyCoverSearchRadius = 25f;
+    [Header("Persistent Cover Clearing")]
+    [Tooltip("The boss looks for all living Cover objects at least this far from the clue, even if the older radius was saved smaller on a prefab.")]
+    [SerializeField, Min(1f)] private float minimumCoverClearRadius = 32f;
+    [Tooltip("Cover is considered reachable for an attack when within Attack Distance plus this tolerance. This matches the NavMesh attack-position check.")]
+    [SerializeField, Min(0f)] private float coverHitReachTolerance = 0.35f;
+    [Tooltip("If still physically moving toward cover this won't reset its route. Only stagnant approach paths are retried.")]
+    [SerializeField, Min(0.5f)] private float coverStuckCheckSeconds = 2.5f;
+    [SerializeField, Min(0.05f)] private float coverMinimumProgress = 0.2f;
+    [SerializeField, Range(1, 8)] private int coverStuckRetries = 4;
+    [Tooltip("Allow extra time to clear remaining cover instead of exiting at the ordinary search timer.")]
+    [SerializeField, Min(10f)] private float coverClearExtraTime = 140f;
+    [SerializeField] private bool debugCoverSweep = false;
+    private float coverProgressCheckAt;
+    private Vector3 coverProgressPosition;
+    private int coverStallAttempts;
+    private int coversDestroyedThisSearch;
+    private int finalCoverRechecks;
+
+    [Tooltip("Give each unreachable or hard-to-approach cover more than one chance before skipping it.")]
+    [SerializeField, Range(1, 10)] private int maximumCoverApproachAttempts = 6;
+    [SerializeField, Min(0)] private int maximumCoverTargetsPerInvestigation = 60;
+    [SerializeField, Min(1f)] private float investigationCoverTimeout = 32f;
+    [SerializeField, Min(0f)] private float coverSearchPause = 0.04f;
+    [Header("Stable Rotation & Deliberate Scanning")]
+    [SerializeField, Range(60f, 360f)] private float movementTurnSpeed = 180f;
+    [SerializeField, Min(0.1f)] private float minimumSteeringLookAhead = 0.85f;
+    [SerializeField, Min(0.1f)] private float steeringDirectionSmoothness = 6f;
+    [SerializeField, Range(0.1f, 12f)] private float rotationDeadZone = 2.5f;
+    [SerializeField, Min(1f)] private float distanceBetweenFullScans = 4.0f;
+    [SerializeField, Min(0f)] private float minimumSecondsBetweenScans = 3f;
+    [SerializeField, Min(0.25f)] private float deliberateScanTimeout = 3.0f;
+    [SerializeField, Min(0f)] private float coverAttackApproachMargin = 0.25f;
+    private Vector3 smoothedMovementHeading;
+    private Quaternion stableBodyRotation;
+    private Quaternion requestedBodyRotation;
+    private float requestedTurnSpeed;
+    private bool hasRequestedBodyRotation;
+    private bool stableBodyRotationInitialized;
+    private Vector3 lastFullScanPosition;
+    private float nextFullScanAllowed;
+    private bool searchPauseHasScan;
+    private Vector3 coverApproachPoint;
+    private bool coverApproachValid;
+
+    [Header("Ruthless Investigation / Cover Clearing")]
+    [Tooltip("After checking the wall, systematically destroy every reachable Cover within range.")]
+    [SerializeField] private bool clearAllNearbyCover = true;
+    [SerializeField, Min(0f)] private float initialCoverSearchGrace = 0.7f;
+    [SerializeField, Min(0f)] private float chainedCoverDelay = 0.03f;
+    [SerializeField, Min(0.2f)] private float aggressiveCoverHitInterval = 0.55f;
+    [Tooltip("Multiplies hit damage during lost-contact cover-clearing. Works with existing serialized Cover Damage.")]
+    [SerializeField, Min(1f)] private float coverSearchDamageMultiplier = 1.5f;
+    [SerializeField, Min(0.1f)] private float meaningfulHearingSpeed = 0.75f; // Legacy tuning; footstep hearing uses minimumAudibleFootstepSpeed.
+    [SerializeField, Min(0.2f)] private float soundRetargetDistance = 12f;
+    [SerializeField, Min(0.2f)] private float soundRetargetCooldown = 7f;
+    [Tooltip("After clearing cover around a clue, investigate nearby corners briefly, then return to patrol.")]
+    [SerializeField, Min(0f)] private float postCoverSweepLookSeconds = 8f;
+    [Tooltip("The boss occasionally looks around while patrolling, without stopping every few steps.")]
+    [SerializeField, Min(2f)] private float patrolScanInterval = 12f;
+    [SerializeField, Min(0.2f)] private float patrolScanDuration = 1.5f;
+    private bool patrolScanning;
+    private float patrolScanEndTime;
+    private float nextPatrolScanTime;
+    private bool coverSweepCompleted;
+    private float coverSweepFinishedAt;
+    [SerializeField] private bool continuousWandering = true;
+    [SerializeField, Min(0.05f)] private float movementAnimationGrace = 0.18f;
+    private bool clearingNearbyCover;
+    private float lastSoundRetargetTime = float.NegativeInfinity;
+    private float lastActuallyMovingTime = float.NegativeInfinity;
+    private float searchPointAllowedTime;
+
+    [Header("Aggressive Cover Searching")]
+    [SerializeField, Min(0)] private int wallChecksBeforeFirstCoverAttack = 1;
+    [SerializeField, Min(1)] private int wallChecksBetweenCoverAttacks = 1;
+    [SerializeField, Min(0f)] private float minimumCoverSearchDuration = 80f;
+    // Search follows a strict sequence: finish the wall circuit BEFORE destroying cover.
+    private enum InvestigationSearchPhase { Perimeter, CoverSweep, AreaSweep, FinalScan }
+    private InvestigationSearchPhase investigationSearchPhase;
+
+    [Header("Extended Area Search After Wall / Cover")]
+    [Tooltip("The boss keeps searching at least this long while reachable viewpoints remain. A genuinely blocked NavMesh can end the search earlier.")]
+    [SerializeField, Min(15f)] private float minimumInvestigationSearchSeconds = 85f;
+    [Tooltip("Maximum total time for this one clue, excluding time spent reacting to new evidence.")]
+    [SerializeField, Min(25f)] private float maximumInvestigationSearchSeconds = 190f;
+    [Tooltip("Travel to this many wider viewpoints PER area pass; the boss searches more than one pass.")]
+    [SerializeField, Range(6, 24)] private int extendedAreaViewpoints = 14;
+    [SerializeField, Min(4f)] private float extendedAreaSearchRadius = 19f;
+    [SerializeField, Range(1, 5)] private int minimumAreaSearchPasses = 2;
+    [SerializeField, Range(1, 30)] private int minimumExtendedViewpointsVisited = 12;
+    [SerializeField, Range(1, 6)] private int minimumCoverSweepPasses = 3;
+    [Tooltip("Brief inspection at every fourth extended search point, without prolonged idle pauses.")]
+    [SerializeField, Range(0f, 1.5f)] private float extendedWaypointLookSeconds = 0.65f;
+    [SerializeField, Range(0.5f, 3f)] private float extendedWaypointArrival = 0.95f;
+    [SerializeField, Range(4f, 30f)] private float extendedWaypointTimeout = 18f;
+    [SerializeField, Range(2, 6)] private int maximumExtendedAreaPasses = 5;
+
+    private readonly List<Vector3> extendedSearchPoints = new List<Vector3>();
+    private readonly HashSet<Cover> deferredCoverThisPass = new HashSet<Cover>();
+    private int extendedWaypointIndex;
+    private int extendedPassesFinished;
+    private int extendedStopsVisited;
+    private int coverSweepPassesFinished;
+    private bool extendedHasDestination;
+    private bool extendedLooking;
+    private float extendedLookUntil;
+    private float extendedDestinationDeadline;
+    private float extendedProgressAt;
+    private Vector3 extendedProgressPosition;
+    private int extendedRetries;
+    private float coverTargetDeadline;
+    private int perimeterWaypointIndex;
+    private bool perimeterHasDestination;
+    private int perimeterDestinationFailures;
+    private float perimeterWaypointDeadline;
+    private float perimeterProgressCheckAt;
+    private Vector3 perimeterProgressPosition;
+    private float finalScanDeadline;
+    private bool originalAutoBraking;
+    private Collider identifiedWall;
+
+    [Header("Ordered Perimeter Investigation")]
+    [Tooltip("Inspect the wall perimeter before destroying cover. Disable only to debug NavMesh route generation.")]
+    [SerializeField] private bool circleWallBeforeCover = true;
+    [SerializeField, Range(0.35f, 1.2f)] private float perimeterWaypointArrival = 0.75f;
+    [SerializeField, Range(0.5f, 6f)] private float perimeterStuckCheck = 2.5f;
+    [SerializeField, Min(0.05f)] private float perimeterMinimumProgress = 0.25f;
+    [SerializeField, Range(1, 5)] private int perimeterMaximumRepaths = 3;
+    [SerializeField, Min(0.2f)] private float finalInvestigationScanSeconds = 3.5f;
+    [SerializeField, Min(1f)] private float retargetOnNewSoundDistance = 4.5f;
+    private int nextCoverWallCheckMilestone;
     private float nextInvestigationCoverTime;
 
     [Header("Chase Obstacle Destruction")]
@@ -129,15 +275,15 @@ public class BossEnemyAI : MonoBehaviour
 
     [Header("Cover Hunting")]
     [SerializeField] private float attackDistance = 2f;
-    [SerializeField] private float coverDamage = 25f;
+    [SerializeField] private float coverDamage = 35f;
     [SerializeField] private float coverSearchInterval = 1f;
-    [SerializeField] private float coverPathRefreshInterval = 0.25f;
+    [SerializeField] private float coverPathRefreshInterval = 0.9f;
     [SerializeField] private float coverAttackRotationOffset = 0f;
 
     [Header("Wandering (no vents)")]
     [SerializeField, Min(2f)] private float wanderRadius = 18f;
     [SerializeField, Min(0.5f)] private float wanderSpeed = 2.7f;
-    [SerializeField] private Vector2 wanderPauseSeconds = new Vector2(1f, 3f);
+    [SerializeField] private Vector2 wanderPauseSeconds = new Vector2(0.1f, 0.4f);
     [SerializeField] private Vector2 coverDecisionSeconds = new Vector2(30f, 60f);
     [SerializeField, Range(0f, 1f)] private float coverDestructionChance = 0.25f;
     [SerializeField, Min(0f)] private float randomCoverMaxDistance = 12f;
@@ -201,6 +347,26 @@ public class BossEnemyAI : MonoBehaviour
     private float nextMovementInvestigation;
     private float suspicionStartTime;
     private float investigationStartTime;
+    [Header("Sound Investigation - Unstuck Navigation")]
+    [Tooltip("Spacing between attempts to calculate a sound investigation path.")]
+    [SerializeField, Min(0.25f)] private float soundPathRetryInterval = 0.8f;
+    [Tooltip("How long the boss can remain stationary on a valid path before changing approach.")]
+    [SerializeField, Min(0.75f)] private float soundStuckCheckInterval = 2.0f;
+    [SerializeField, Min(0.05f)] private float soundMinimumPathProgress = 0.22f;
+    [SerializeField, Range(6, 24)] private int soundApproachDirections = 8;
+    [SerializeField, Min(1f)] private float soundApproachMaxRadius = 5f;
+    [Tooltip("A moving player must make a substantially different sound before the boss changes its current path.")]
+    [SerializeField, Min(3f)] private float soundTravelRetargetDistance = 11f;
+    [SerializeField, Min(1f)] private float soundTravelRetargetCooldown = 5f;
+    [SerializeField] private bool debugSoundNavigation = false;
+
+    // The actual noise/visual clue and the WALKABLE NavMesh goal are not the same.
+    // Never overwrite the clue with a NavMesh.SamplePosition result.
+    private Vector3 investigationCluePosition;
+    private Vector3 failedSoundApproachPoint;
+    private bool hasFailedSoundApproach;
+    private float nextSoundPathAttempt;
+    private float lastSoundTravelRetarget = float.NegativeInfinity;
     private Vector3 committedInvestigationPoint;
     private Vector3 investigationProgressPosition;
     private float nextInvestigationProgressCheck;
@@ -216,6 +382,7 @@ public class BossEnemyAI : MonoBehaviour
     private float investigationCoverStartTime;
     private int investigationCoverTargets;
     private readonly HashSet<Cover> inspectedCovers = new HashSet<Cover>();
+    private readonly Dictionary<Cover, int> failedCoverApproaches = new Dictionary<Cover, int>();
     private float investigationLookStartTime;
     private float detectionEndTime;
     private float lastPlayerSeenTime = float.NegativeInfinity;
@@ -241,6 +408,12 @@ public class BossEnemyAI : MonoBehaviour
     private float nextMeleeTime;
     private float suspicion;
 
+    [Header("Reliable Fantacode Visual Indicator")]
+    [Tooltip("Immediate visible awareness on EACH new sighting, including after hiding.")]
+    [SerializeField, Range(0.02f, 0.9f)] private float freshSightingAwareness = 0.26f;
+    private bool hadVisualContactLastScan;
+    private int lastAwarenessFadeFrame = -1;
+
     [Header("Fantacode Awareness UI - Unified Senses")]
     [SerializeField, Range(0f, 0.99f)] private float hearingAwarenessLevel = 0.42f;
     [SerializeField, Min(0.1f)] private float hearingAwarenessHoldSeconds = 1.1f;
@@ -254,13 +427,15 @@ public class BossEnemyAI : MonoBehaviour
     {
         if (awareness == null) return;
 
-        if (Time.time > lastAudibleContactTime + hearingAwarenessHoldSeconds)
+        // This method is called from vision, hearing and LateUpdate. Fade ONCE
+        // per rendered frame so the same noise is not decayed three times.
+        if (lastAwarenessFadeFrame != Time.frameCount)
         {
-            audibleAwareness = Mathf.MoveTowards(
-                audibleAwareness, 0f,
-                Time.deltaTime / Mathf.Max(0.1f, hearingAwarenessFadeSeconds));
+            lastAwarenessFadeFrame = Time.frameCount;
+            if (Time.time > lastAudibleContactTime + hearingAwarenessHoldSeconds)
+                audibleAwareness = Mathf.MoveTowards(audibleAwareness, 0f,
+                    Time.deltaTime / Mathf.Max(0.1f, hearingAwarenessFadeSeconds));
         }
-
         awareness.SetAwareness(Mathf.Clamp01(Mathf.Max(suspicion, audibleAwareness)));
     }
     [Header("Partial Visual Detection")]
@@ -281,7 +456,7 @@ public class BossEnemyAI : MonoBehaviour
     private Vector3 wanderDestination;
     private bool hasWanderDestination;
     private bool coverHuntActive;
-    [SerializeField] private float coverHitFallbackSeconds = 1.4f;
+    [SerializeField] private float coverHitFallbackSeconds = 0.55f;
     private float nextCoverFallbackHit;
     private Vector3 wanderOrigin;
 
@@ -349,7 +524,11 @@ public class BossEnemyAI : MonoBehaviour
         bossAnimator.applyRootMotion = false;
 
         meleeHash = Animator.StringToHash(meleeState);
-        idleHash = Animator.StringToHash(idleState);
+        // Force the exact state name: existing scene components may retain
+        // an older serialized lowercase "idle" value in the Inspector.
+        idleHash = Animator.StringToHash("Idle");
+        if (!bossAnimator.HasState(0, idleHash))
+            Debug.LogWarning("BossEnemyAI: Animator layer 0 needs a state named exactly 'Idle'.", this);
         runHash = Animator.StringToHash(runState);
         // Cover attacks always use the exact Animator state named "Attack".
         // This also avoids an old serialized Inspector value of "attack".
@@ -357,14 +536,19 @@ public class BossEnemyAI : MonoBehaviour
         detectedHash = Animator.StringToHash(detectedState);
         suspiciousHash = Animator.StringToHash(suspiciousState);
 
+        originalAutoBraking = agent.autoBraking;
         originalAgentSpeed = agent.speed;
         originalStoppingDistance = agent.stoppingDistance;
 
         agent.updateRotation = false;
+        stableBodyRotation = transform.rotation;
+        stableBodyRotationInitialized = true;
+        lastFullScanPosition = transform.position - Vector3.forward * 100f;
 
         previousPosition = transform.position;
         wanderOrigin = transform.position;
         nextCoverDecision = Time.time + Random.Range(coverDecisionSeconds.x, coverDecisionSeconds.y);
+        nextPatrolScanTime = Time.time + patrolScanInterval;
         initialized = true;
     }
 
@@ -393,6 +577,7 @@ public class BossEnemyAI : MonoBehaviour
             return;
 
         agent.isStopped = false;
+        agent.autoBraking = originalAutoBraking;
         agent.speed = originalAgentSpeed;
         agent.stoppingDistance = originalStoppingDistance;
         agent.updateRotation = false;
@@ -418,6 +603,9 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
+        // Exactly one navigation / scan / cover-facing request per frame.
+        hasRequestedBodyRotation = false;
+
         if (pendingPostChargeSearch)
         {
             pendingPostChargeSearch = false;
@@ -435,6 +623,9 @@ public class BossEnemyAI : MonoBehaviour
         UpdateMeasuredVelocity();
         CheckVision();
         CheckPlayerMovement();
+        if (AgentReady() && (mode != BossMode.Search ||
+            investigationSearchPhase != InvestigationSearchPhase.Perimeter))
+            agent.autoBraking = originalAutoBraking;
 
         switch (mode)
         {
@@ -475,12 +666,18 @@ public class BossEnemyAI : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!initialized ||
-            ai.Damagable.IsDead ||
-            ChargeBusy)
+        if (!initialized || ai.Damagable.IsDead) return;
+        if (ChargeBusy)
         {
+            // BossChargeAttack owns yaw for Detected -> Dash -> Stunned.
+            stableBodyRotation = transform.rotation;
+            stableBodyRotationInitialized = true;
             return;
         }
+
+        // Our script is the only system allowed to rotate this NavMeshAgent.
+        // Never allow automatic agent rotation to fight search scans / cover facing.
+        if (AgentReady()) agent.updateRotation = false;
 
         // Keep the UI driven by the same suspicion value as the boss.
         // Some third-party AI components also update AwarenessSystem in Update.
@@ -488,18 +685,25 @@ public class BossEnemyAI : MonoBehaviour
         // for this frame without interrupting the investigation itself.
         UpdateUnifiedAwareness();
 
-        if ((mode == BossMode.Cover || mode == BossMode.Chase) &&
-            attackingCover &&
-            hasLockedCoverRotation)
-        {
-            transform.rotation = lockedCoverRotation;
-        }
+        if (mode == BossMode.Search && attackingCover && hasLockedCoverRotation)
+            RequestBodyRotation(lockedCoverRotation, movementTurnSpeed);
 
-        if (mode == BossMode.Detected &&
-            trackedPlayer != null)
-        {
+        if (mode == BossMode.Detected && trackedPlayer != null)
             FacePosition(trackedPlayer.position, turnSpeed);
+
+        // Final single writer of the boss's body yaw. Using the previous
+        // authored rotation (rather than another component's transient yaw)
+        // prevents third-party AI and NavMesh steering from causing spin.
+        if (!stableBodyRotationInitialized)
+        {
+            stableBodyRotation = transform.rotation;
+            stableBodyRotationInitialized = true;
         }
+        if (hasRequestedBodyRotation)
+            stableBodyRotation = Quaternion.RotateTowards(
+                stableBodyRotation, requestedBodyRotation,
+                Mathf.Max(1f, requestedTurnSpeed) * Time.deltaTime);
+        transform.rotation = stableBodyRotation;
     }
 
     // =====================================================
@@ -516,6 +720,7 @@ public class BossEnemyAI : MonoBehaviour
 
         trackedPlayer = null;
         lastPlayerSeenTime = float.NegativeInfinity;
+        hadVisualContactLastScan = false;
 
         attackingCover = false;
         hasLockedCoverRotation = false;
@@ -535,6 +740,7 @@ public class BossEnemyAI : MonoBehaviour
 
         if (suppressHearingAfterCharge)
             hearingSuppressedUntil = visionSuppressedUntil;
+        hasPreviousFootstepPosition = false;
 
         pendingPostChargeSearch = true;
         currentAnimationHash = 0;
@@ -651,136 +857,146 @@ public class BossEnemyAI : MonoBehaviour
 
     private void CheckPlayerMovement()
     {
-        if (Time.time < hearingSuppressedUntil)
+        if (Time.time < hearingSuppressedUntil || ChargeBusy)
             return;
 
         if (player == null)
         {
             FindPlayerAutomatically();
-
-            if (player == null)
-                return;
+            if (player == null) return;
         }
-
-        if (!ResolvePlayerLocomotion())
+        if (!ResolvePlayerLocomotion() || Time.time < nextMovementCheck)
             return;
+        nextMovementCheck = Time.time + Mathf.Max(0.02f, movementCheckInterval);
 
-        if (Time.time < nextMovementCheck)
-            return;
+        // IMPORTANT: CurrentVelocity can be close to zero after root-motion
+        // rolls, animation hand-offs and some Fantacode locomotion transitions.
+        // Measure actual character displacement too, instead of making the
+        // hearing system completely deaf when that property is temporarily zero.
+        Vector3 heardPosition = playerLocomotion.transform.position;
+        Vector3 controllerVelocity = playerLocomotion.CurrentVelocity;
+        controllerVelocity.y = 0f;
+        float controllerSpeed = controllerVelocity.magnitude;
 
-        nextMovementCheck =
-            Time.time +
-            Mathf.Max(0.02f, movementCheckInterval);
+        float displacementSpeed = 0f;
+        if (hasPreviousFootstepPosition)
+        {
+            float dt = Time.time - previousFootstepSampleTime;
+            if (dt > 0.001f)
+            {
+                Vector3 delta = heardPosition - previousFootstepPosition;
+                delta.y = 0f;
+                displacementSpeed = delta.magnitude / dt;
+            }
+        }
+        previousFootstepPosition = heardPosition;
+        previousFootstepSampleTime = Time.time;
+        hasPreviousFootstepPosition = true;
+        float speed = Mathf.Max(controllerSpeed, displacementSpeed);
 
-        Vector3 velocity =
-            playerLocomotion.CurrentVelocity;
-
-        velocity.y = 0f;
-
-        float speed = velocity.magnitude;
+        bool crouching = playerLocomotion.IsCrouching;
         MoveType moveType = playerLocomotion.moveType;
+        float hearingRange = crouching ? crouchingHearingRange :
+            moveType == MoveType.Sprint ? sprintHearingRange :
+            moveType == MoveType.Run ? runningHearingRange : walkingHearingRange;
 
-        float hearingRange;
-        string movementName;
+        float threshold = Mathf.Max(0.02f, minimumAudibleFootstepSpeed);
+        bool moving = speed >= threshold;
+        bool audible = moving && (!crouching || hearCrouchedFootsteps) &&
+                       IsSoundAudible(heardPosition, hearingRange);
 
-        if (playerLocomotion.IsCrouching)
+        if (debugFootstepHearing && Time.time >= nextFootstepDebugTime)
         {
-            hearingRange = crouchingHearingRange;
-            movementName = "CROUCHING";
+            nextFootstepDebugTime = Time.time + 1f;
+            Debug.Log("[BOSS HEARING] " + (audible ? "HEARD" : "NOT HEARD") +
+                " | movement=" + moveType + " crouch=" + crouching +
+                " | coreSpeed=" + controllerSpeed.ToString("F2") +
+                " displacementSpeed=" + displacementSpeed.ToString("F2") +
+                " | range=" + hearingRange.ToString("F1") +
+                " distance=" + Vector3.Distance(transform.position, heardPosition).ToString("F1") +
+                " | muffleWalls=" + muffleFootstepsThroughWalls +
+                " | mode=" + mode, this);
         }
-        else if (moveType == MoveType.Sprint)
-        {
-            hearingRange = sprintHearingRange;
-            movementName = "SPRINTING";
-        }
-        else if (moveType == MoveType.Run)
-        {
-            hearingRange = runningHearingRange;
-            movementName = "RUNNING";
-        }
-        else
-        {
-            hearingRange = walkingHearingRange;
-            movementName = "WALKING";
-        }
+        if (!audible) return;
 
-        Vector3 heardPosition =
-            playerLocomotion.transform.position;
+        // Walking/running may produce a continuous stream of samples. A sound
+        // is NEW when it resumes after silence or changes its location enough
+        // to give the boss genuinely new information. This prevents thrashing.
+        bool newlyAudibleAfterSilence =
+            Time.time - lastAudibleContactTime >= 1.3f;
 
-        float distance = Vector3.Distance(
-            transform.position,
-            heardPosition
-        );
-
-        if (logMovementChecks)
-        {
-            Debug.Log(
-                "[BOSS HEARING] " +
-                movementName +
-                " | Speed=" + speed.ToString("F2") +
-                " | Distance=" + distance.ToString("F1") +
-                " | Range=" + hearingRange.ToString("F1") +
-                " | Mode=" + mode,
-                this
-            );
-        }
-
-        if (speed < minimumMovementSpeed ||
-            distance > hearingRange)
-        {
-            return;
-        }
-
-        // Register EVERY audible player movement, even while already
-        // investigating, chasing, or attacking. Hearing is UI feedback,
-        // not permission to overwrite the current navigation goal.
+        // Hearing contributes to the SAME Fantacode awareness meter as sight.
+        // This happens regardless of the boss's investigation state.
         lastAudibleContactTime = Time.time;
         audibleAwareness = Mathf.Max(audibleAwareness, hearingAwarenessLevel);
         UpdateUnifiedAwareness();
 
-        if (mode == BossMode.Search && investigationCover != null)
+        if (logMovementChecks)
+            Debug.Log("[BOSS HEARD] " + moveType + " at " + heardPosition +
+                      " | state=" + mode, this);
+
+        // A confirmed visual target always overrides footstep investigations.
+        if (hadVisualContactLastScan || mode == BossMode.Chase ||
+            mode == BossMode.Detected || mode == BossMode.Melee)
+            return;
+
+        if (mode != BossMode.Cover && mode != BossMode.Search &&
+            mode != BossMode.InvestigateTravel && mode != BossMode.InvestigateLook)
+            return;
+
+        // Once a visual clue is committed, don't replace it with minor sounds.
+        if (investigatingVisualClue &&
+            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook))
+            return;
+
+        // Walking/running while patrolling triggers a new sound investigation.
+        // During investigation, a substantially DIFFERENT sound can redirect
+        // the boss, but footsteps inside the current area won't restart the
+        // NavMesh path or constantly interrupt cover attacks.
+        if (mode != BossMode.Cover)
         {
-            EndInvestigationCoverAttack();
+            Vector3 currentClue = mode == BossMode.Search ? soundLocation : committedInvestigationPoint;
+            Vector3 offset = heardPosition - currentClue;
+            offset.y = 0f;
+            float relocationDistance = mode == BossMode.InvestigateTravel
+                ? Mathf.Max(soundTravelRetargetDistance, retargetOnNewSoundDistance)
+                : Mathf.Max(5f, retargetOnNewSoundDistance);
+            bool significantNewLocation = offset.magnitude >= relocationDistance;
+            bool newEventWithNewPosition = mode != BossMode.InvestigateTravel &&
+                newlyAudibleAfterSilence && offset.magnitude >= relocationDistance;
+            float cooldown = mode == BossMode.InvestigateTravel
+                ? soundTravelRetargetCooldown : 3.5f;
+            // Only a genuinely new clue changes the current sound destination.
+            // Small steps within the same area must NEVER restart navigation.
+            if ((!significantNewLocation && !newEventWithNewPosition) ||
+                Time.time - lastSoundRetargetTime < cooldown)
+                return;
         }
-
-        if ((mode != BossMode.Cover && mode != BossMode.Search) ||
-            (mode == BossMode.Cover && Time.time < nextInvestigationAllowed))
+        else if (Time.time < nextMovementInvestigation)
             return;
 
-        if (Time.time < nextMovementInvestigation)
-            return;
-
-        nextMovementInvestigation =
-            Time.time + movementInvestigationInterval;
-
-        Log(
-            "BOSS HEARD " +
-            movementName +
-            " AT " +
-            heardPosition
-        );
-
+        nextMovementInvestigation = Time.time + Mathf.Max(0.25f, movementInvestigationInterval);
+        lastSoundRetargetTime = Time.time;
         BeginMovementInvestigation(heardPosition);
+        Log("BOSS HEARD WALKING/RUNNING - INVESTIGATING: " + heardPosition);
     }
 
-    // Live sensory evidence suppresses destructive blind searching.
-    // Sight uses the same fresh-contact timestamp as the chase system.
-    // Sound is sampled directly so search can react before the next hearing tick.
-    private bool HasLiveSensoryClue()
+    private bool IsSoundAudible(Vector3 soundPosition, float normalRange)
     {
-        if (Time.time - lastPlayerSeenTime <= 0.3f)
-            return true;
-        if (Time.time < hearingSuppressedUntil || !ResolvePlayerLocomotion())
-            return false;
-        Vector3 velocity = playerLocomotion.CurrentVelocity;
-        velocity.y = 0f;
-        if (velocity.magnitude < minimumMovementSpeed)
-            return false;
-        float range = playerLocomotion.IsCrouching ? crouchingHearingRange :
-            playerLocomotion.moveType == MoveType.Sprint ? sprintHearingRange :
-            playerLocomotion.moveType == MoveType.Run ? runningHearingRange :
-            walkingHearingRange;
-        return Vector3.Distance(transform.position, playerLocomotion.transform.position) <= range;
+        float distance = Vector3.Distance(transform.position, soundPosition);
+        if (distance > normalRange) return false;
+
+        // Default: preserve hearing ranges even through walls. A blanket
+        // ~0 layer mask previously marked practically all sounds as occluded.
+        if (!muffleFootstepsThroughWalls) return true;
+
+        Vector3 ear = transform.position + Vector3.up * eyeHeight;
+        Vector3 source = soundPosition + Vector3.up * targetHeight;
+        Transform ignoredPlayer = playerLocomotion != null
+            ? playerLocomotion.transform : player;
+        bool blocked = IsBlocked(ear, source, hearingOcclusionLayers, ignoredPlayer);
+        if (!blocked) return true;
+        return distance <= normalRange * Mathf.Clamp(obstructedHearingMultiplier, 0.25f, 1f);
     }
 
     // A visual clue always supersedes a sound investigation. The destination
@@ -801,6 +1017,7 @@ public class BossEnemyAI : MonoBehaviour
             InterruptCoverAttack();
 
         // Stop any ongoing sound search / cover attack before changing goals.
+        patrolScanning = false;
         CancelSearch();
         investigationCover = null;
         currentCover = null;
@@ -809,10 +1026,14 @@ public class BossEnemyAI : MonoBehaviour
         investigatingVisualClue = true;
         lostPlayerCoverSearch = false;
         partialVisualInvestigationStarted = true;
+        investigationCluePosition = position;
         committedInvestigationPoint = position;
         soundLocation = position;
+        hasFailedSoundApproach = false;
+        nextSoundPathAttempt = 0f;
         lastKnownPlayerPosition = position;
         investigationCoverTargets = 0;
+        nextCoverWallCheckMilestone = wallChecksBeforeFirstCoverAttack;
         inspectedCovers.Clear();
         investigationStartTime = Time.time;
         investigationFailedPaths = 0;
@@ -829,50 +1050,185 @@ public class BossEnemyAI : MonoBehaviour
 
     private void BeginMovementInvestigation(Vector3 position)
     {
-        if (mode != BossMode.Cover && mode != BossMode.Search)
+        if (mode != BossMode.Cover && mode != BossMode.Search &&
+            mode != BossMode.InvestigateTravel && mode != BossMode.InvestigateLook)
             return;
+        if (investigatingVisualClue &&
+            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook))
+            return;
+
+        // Retarget while STILL MOVING. Do not call CancelSearch / StopAgent:
+        // those were causing the boss to restart its running animation and
+        // hesitate every time the walking player emitted another sound.
+        if (mode == BossMode.InvestigateTravel)
+        {
+            if (Time.time - lastSoundTravelRetarget < soundTravelRetargetCooldown ||
+                FlatDistance(position, investigationCluePosition) < soundTravelRetargetDistance)
+                return;
+
+            Vector3 priorClue = investigationCluePosition;
+            Vector3 priorGoal = committedInvestigationPoint;
+            investigationCluePosition = position;
+            hasFailedSoundApproach = false;
+            nextSoundPathAttempt = 0f;
+            if (TrySetInvestigationPath())
+            {
+                lastSoundTravelRetarget = Time.time;
+                investigationStartTime = Time.time;
+                investigationFailedPaths = 0;
+                investigationProgressPosition = transform.position;
+                nextInvestigationProgressCheck = Time.time + soundStuckCheckInterval;
+                Log("BOSS FOLLOWING SIGNIFICANT NEW SOUND: " + position);
+            }
+            else
+            {
+                // The new sound cannot be reached. Keep pursuing the valid
+                // existing destination instead of stopping or running in place.
+                investigationCluePosition = priorClue;
+                committedInvestigationPoint = priorGoal;
+                investigationPathRequested = AgentReady() && agent.hasPath;
+            }
+            return;
+        }
 
         if (mode == BossMode.Cover)
             InterruptCoverAttack();
 
+        patrolScanning = false;
         CancelSearch();
+        currentCover = null;
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        coverApproachValid = false;
         investigatingVisualClue = false;
         lostPlayerCoverSearch = false;
+        investigationCluePosition = position;
         committedInvestigationPoint = position;
         soundLocation = position;
+        hasFailedSoundApproach = false;
+        nextSoundPathAttempt = 0f;
         investigationCover = null;
         investigationCoverTargets = 0;
+        nextCoverWallCheckMilestone = wallChecksBeforeFirstCoverAttack;
         inspectedCovers.Clear();
         mode = BossMode.InvestigateTravel;
         investigationStartTime = Time.time;
+        lastSoundTravelRetarget = Time.time;
         investigationFailedPaths = 0;
         investigationApproachPosition = transform.position;
         investigationPathRequested = false;
-        nextInvestigationProgressCheck = Time.time + investigationProgressInterval;
+        nextInvestigationProgressCheck = Time.time + soundStuckCheckInterval;
         investigationProgressPosition = transform.position;
         currentAnimationHash = 0;
         nextInvestigationAllowed = Time.time + searchRestartCooldown;
-        TrySetInvestigationPath();
-        Log("BOSS INVESTIGATING LAST SEEN POSITION: " + position);
+        if (!TrySetInvestigationPath())
+            Log("SOUND LOCATION NOT DIRECTLY REACHABLE - TRYING ALTERNATE APPROACH");
+        Log("BOSS INVESTIGATING SOUND: " + position);
     }
 
+    private static float FlatDistance(Vector3 a, Vector3 b)
+    {
+        a.y = b.y = 0f;
+        return Vector3.Distance(a, b);
+    }
+
+    // A heard location may be inside a wall, on inaccessible geometry, or
+    // on a NavMesh island the boss cannot reach. Sample approachable positions
+    // around the REAL sound source, validate complete paths, and commit once.
     private bool TrySetInvestigationPath()
     {
-        if (!AgentReady()) return false;
-        NavMeshHit hit;
-        if (!NavMesh.SamplePosition(committedInvestigationPoint, out hit,
-                soundPositionSampleRadius, NavMesh.AllAreas)) return false;
-        NavMeshPath path = new NavMeshPath();
-        if (!agent.CalculatePath(hit.position, path) ||
-            path.status != NavMeshPathStatus.PathComplete) return false;
-        committedInvestigationPoint = hit.position;
+        if (!AgentReady() || Time.time < nextSoundPathAttempt) return false;
+        nextSoundPathAttempt = Time.time + Mathf.Max(0.25f, soundPathRetryInterval);
+
+        Vector3 bestPosition = Vector3.zero;
+        NavMeshPath bestPath = null;
+        float bestScore = float.PositiveInfinity;
+
+        ConsiderSoundApproach(investigationCluePosition, 1.6f,
+            ref bestPosition, ref bestPath, ref bestScore);
+
+        // Most sounds already lie on a walkable point. Avoid an expensive
+        // ring search on those frames; sample the ring only when the center is
+        // unreachable or when recovering from an actual stall.
+        if (bestPath == null || hasFailedSoundApproach)
+        {
+            int directions = Mathf.Max(6, soundApproachDirections);
+            int ringCount = 3;
+            for (int ring = 1; ring <= ringCount; ring++)
+            {
+                float radius = soundApproachMaxRadius * ring / ringCount;
+                for (int i = 0; i < directions; i++)
+                {
+                    float angle = (i + (ring % 2) * 0.5f) * Mathf.PI * 2f / directions;
+                    Vector3 sample = investigationCluePosition + new Vector3(
+                        Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+                    ConsiderSoundApproach(sample, 0.85f,
+                        ref bestPosition, ref bestPath, ref bestScore);
+                }
+            }
+        }
+
+        if (bestPath == null)
+        {
+            if (debugSoundNavigation)
+                Debug.LogWarning("[BOSS SOUND PATH] No complete NavMesh path around " +
+                    investigationCluePosition, this);
+            return false;
+        }
+
         agent.speed = investigateSpeed;
-        agent.stoppingDistance = Mathf.Min(investigateStoppingDistance, investigationArrivalTolerance);
+        agent.stoppingDistance = Mathf.Min(investigateStoppingDistance,
+            investigationArrivalTolerance * 0.75f);
         agent.isStopped = false;
-        investigationPathRequested = agent.SetPath(path);
-        return investigationPathRequested;
+        if (!agent.SetPath(bestPath)) return false;
+
+        committedInvestigationPoint = bestPosition;
+        investigationPathRequested = true;
+        if (debugSoundNavigation)
+            Debug.Log("[BOSS SOUND PATH] source=" + investigationCluePosition +
+                " | approach=" + committedInvestigationPoint +
+                " | score=" + bestScore.ToString("F1"), this);
+        return true;
     }
 
+    private void ConsiderSoundApproach(Vector3 candidate, float snapDistance,
+        ref Vector3 bestPosition, ref NavMeshPath bestPath, ref float bestScore)
+    {
+        NavMeshHit hit;
+        if (!NavMesh.SamplePosition(candidate, out hit, snapDistance, agent.areaMask))
+            return;
+
+        if (hasFailedSoundApproach &&
+            FlatDistance(hit.position, failedSoundApproachPoint) < 1.1f)
+            return;
+
+        NavMeshPath trial = new NavMeshPath();
+        if (!agent.CalculatePath(hit.position, trial) ||
+            trial.status != NavMeshPathStatus.PathComplete)
+            return;
+
+        float pathLength = PathDistance(trial);
+        // Unity can return a one-corner path when the candidate is already
+        // beneath the boss. Treat it as a valid arrival, not an invalid path.
+        if (float.IsInfinity(pathLength) &&
+            FlatDistance(hit.position, transform.position) <= investigationArrivalTolerance)
+            pathLength = 0f;
+        if (float.IsInfinity(pathLength) || float.IsNaN(pathLength))
+            return;
+
+        float distanceToClue = FlatDistance(hit.position, investigationCluePosition);
+        float score = distanceToClue * 4.0f + pathLength * 0.22f;
+        // Avoid choosing our own position as the destination when the sound
+        // came from the other side of a solid wall.
+        if (FlatDistance(hit.position, transform.position) < 0.7f &&
+            distanceToClue > investigationArrivalTolerance)
+            score += 30f;
+
+        if (score >= bestScore) return;
+        bestScore = score;
+        bestPosition = hit.position;
+        bestPath = trial;
+    }
 
     // =====================================================
     // SUSPICIOUS
@@ -961,8 +1317,11 @@ public class BossEnemyAI : MonoBehaviour
         investigationStartTime = Time.time;
         investigationFailedPaths = 0;
         investigationPathRequested = false;
+        investigationCluePosition = soundLocation;
         committedInvestigationPoint = soundLocation;
-        nextInvestigationProgressCheck = Time.time + investigationProgressInterval;
+        nextSoundPathAttempt = 0f;
+        hasFailedSoundApproach = false;
+        nextInvestigationProgressCheck = Time.time + soundStuckCheckInterval;
         investigationProgressPosition = transform.position;
         TrySetInvestigationPath();
     }
@@ -971,78 +1330,123 @@ public class BossEnemyAI : MonoBehaviour
     {
         if (!AgentReady()) return;
         agent.speed = investigateSpeed;
-        agent.stoppingDistance = Mathf.Min(investigateStoppingDistance, investigationArrivalTolerance);
+        agent.stoppingDistance = Mathf.Min(investigateStoppingDistance,
+            investigationArrivalTolerance * 0.75f);
 
-        Vector3 delta = committedInvestigationPoint - transform.position;
-        delta.y = 0f;
-        bool arrived = !agent.pathPending &&
-            (delta.magnitude <= investigationArrivalTolerance ||
-             (agent.hasPath && agent.remainingDistance <= investigationArrivalTolerance));
+        // Arrival is checked against the WALKABLE goal, not against a player
+        // position that might be on the other side of a collider.
+        float goalDistance = FlatDistance(transform.position, committedInvestigationPoint);
+        bool arrived = investigationPathRequested && !agent.pathPending &&
+            (goalDistance <= investigationArrivalTolerance ||
+             (agent.hasPath && agent.remainingDistance <= agent.stoppingDistance + 0.22f));
+
         if (arrived)
         {
             StopAgent();
             mode = BossMode.InvestigateLook;
             investigationLookStartTime = Time.time;
-            BeginInvestigationScan();
-            Log("BOSS ARRIVED - SCANNING LAST SEEN POSITION");
+            BeginInvestigationScan(investigationCluePosition);
+            lastFullScanPosition = transform.position;
+            nextFullScanAllowed = Time.time + minimumSecondsBetweenScans;
+            Log("BOSS REACHED HEARD / SEEN CLUE AREA - LOOKING AROUND");
             return;
         }
 
-        if (!investigationPathRequested ||
-            (!agent.pathPending && (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete)))
+        // Do not spam SetPath while a path request is pending or just failed.
+        // An invalid path gets a bounded, cooldown-controlled recovery.
+        if (!agent.pathPending && (!investigationPathRequested ||
+            !agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete))
         {
-            if (!TrySetInvestigationPath()) investigationFailedPaths++;
+            if (Time.time >= nextSoundPathAttempt)
+            {
+                if (!TrySetInvestigationPath())
+                    investigationFailedPaths++;
+            }
         }
-        else
+        else if (investigationPathRequested)
         {
             agent.isStopped = false;
-            FaceMovementDirection();
+            // If the agent itself is not attempting to advance, turning the
+            // mesh toward it only produces the appearance of walking in place.
+            if (agent.desiredVelocity.sqrMagnitude > 0.03f)
+                FaceMovementDirection();
         }
 
         if (Time.time >= nextInvestigationProgressCheck)
         {
-            float moved = Vector3.Distance(transform.position, investigationProgressPosition);
-            if (moved < investigationMinimumMovement && delta.magnitude > investigationArrivalTolerance)
+            float moved = FlatDistance(transform.position, investigationProgressPosition);
+            bool shouldBeMoving = investigationPathRequested && !agent.pathPending &&
+                agent.hasPath && agent.remainingDistance >
+                agent.stoppingDistance + investigationArrivalTolerance;
+
+            if (shouldBeMoving && moved < soundMinimumPathProgress)
             {
                 investigationFailedPaths++;
-                TrySetInvestigationPath();
+                failedSoundApproachPoint = committedInvestigationPoint;
+                hasFailedSoundApproach = true;
+                if (debugSoundNavigation)
+                    Debug.LogWarning("[BOSS SOUND PATH] Agent stalled. " +
+                        "Retry " + investigationFailedPaths + "/" +
+                        investigationMaxFailedPaths + " at " + committedInvestigationPoint, this);
+                agent.ResetPath();
+                investigationPathRequested = false;
+                nextSoundPathAttempt = Time.time + Mathf.Min(0.5f, soundPathRetryInterval);
             }
-            else if (moved >= investigationMinimumMovement)
+            else if (moved >= soundMinimumPathProgress)
+            {
                 investigationFailedPaths = 0;
+                hasFailedSoundApproach = false;
+            }
+
             investigationProgressPosition = transform.position;
-            nextInvestigationProgressCheck = Time.time + investigationProgressInterval;
+            nextInvestigationProgressCheck = Time.time + soundStuckCheckInterval;
         }
 
-        // Only abandon if the NavMesh is genuinely impossible, never just
-        // because the monster is partway along a valid path.
+        // If no real progress is possible, NEVER remain permanently in the
+        // travelling/run state. Investigate the physical area from reachable
+        // nearby viewpoints, then continue into the extended cover sweep.
         if (investigationFailedPaths >= investigationMaxFailedPaths ||
             Time.time - investigationStartTime > investigationMaximumTravelSeconds)
         {
-            Log("INVESTIGATION PATH BLOCKED - SEARCHING AROUND DESTINATION");
-            StartSearch(committedInvestigationPoint);
+            Log("SOUND INVESTIGATION PATH STALLED - SEARCHING AROUND SOURCE");
+            StopAgent();
+            StartSearch(investigationCluePosition);
         }
     }
 
     private void BeginInvestigationScan()
     {
-        scanOrigin = transform.rotation;
+        BeginInvestigationScan(soundLocation);
+    }
+
+    private void BeginInvestigationScan(Vector3 focus)
+    {
+        Vector3 look = focus - transform.position;
+        look.y = 0f;
+        scanOrigin = look.sqrMagnitude > 1.0f
+            ? Quaternion.LookRotation(look.normalized)
+            : transform.rotation;
         scanIndex = 0;
         scanHolding = false;
         scanHoldUntil = 0f;
     }
 
-    private void UpdateInvestigationScan()
+    private bool UpdateInvestigationScan()
     {
-        // Center, left, center, right, center, repeat.
-        float[] steps = { 0f, -1f, 0f, 1f, 0f };
-        Quaternion target = scanOrigin * Quaternion.Euler(
-            0f, steps[scanIndex % steps.Length] * investigationScanAngle, 0f);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation,
-            target, investigationScanSpeed * Time.deltaTime);
-        if (Quaternion.Angle(transform.rotation, target) > 2f)
+        // Look toward the evidence, sweep one side, sweep the other, return.
+        // Not a full spin and not a new random turn each frame.
+        if (scanIndex >= 4) return true;
+        // No frantic 150-degree whiplash: body turns are limited even when
+        // an old prefab has a much larger serialized scan angle.
+        float sweep = Mathf.Min(38f, investigationScanAngle);
+        float angle = scanIndex == 1 ? -sweep :
+                      scanIndex == 2 ? sweep : 0f;
+        Quaternion target = scanOrigin * Quaternion.Euler(0f, angle, 0f);
+        RequestBodyRotation(target, investigationScanSpeed);
+        if (Quaternion.Angle(stableBodyRotation, target) > rotationDeadZone)
         {
             scanHolding = false;
-            return;
+            return false;
         }
         if (!scanHolding)
         {
@@ -1054,16 +1458,16 @@ public class BossEnemyAI : MonoBehaviour
             scanIndex++;
             scanHolding = false;
         }
+        return scanIndex >= 4;
     }
 
     private void UpdateInvestigationLook()
     {
         StopAgent();
-        UpdateInvestigationScan();
-        if (Time.time - investigationLookStartTime >= Mathf.Min(investigateLookDuration, 0.5f))
-            StartSearch(committedInvestigationPoint);
+        bool finishedScan = UpdateInvestigationScan();
+        if (finishedScan || Time.time - investigationLookStartTime >= investigateLookDuration)
+            StartSearch(investigationCluePosition);
     }
-
 
     // =====================================================
     // VISION
@@ -1072,7 +1476,10 @@ public class BossEnemyAI : MonoBehaviour
     private void CheckVision()
     {
         if (Time.time < visionSuppressedUntil)
+        {
+            hadVisualContactLastScan = false;
             return;
+        }
 
         if (Time.time >= nextVisionScan)
         {
@@ -1109,17 +1516,33 @@ public class BossEnemyAI : MonoBehaviour
 
         if (visible)
         {
+            bool firstFrameOfNewSighting = !hadVisualContactLastScan;
+            hadVisualContactLastScan = true;
             lastKnownPlayerPosition = seenTarget.position;
             lastPlayerSeenTime = Time.time;
 
-            // Charging keeps vision updates but owns its movement and animation.
+            // Crucial: the Fantacode marker needs a fresh nonzero value EVERY
+            // time the player reappears, including if it previously faded to 0.
+            if (firstFrameOfNewSighting)
+            {
+                // Re-arm the UI's zero -> positive transition when no hearing
+                // awareness is active. This does not force full detection.
+                if (suspicion <= 0.001f && audibleAwareness <= 0.001f && awareness != null)
+                    awareness.SetAwareness(0f);
+                suspicion = Mathf.Max(suspicion, freshSightingAwareness);
+                Log("BOSS SAW PLAYER - FANTACODE INDICATOR REACTIVATED");
+            }
+
+            // Combat continues independently of UI fade when out of sight.
+            if (mode == BossMode.Chase || mode == BossMode.Detected || mode == BossMode.Melee)
+                suspicion = 1f;
+            UpdateUnifiedAwareness();
+
+            // Charging owns its movement and animation, never the UI meter.
             if (ChargeBusy)
                 return;
 
-            // Fully detected combat is handled by the chase state.
-            if (mode == BossMode.Chase ||
-                mode == BossMode.Detected ||
-                mode == BossMode.Melee)
+            if (mode == BossMode.Chase || mode == BossMode.Detected || mode == BossMode.Melee)
                 return;
 
             hasPartialVisualContact = true;
@@ -1164,9 +1587,8 @@ public class BossEnemyAI : MonoBehaviour
 
             // Suspicious UI means the boss physically investigates immediately.
             // Once committed, the destination stays fixed until arrival.
-            if (suspicion >= investigateSuspicionThreshold &&
-                (mode == BossMode.Cover || mode == BossMode.Search) &&
-                Time.time >= nextInvestigationAllowed)
+            if (firstFrameOfNewSighting &&
+                (mode == BossMode.Cover || mode == BossMode.Search))
             {
                 partialVisualInvestigationStarted = true;
                 PrioritizeVisualClue(seenTarget.position);
@@ -1174,6 +1596,9 @@ public class BossEnemyAI : MonoBehaviour
 
             return;
         }
+
+        // A new sighting after this loss must wake the Fantacode indicator.
+        hadVisualContactLastScan = false;
 
         // Brief occlusion does not cause investigation to restart repeatedly.
         if (hasPartialVisualContact &&
@@ -1201,19 +1626,12 @@ public class BossEnemyAI : MonoBehaviour
             }
         }
 
-        if (mode != BossMode.Chase &&
-            mode != BossMode.Detected &&
-            mode != BossMode.Melee)
-        {
-            // Investigation is a committed AI task, NOT a minimum UI value.
-            // When the player breaks line of sight (including HidingArea),
-            // the meter always decays to zero, even during investigation.
-            suspicion = Mathf.MoveTowards(
-                suspicion, 0f,
-                Time.deltaTime / Mathf.Max(0.01f, suspicionFadeSeconds));
-
-            UpdateUnifiedAwareness();
-        }
+        // Fade the UI whenever vision is lost, EVEN if the boss is still
+        // pursuing a last-known combat target. This is only the visual meter;
+        // the chase/search state is independent and is not cancelled.
+        suspicion = Mathf.MoveTowards(suspicion, 0f,
+            Time.deltaTime / Mathf.Max(0.01f, suspicionFadeSeconds));
+        UpdateUnifiedAwareness();
     }
 
     private bool CanSeePlayer(Transform target)
@@ -1284,6 +1702,13 @@ public class BossEnemyAI : MonoBehaviour
             {
                 continue;
             }
+
+            // Treat every collider belonging to the player as the target,
+            // not as a wall. A sibling collider otherwise blocks vision of a
+            // VisualStimulus on the same character after reappearing.
+            if (player != null &&
+                (hitTransform == player || hitTransform.IsChildOf(player)))
+                continue;
 
             if (ignoredTarget != null &&
                 (hitTransform == ignoredTarget ||
@@ -1464,192 +1889,546 @@ public class BossEnemyAI : MonoBehaviour
             InterruptCoverAttack();
 
         CancelSearch();
-
-        // Cover search is permitted after a lost visual clue, never just a sound.
-        lostPlayerCoverSearch = lostPlayerCoverSearch || investigatingVisualClue || hasPartialVisualContact;
-        soundLocation = center;
-        nextInvestigationAllowed = Time.time + searchRestartCooldown;
+        inspectedCovers.Clear();
+        failedCoverApproaches.Clear();
+        investigationCoverTargets = 0;
+        lostPlayerCoverSearch = true;
+        soundLocation = center; // snapshot clue, never track player magically
         searchStartTime = Time.time;
-        searchDeadline = Time.time + Mathf.Max(searchDuration, 12f);
+        searchDeadline = Time.time + Mathf.Max(searchDuration, 12f) + wallCheckExtraTime;
+        nextInvestigationAllowed = Time.time + searchRestartCooldown;
         completedSearchStops = 0;
         wallChecksCompleted = 0;
-        searchRepathAttempts = 0;
+        clearingNearbyCover = false;
+        coverSweepCompleted = false;
+        searchPaused = false;
+        searchPauseHasScan = false;
+        hasSearchPoint = false;
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        currentCover = null;
+        investigationCover = null;
+        coverApproachValid = false;
+        nextInvestigationCoverTime = Time.time;
+        perimeterWaypointIndex = 0;
+        perimeterDestinationFailures = 0;
+        perimeterHasDestination = false;
+        extendedSearchPoints.Clear();
+        deferredCoverThisPass.Clear();
+        extendedWaypointIndex = 0;
+        extendedPassesFinished = 0;
+        extendedStopsVisited = 0;
+        coverSweepPassesFinished = 0;
+        coversDestroyedThisSearch = 0;
+        finalCoverRechecks = 0;
+        coverStallAttempts = 0;
+        extendedHasDestination = false;
+        extendedLooking = false;
+        extendedRetries = 0;
+
         BuildWallCheckPoints(center);
         perimeterChecksPlanned = wallCheckPoints.Count;
-        // Give the boss time to physically check corners before its search expires.
-        searchDeadline += wallCheckExtraTime;
-        investigationCover = null;
-        nextInvestigationCoverTime = Time.time;
+        investigationSearchPhase = circleWallBeforeCover && perimeterChecksPlanned > 0
+            ? InvestigationSearchPhase.Perimeter
+            : InvestigationSearchPhase.CoverSweep;
+
         mode = BossMode.Search;
         currentAnimationHash = 0;
-
         StopAgent();
-
-        Log("BOSS SEARCHING AROUND: " + center);
+        Log("BOSS SEARCH: " + center + " | ordered wall points=" +
+            perimeterChecksPlanned + " | stage=" + investigationSearchPhase);
     }
 
     private void UpdateSearching()
     {
         if (!AgentReady()) return;
 
-        // Stop smashing cover as soon as sight or a usable sound clue returns.
-        if (investigationCover != null && HasLiveSensoryClue())
+        // Vision is processed at the start of Update and can supersede search.
+        // A useful, newly located sound is handled by CheckPlayerMovement.
+        if (hadVisualContactLastScan) return;
+
+        switch (investigationSearchPhase)
         {
-            EndInvestigationCoverAttack();
+            case InvestigationSearchPhase.Perimeter:
+                UpdateOrderedPerimeter();
+                break;
+            case InvestigationSearchPhase.CoverSweep:
+                UpdateCommittedCoverSweep();
+                break;
+            case InvestigationSearchPhase.AreaSweep:
+                UpdateExtendedAreaSweep();
+                break;
+            case InvestigationSearchPhase.FinalScan:
+                StopAgent();
+                if (UpdateInvestigationScan() || Time.time >= finalScanDeadline)
+                    FinishSearch();
+                break;
+        }
+    }
+
+    // Follow the perimeter in its chosen clockwise or anticlockwise order.
+    // A waypoint is not a reason to idle or randomly select another direction.
+    private void UpdateOrderedPerimeter()
+    {
+        if (perimeterWaypointIndex >= wallCheckPoints.Count)
+        {
+            BeginCommittedCoverSweep();
             return;
         }
 
-        // A selected cover is a committed investigation target. Never switch
-        // to a random cover while searching. Wait for destruction or timeout.
-        if (investigationCover != null)
+        Vector3 target = wallCheckPoints[perimeterWaypointIndex];
+        Vector3 remaining = target - transform.position;
+        remaining.y = 0f;
+        float arrival = Mathf.Max(0.35f, perimeterWaypointArrival);
+
+        if (!perimeterHasDestination)
         {
-            bool expired = Time.time - investigationCoverStartTime > investigationCoverTimeout;
-            bool destroyed = investigationCover.IsDestroyed ||
-                             !investigationCover.isActiveAndEnabled ||
-                             !investigationCover.gameObject.activeInHierarchy;
-            if (!expired && !destroyed)
+            if (remaining.magnitude <= arrival || TrySetPerimeterDestination(target))
             {
-                currentCover = investigationCover;
-                UpdateCoverHunting();
+                if (remaining.magnitude > arrival) return;
+            }
+            else
+            {
+                // Unreachable waypoints are logged and skipped, not spun toward.
+                Log("PERIMETER point unreachable: " + perimeterWaypointIndex);
+                AdvancePerimeterWaypoint();
                 return;
             }
-            EndInvestigationCoverAttack();
+        }
+
+        if (!agent.pathPending &&
+            (remaining.magnitude <= arrival ||
+             (agent.hasPath && agent.remainingDistance <= arrival)))
+        {
+            AdvancePerimeterWaypoint();
             return;
         }
 
-        // Unity destroyed-object references compare equal to null.
-        // If cover was destroyed by TakeDamage, complete that investigation.
-        if (investigationCoverTargets > 0 && currentCover == null && attackingCover)
+        if (!agent.pathPending &&
+            (agent.pathStatus == NavMeshPathStatus.PathInvalid || !agent.hasPath ||
+             Time.time >= perimeterWaypointDeadline))
         {
-            EndInvestigationCoverAttack();
+            RetryPerimeterWaypoint();
             return;
         }
 
-        if (Time.time >= searchDeadline && (!lostPlayerCoverSearch || investigationCoverTargets >= maximumCoverTargetsPerInvestigation) && completedSearchStops >= minimumSearchStops &&
-            wallCheckPoints.TrueForAll(p => visitedPoints.Exists(v => Vector3.Distance(v, p) < minimumPointSeparation)))
+        if (!agent.pathPending && Time.time >= perimeterProgressCheckAt)
         {
-            FinishSearch();
-            return;
-        }
-        if (Time.time >= searchDeadline + searchDuration &&
-            wallChecksCompleted >= perimeterChecksPlanned)
-        {
-            FinishSearch();
-            return;
-        }
-
-        if (searchPaused)
-        {
-            StopAgent();
-            UpdateInvestigationScan();
-            if (Time.time >= searchPauseEndTime)
+            Vector3 diff = transform.position - perimeterProgressPosition;
+            diff.y = 0f;
+            perimeterProgressPosition = transform.position;
+            perimeterProgressCheckAt = Time.time + perimeterStuckCheck;
+            if (diff.magnitude < perimeterMinimumProgress)
             {
-                searchPaused = false;
-                hasSearchPoint = false;
-            }
-            return;
-        }
-
-        if (!hasSearchPoint)
-        {
-            if (lostPlayerCoverSearch && !HasLiveSensoryClue() &&
-                Time.time >= nextInvestigationCoverTime &&
-                (wallChecksCompleted >= perimeterChecksPlanned || perimeterChecksPlanned == 0) &&
-                investigationCoverTargets < maximumCoverTargetsPerInvestigation &&
-                TrySelectNearbyInvestigationCover())
-            {
-                investigationCoverTargets++;
-                searchDeadline = Mathf.Max(searchDeadline, Time.time + investigationCoverTimeout + 3f);
-                UpdateCoverHunting();
+                RetryPerimeterWaypoint();
                 return;
             }
-
-            if (!ChooseSearchPoint())
-            {
-                FinishSearch();
-                return;
-            }
-            hasSearchPoint = true;
-            searchPointStartTime = Time.time;
-            movementProgressCheckTime = Time.time;
-            movementProgressPosition = transform.position;
-            searchRepathAttempts = 0;
-            agent.isStopped = false;
-            agent.speed = investigateSpeed;
-            agent.stoppingDistance = searchArrivalDistance;
-            if (!agent.SetDestination(searchPoint))
-            {
-                visitedPoints.Add(searchPoint);
-                hasSearchPoint = false;
-            }
-            return;
+            perimeterDestinationFailures = 0;
         }
 
         agent.isStopped = false;
-        agent.speed = investigateSpeed;
-        agent.stoppingDistance = searchArrivalDistance;
+        agent.autoBraking = false;
         FaceMovementDirection();
+    }
 
-        if (!agent.pathPending &&
-            (agent.pathStatus != NavMeshPathStatus.PathComplete ||
-             (!agent.hasPath && Vector3.Distance(transform.position, searchPoint) > searchArrivalDistance + 0.25f)))
+    private bool TrySetPerimeterDestination(Vector3 destination)
+    {
+        if (!AgentReady()) return false;
+        NavMeshPath path = new NavMeshPath();
+        if (!agent.CalculatePath(destination, path) ||
+            path.status != NavMeshPathStatus.PathComplete) return false;
+
+        agent.autoBraking = false;
+        agent.speed = investigateSpeed;
+        agent.stoppingDistance = Mathf.Max(0.2f, perimeterWaypointArrival * 0.75f);
+        agent.isStopped = false;
+        if (!agent.SetPath(path)) return false;
+
+        float pathLength = PathDistance(path);
+        if (float.IsInfinity(pathLength))
+            pathLength = Vector3.Distance(transform.position, destination);
+        perimeterWaypointDeadline = Time.time + Mathf.Max(7f,
+            pathLength / Mathf.Max(0.5f, investigateSpeed) * 2.8f + 4f);
+        perimeterProgressPosition = transform.position;
+        perimeterProgressCheckAt = Time.time + perimeterStuckCheck;
+        perimeterHasDestination = true;
+        return true;
+    }
+
+    private void RetryPerimeterWaypoint()
+    {
+        perimeterDestinationFailures++;
+        if (perimeterDestinationFailures <= perimeterMaximumRepaths &&
+            TrySetPerimeterDestination(wallCheckPoints[perimeterWaypointIndex]))
+            return;
+
+        Log("PERIMETER skipped stalled point " + perimeterWaypointIndex);
+        AdvancePerimeterWaypoint();
+    }
+
+    private void AdvancePerimeterWaypoint()
+    {
+        if (perimeterWaypointIndex < wallCheckPoints.Count)
         {
-            MarkSearchPointVisited();
-            hasSearchPoint = false;
+            Vector3 finished = wallCheckPoints[perimeterWaypointIndex];
+            visitedPoints.Add(finished);
+            wallChecksCompleted++;
+            completedSearchStops++;
+        }
+
+        perimeterWaypointIndex++;
+        perimeterDestinationFailures = 0;
+        perimeterHasDestination = false;
+
+        if (perimeterWaypointIndex >= wallCheckPoints.Count)
+        {
+            BeginCommittedCoverSweep();
+            return;
+        }
+
+        // Next destination is set directly; no StopAgent, no multi-second pause.
+        TrySetPerimeterDestination(wallCheckPoints[perimeterWaypointIndex]);
+    }
+
+    private void BeginCommittedCoverSweep()
+    {
+        investigationSearchPhase = InvestigationSearchPhase.CoverSweep;
+        clearingNearbyCover = true;
+        agent.autoBraking = originalAutoBraking;
+        StopAgent();
+        perimeterHasDestination = false;
+        nextInvestigationCoverTime = Time.time;
+        deferredCoverThisPass.Clear(); // An alternate approach can work after circling the area.
+        Log("SEARCH COVER PASS " + (coverSweepPassesFinished + 1) +
+            " - attempting all nearby reachable Cover");
+        if (debugCoverSweep) CountUnclearedCoverInRadius();
+    }
+
+    private void UpdateCommittedCoverSweep()
+    {
+        // Once the perimeter is done, target every reachable Cover near the
+        // ORIGINAL clue. Do not waste time on random search points.
+        if (investigationCover != null)
+        {
+            if (Time.time >= coverTargetDeadline ||
+                investigationCover.IsDestroyed ||
+                !investigationCover.isActiveAndEnabled ||
+                !investigationCover.gameObject.activeInHierarchy)
+            {
+                EndInvestigationCoverAttack();
+                return;
+            }
+            currentCover = investigationCover;
+            UpdateCoverHunting(); // CrossFade -> "Attack"; repeated DamageCover()
+            return;
+        }
+
+        if (attackingCover && currentCover == null)
+        {
+            EndInvestigationCoverAttack();
+            return;
+        }
+        if (Time.time < nextInvestigationCoverTime) return;
+
+        if ((clearAllNearbyCover || investigationCoverTargets < maximumCoverTargetsPerInvestigation) &&
+            TrySelectNearbyInvestigationCover())
+        {
+            investigationCoverTargets++;
+            UpdateCoverHunting();
+            return;
+        }
+
+        // No attackable target FROM THIS VIEWPOINT. Do not mistake this for a
+        // completed search: move to a new side of the room, then try again.
+        clearingNearbyCover = false;
+        coverSweepPassesFinished++;
+        BeginExtendedAreaSweep();
+    }
+
+    // Leaving one hiding position is not enough. Search the wider area on
+    // walkable NavMesh viewpoints, then recheck Cover from those new angles.
+    private void BeginExtendedAreaSweep()
+    {
+        bool enoughTime = Time.time - searchStartTime >= minimumInvestigationSearchSeconds;
+        bool enoughStops = extendedStopsVisited >= minimumExtendedViewpointsVisited;
+        bool enoughPasses = extendedPassesFinished >= minimumAreaSearchPasses;
+        bool enoughCoverSweeps = coverSweepPassesFinished >= minimumCoverSweepPasses;
+        bool timeLimit = Time.time - searchStartTime >= maximumInvestigationSearchSeconds;
+
+        // Do not use a time limit as a reason to abandon still-standing cover.
+        // A HARD upper bound prevents an impossible NavMesh/cover setup from
+        // keeping this single investigation alive forever.
+        bool hardCoverLimit = Time.time - searchStartTime >=
+            maximumInvestigationSearchSeconds + coverClearExtraTime;
+        int remaining = CountUnclearedCoverInRadius();
+        if (remaining > 0 && !hardCoverLimit && finalCoverRechecks < 3 &&
+            (timeLimit || (enoughTime && enoughStops && enoughPasses && enoughCoverSweeps)))
+        {
+            finalCoverRechecks++;
+            // Another deliberate pass after checking new angles. This bypasses
+            // the ordinary search duration but does not repeat an attack on
+            // something already destroyed or proven unreachable.
+            BeginCommittedCoverSweep();
+            return;
+        }
+        if (timeLimit || hardCoverLimit ||
+            (enoughTime && enoughStops && enoughPasses && enoughCoverSweeps && remaining == 0))
+        {
+            BeginFinalInvestigationScan();
+            return;
+        }
+
+        if (extendedPassesFinished >= maximumExtendedAreaPasses)
+        {
+            // One more cover pass from the present side of the room, but
+            // don't restart forever if the remainder is inaccessible.
+            if (remaining > 0 && !hardCoverLimit && finalCoverRechecks < 3)
+            {
+                finalCoverRechecks++;
+                BeginCommittedCoverSweep();
+            }
+            else
+                BeginFinalInvestigationScan();
+            return;
+        }
+
+        BuildExtendedSearchPoints();
+        if (extendedSearchPoints.Count == 0)
+        {
+            // If no new viewpoints exist, still give the boss another chance
+            // to approach other cover; do not blindly end after one break.
+            if (coverSweepPassesFinished < minimumCoverSweepPasses &&
+                finalCoverRechecks < 3)
+            {
+                finalCoverRechecks++;
+                BeginCommittedCoverSweep();
+            }
+            else
+                BeginFinalInvestigationScan();
+            return;
+        }
+
+        investigationSearchPhase = InvestigationSearchPhase.AreaSweep;
+        extendedWaypointIndex = 0;
+        extendedHasDestination = false;
+        extendedLooking = false;
+        extendedRetries = 0;
+        agent.autoBraking = false;
+        Log("WIDER SEARCH PASS " + (extendedPassesFinished + 1) +
+            " with " + extendedSearchPoints.Count + " viewpoints");
+    }
+
+    private void BuildExtendedSearchPoints()
+    {
+        extendedSearchPoints.Clear();
+        if (!AgentReady()) return;
+        int perRing = Mathf.Max(3, Mathf.CeilToInt(extendedAreaViewpoints / 2f));
+        float radius = Mathf.Max(4f, extendedAreaSearchRadius);
+        float offset = (extendedPassesFinished % 2 == 0 ? 0.25f : 0.75f) / perRing;
+        for (int ring = 0; ring < 2; ring++)
+        {
+            float ringRadius = radius * (ring == 0 ? 0.48f : 0.95f);
+            for (int i = 0; i < perRing; i++)
+            {
+                // Outer ring reverses direction to avoid zigzagging across
+                // the search area every time a viewpoint changes.
+                int idx = ring == 0 ? i : perRing - 1 - i;
+                float angle = 2f * Mathf.PI * ((float)idx / perRing + offset);
+                Vector3 guess = soundLocation + new Vector3(
+                    Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * ringRadius;
+                NavMeshHit hit;
+                if (!NavMesh.SamplePosition(guess, out hit, 2.5f, agent.areaMask))
+                    continue;
+                Vector3 snapped = hit.position - guess;
+                snapped.y = 0f;
+                if (snapped.magnitude > 2.6f) continue;
+                if (Vector3.Distance(hit.position, transform.position) < 1.1f)
+                    continue;
+                if (extendedSearchPoints.Exists(p =>
+                    Vector3.Distance(p, hit.position) < 2.3f)) continue;
+                // Do not repeat an identical viewpoint we just cleared.
+                if (visitedPoints.Exists(p =>
+                    Vector3.Distance(p, hit.position) < 1.5f)) continue;
+                NavMeshPath path = new NavMeshPath();
+                if (!agent.CalculatePath(hit.position, path) ||
+                    path.status != NavMeshPathStatus.PathComplete) continue;
+                extendedSearchPoints.Add(hit.position);
+            }
+        }
+
+        // Small maps or narrow hallways may not admit circular samples.
+        // Try viewpoints closer to the clue before abandoning the search.
+        if (extendedSearchPoints.Count < 2)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                float theta = i * Mathf.PI * 2f / 12f;
+                Vector3 guess = soundLocation + new Vector3(
+                    Mathf.Cos(theta), 0f, Mathf.Sin(theta)) * 4.5f;
+                NavMeshHit hit;
+                if (!NavMesh.SamplePosition(guess, out hit, 1.5f, agent.areaMask)) continue;
+                if (Vector3.Distance(hit.position, transform.position) < 1.0f ||
+                    extendedSearchPoints.Exists(p => Vector3.Distance(p, hit.position) < 2f))
+                    continue;
+                NavMeshPath path = new NavMeshPath();
+                if (agent.CalculatePath(hit.position, path) &&
+                    path.status == NavMeshPathStatus.PathComplete)
+                    extendedSearchPoints.Add(hit.position);
+            }
+        }
+    }
+
+    private bool TrySetExtendedDestination(Vector3 target)
+    {
+        if (!AgentReady()) return false;
+        NavMeshPath path = new NavMeshPath();
+        if (!agent.CalculatePath(target, path) ||
+            path.status != NavMeshPathStatus.PathComplete) return false;
+        agent.isStopped = false;
+        agent.autoBraking = false;
+        agent.speed = investigateSpeed;
+        agent.stoppingDistance = Mathf.Min(0.6f, extendedWaypointArrival * 0.65f);
+        if (!agent.SetPath(path)) return false;
+        float distance = PathDistance(path);
+        if (float.IsInfinity(distance))
+            distance = Vector3.Distance(transform.position, target);
+        extendedDestinationDeadline = Time.time + Mathf.Max(extendedWaypointTimeout,
+            distance / Mathf.Max(0.5f, investigateSpeed) * 2.5f + 5f);
+        extendedProgressAt = Time.time + 2.5f;
+        extendedProgressPosition = transform.position;
+        extendedHasDestination = true;
+        return true;
+    }
+
+    private void UpdateExtendedAreaSweep()
+    {
+        if (!AgentReady()) return;
+        if (extendedLooking)
+        {
+            StopAgent();
+            UpdateInvestigationScan();
+            if (Time.time >= extendedLookUntil)
+            {
+                extendedLooking = false;
+                extendedHasDestination = false;
+            }
+            return;
+        }
+        if (extendedWaypointIndex >= extendedSearchPoints.Count)
+        {
+            ExtendedAreaPassComplete();
+            return;
+        }
+        Vector3 target = extendedSearchPoints[extendedWaypointIndex];
+        Vector3 delta = target - transform.position;
+        delta.y = 0f;
+        if (!extendedHasDestination)
+        {
+            if (delta.magnitude > extendedWaypointArrival &&
+                !TrySetExtendedDestination(target))
+            {
+                AdvanceExtendedWaypoint(false);
+                return;
+            }
+            if (delta.magnitude > extendedWaypointArrival) return;
+        }
+        if (!agent.pathPending &&
+            (delta.magnitude <= extendedWaypointArrival ||
+             (agent.hasPath && agent.remainingDistance <= extendedWaypointArrival)))
+        {
+            AdvanceExtendedWaypoint(true);
+            return;
+        }
+        if (!agent.pathPending &&
+            (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete ||
+             Time.time >= extendedDestinationDeadline))
+        {
+            RetryExtendedWaypoint();
+            return;
+        }
+        if (!agent.pathPending && Time.time >= extendedProgressAt)
+        {
+            Vector3 diff = transform.position - extendedProgressPosition;
+            diff.y = 0f;
+            extendedProgressAt = Time.time + 2.5f;
+            extendedProgressPosition = transform.position;
+            if (diff.magnitude < 0.3f)
+            {
+                RetryExtendedWaypoint();
+                return;
+            }
+            extendedRetries = 0;
+        }
+        agent.isStopped = false;
+        FaceMovementDirection();
+    }
+
+    private void RetryExtendedWaypoint()
+    {
+        extendedRetries++;
+        if (extendedRetries <= 2 &&
+            TrySetExtendedDestination(extendedSearchPoints[extendedWaypointIndex]))
+            return;
+        AdvanceExtendedWaypoint(false);
+    }
+
+    private void AdvanceExtendedWaypoint(bool reached)
+    {
+        if (reached && extendedWaypointIndex < extendedSearchPoints.Count)
+        {
+            Vector3 reachedPosition = extendedSearchPoints[extendedWaypointIndex];
+            extendedStopsVisited++;
+            visitedPoints.Add(reachedPosition);
+        }
+        extendedWaypointIndex++;
+        extendedHasDestination = false;
+        extendedRetries = 0;
+        if (extendedWaypointIndex >= extendedSearchPoints.Count)
+        {
+            ExtendedAreaPassComplete();
+            return;
+        }
+        if (reached && extendedWaypointIndex % 4 == 0 &&
+            extendedWaypointLookSeconds > 0.02f)
+        {
+            extendedLooking = true;
+            extendedLookUntil = Time.time + extendedWaypointLookSeconds;
+            BeginInvestigationScan(soundLocation);
             StopAgent();
             return;
         }
-        if (Time.time - movementProgressCheckTime >= stuckCheckSeconds)
+        // Set the next path immediately; no unnecessary pause at each corner.
+        TrySetExtendedDestination(extendedSearchPoints[extendedWaypointIndex]);
+    }
+
+    private void ExtendedAreaPassComplete()
+    {
+        extendedPassesFinished++;
+        extendedHasDestination = false;
+        extendedLooking = false;
+        if (AgentReady()) agent.autoBraking = originalAutoBraking;
+        // Fresh angle, fresh attempt at cover. Covers skipped on one side can
+        // now be reached from the other side of a wall.
+        BeginCommittedCoverSweep();
+    }
+
+    private void BeginFinalInvestigationScan()
+    {
+        // Even after completing area passes, try to finish nearby accessible
+        // cover rather than giving up just because the clock ran out.
+        if (clearAllNearbyCover && finalCoverRechecks < 3 &&
+            Time.time - searchStartTime < maximumInvestigationSearchSeconds + coverClearExtraTime &&
+            CountUnclearedCoverInRadius() > 0)
         {
-            float moved = Vector3.Distance(transform.position, movementProgressPosition);
-            movementProgressPosition = transform.position;
-            movementProgressCheckTime = Time.time;
-            if (moved < stuckMinimumProgress &&
-                Vector3.Distance(transform.position, searchPoint) > searchArrivalDistance + 0.25f)
-            {
-                // A stalled agent should repath, not stop, spin, and abandon
-                // the corner at the first failed progress check.
-                searchRepathAttempts++;
-                if (searchRepathAttempts <= searchMaxRepaths)
-                {
-                    agent.ResetPath();
-                    agent.isStopped = false;
-                    NavMeshPath retry = new NavMeshPath();
-                    if (agent.CalculatePath(searchPoint, retry) &&
-                        retry.status == NavMeshPathStatus.PathComplete)
-                        agent.SetPath(retry);
-                }
-                else
-                {
-                    MarkSearchPointVisited();
-                    hasSearchPoint = false;
-                    searchRepathAttempts = 0;
-                    StopAgent();
-                }
-                return;
-            }
-            if (moved >= stuckMinimumProgress) searchRepathAttempts = 0;
+            finalCoverRechecks++;
+            BeginCommittedCoverSweep();
+            return;
         }
-        if (!agent.pathPending &&
-            Vector3.Distance(transform.position, searchPoint) <= searchArrivalDistance + 0.25f)
-        {
-            MarkSearchPointVisited();
-            completedSearchStops++;
-            StopAgent();
-            searchPaused = true;
-            // Only a brief glance at corners. Do not stand motionless for
-            // several seconds before moving around the next side of a wall.
-            bool checkedWall = wallCheckPoints.Exists(p =>
-                Vector3.Distance(p, searchPoint) < minimumPointSeparation);
-            searchPauseEndTime = Time.time + (checkedWall ? cornerLookSeconds : searchPauseDuration);
-            BeginInvestigationScan();
-        }
-        else if (Time.time - searchPointStartTime > searchPointTimeout)
-        {
-            MarkSearchPointVisited();
-            hasSearchPoint = false;
-            StopAgent();
-        }
+        investigationSearchPhase = InvestigationSearchPhase.FinalScan;
+        finalScanDeadline = Time.time + Mathf.Max(3f, finalInvestigationScanSeconds);
+        BeginInvestigationScan(soundLocation);
+        StopAgent();
+        Log("SEARCH AREA AND COVER PASSES DONE - FINAL VISUAL SWEEP");
     }
 
     private void MarkSearchPointVisited()
@@ -1662,156 +2441,380 @@ public class BossEnemyAI : MonoBehaviour
 
     private void EndInvestigationCoverAttack()
     {
+        // A timed-out cover was inspected and should not trap the search in
+        // a retry loop. When interrupted by new sound/sight, do not mark it:
+        // the boss should be free to return to it after losing the clue.
+        if (investigationCover != null && !hadVisualContactLastScan)
+        {
+            if (investigationCover.IsDestroyed ||
+                !investigationCover.isActiveAndEnabled ||
+                !investigationCover.gameObject.activeInHierarchy)
+            {
+                if (inspectedCovers.Add(investigationCover))
+                    coversDestroyedThisSearch++;
+            }
+            else
+            {
+                // Do not retry the same inaccessible object every frame.
+                // Approach it again on a later cover pass, from another side.
+                deferredCoverThisPass.Add(investigationCover);
+                int attempts;
+                failedCoverApproaches.TryGetValue(investigationCover, out attempts);
+                attempts++;
+                failedCoverApproaches[investigationCover] = attempts;
+                if (attempts >= Mathf.Max(6, maximumCoverApproachAttempts))
+                {
+                    inspectedCovers.Add(investigationCover);
+                    Log("COVER EXHAUSTED ALL APPROACH ATTEMPTS: " + investigationCover.name);
+                }
+            }
+        }
         investigationCover = null;
         currentCover = null;
         attackingCover = false;
         hasLockedCoverRotation = false;
+        coverApproachValid = false;
         hasSearchPoint = false;
         nextCoverPath = 0f;
-        nextInvestigationCoverTime = Time.time + coverSearchPause;
-        StopAgent();
-        searchPaused = true;
-        searchPauseEndTime = Time.time + coverSearchPause;
-        BeginInvestigationScan();
+        nextInvestigationCoverTime = Time.time + chainedCoverDelay;
+        if (AgentReady()) agent.isStopped = true;
+        searchPaused = false;
+        searchPauseHasScan = false;
         currentAnimationHash = 0;
-        Log("BOSS FINISHED INSPECTING COVER - CONTINUING SEARCH");
+        Log("BOSS FINISHED COVER - CONTINUING NEARBY COVER SWEEP");
     }
 
-    private bool TrySelectNearbyInvestigationCover()
+    // Find a walkable point on ANY side of a cover collider. Sampling several
+    // offsets around its actual surface works better than sampling its center
+    // (which is often inside a wall / outside the NavMesh).
+    private bool TryGetCoverApproach(Cover cover, out Vector3 bestPoint,
+        out float bestPathDistance)
     {
-        Cover best = null;
-        float bestDistance = float.PositiveInfinity;
+        bestPoint = Vector3.zero;
+        bestPathDistance = float.PositiveInfinity;
+        if (!AgentReady() || cover == null) return false;
+
+        Collider collider = cover.GetComponentInChildren<Collider>();
+        Vector3 center = collider != null ? collider.bounds.center : cover.transform.position;
+        Vector3 nearest = collider != null ? collider.ClosestPoint(transform.position) : center;
+        Vector3 toSurface = nearest - transform.position;
+        toSurface.y = 0f;
+        if (toSurface.magnitude <= attackDistance + coverHitReachTolerance)
+        {
+            bestPoint = transform.position;
+            bestPathDistance = 0f;
+            return true;
+        }
+
+        const int samples = 24;
+        float[] offsets = {
+            Mathf.Max(agent.radius + 0.1f, 0.35f),
+            Mathf.Max(0.55f, attackDistance * 0.65f),
+            Mathf.Max(0.65f, attackDistance * 0.9f)
+        };
+        Vector3 towardBoss = transform.position - center;
+        towardBoss.y = 0f;
+        float initialAngle = towardBoss.sqrMagnitude > 0.01f
+            ? Mathf.Atan2(towardBoss.z, towardBoss.x) : 0f;
+        for (int i = 0; i < samples; i++)
+        {
+            // Nearest side, alternating clockwise and anticlockwise.
+            int step = i == 0 ? 0 : ((i + 1) / 2) * (i % 2 == 1 ? 1 : -1);
+            float angle = initialAngle + (Mathf.PI * 2f * step) / samples;
+            Vector3 radial = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+            Vector3 far = center + radial * (collider != null
+                ? Mathf.Max(collider.bounds.extents.x, collider.bounds.extents.z) + attackDistance + 2f
+                : attackDistance + 2f);
+            Vector3 surface = collider != null ? collider.ClosestPoint(far) : center;
+            for (int j = 0; j < offsets.Length; j++)
+            {
+                Vector3 test = surface + radial * offsets[j];
+                NavMeshHit hit;
+                if (!NavMesh.SamplePosition(test, out hit, 1.15f, agent.areaMask)) continue;
+                Vector3 contact = collider != null ? collider.ClosestPoint(hit.position) : center;
+                Vector3 gap = contact - hit.position;
+                gap.y = 0f;
+                // The destination must let us ACTUALLY reach attack range.
+                if (gap.magnitude > attackDistance + coverHitReachTolerance - 0.05f) continue;
+                NavMeshPath path = new NavMeshPath();
+                if (!agent.CalculatePath(hit.position, path) ||
+                    path.status != NavMeshPathStatus.PathComplete) continue;
+                float length = PathDistance(path);
+                if (float.IsInfinity(length))
+                    length = Vector3.Distance(transform.position, hit.position);
+                if (length < bestPathDistance)
+                {
+                    bestPathDistance = length;
+                    bestPoint = hit.position;
+                    // A nearby valid attack position is sufficient. Avoid
+                    // dozens of redundant NavMesh path calculations per cover.
+                    if (bestPathDistance <= 2.5f) return true;
+                }
+            }
+        }
+        return !float.IsInfinity(bestPathDistance);
+    }
+
+    // This inventory is independent of "cover targets attempted". Breaking
+    // one crate must never be treated as clearing the whole investigation area.
+    private int CountUnclearedCoverInRadius()
+    {
+        // Searches call this at phase transitions, not every frame.
+        int count = 0;
+        float radius = Mathf.Max(nearbyCoverSearchRadius, minimumCoverClearRadius);
         foreach (Cover candidate in FindObjectsOfType<Cover>())
         {
             if (candidate == null || candidate.IsDestroyed ||
-                !candidate.isActiveAndEnabled || inspectedCovers.Contains(candidate)) continue;
+                !candidate.isActiveAndEnabled || !candidate.gameObject.activeInHierarchy ||
+                inspectedCovers.Contains(candidate)) continue;
             Collider collider = candidate.GetComponentInChildren<Collider>();
-            Vector3 point = collider != null ? collider.ClosestPoint(transform.position) : candidate.transform.position;
-            if (Vector3.Distance(candidate.transform.position, soundLocation) > nearbyCoverSearchRadius) continue;
-            NavMeshHit hit;
-            if (!NavMesh.SamplePosition(point, out hit, 3f, NavMesh.AllAreas)) continue;
-            NavMeshPath path = new NavMeshPath();
-            if (!agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) continue;
-            // Prefer clues near the last sighting, without selecting cover
-            // that requires an excessively long detour from the monster.
-            float travelDistance = Vector3.Distance(transform.position, hit.position);
-            float clueDistance = Vector3.Distance(candidate.transform.position, lastKnownPlayerPosition);
-            float distance = travelDistance * 0.35f + clueDistance * 0.65f;
-            if (distance < bestDistance)
-            {
-                best = candidate;
-                bestDistance = distance;
-            }
+            Vector3 point = collider != null
+                ? collider.ClosestPoint(soundLocation) : candidate.transform.position;
+            point.y = soundLocation.y;
+            if ((point - soundLocation).sqrMagnitude <= radius * radius)
+                count++;
         }
-        if (best == null) return false;
-        investigationCover = best;
-        investigationCoverStartTime = Time.time;
-        currentCover = best;
-        inspectedCovers.Add(best);
-        hasSearchPoint = false;
-        nextCoverPath = 0f;
-        Log("BOSS SEARCHING BEHIND / DESTROYING COVER: " + best.name);
-        return true;
+        if (debugCoverSweep)
+            Debug.Log("[BOSS COVER] still standing and not exhausted: " + count +
+                " | destroyed=" + coversDestroyedThisSearch +
+                " | attempted=" + investigationCoverTargets, this);
+        return count;
     }
 
+    // Select closest suspicious cover first, then break everything reachable
+    // within the extended search area. Expensive NavMesh checks are run only
+    // on candidates in priority order (rather than on every cover every tick).
+    private bool TrySelectNearbyInvestigationCover()
+    {
+        Cover[] all = FindObjectsOfType<Cover>();
+        var candidates = new List<Cover>();
+        float mainRadius = Mathf.Max(nearbyCoverSearchRadius, minimumCoverClearRadius);
+        foreach (Cover candidate in all)
+        {
+            if (candidate == null || candidate.IsDestroyed ||
+                !candidate.isActiveAndEnabled || !candidate.gameObject.activeInHierarchy ||
+                inspectedCovers.Contains(candidate) ||
+                deferredCoverThisPass.Contains(candidate)) continue;
+            Collider collider = candidate.GetComponentInChildren<Collider>();
+            Vector3 contactToClue = collider != null
+                ? collider.ClosestPoint(soundLocation) : candidate.transform.position;
+            Vector3 fromClue = contactToClue - soundLocation;
+            fromClue.y = 0f;
+            if (fromClue.magnitude > mainRadius) continue;
+            candidates.Add(candidate);
+        }
 
-    // Collect reachable viewpoints around nearby obstacle corners. The boss does
-    // not know where the player went; it checks plausible blind angles.
-    // Build a genuine perimeter route around the wall nearest the last sighting.
-    // Waypoints are ordered clockwise/counterclockwise, not ranked independently;
-    // this prevents the boss zigzagging between opposite sides of the wall.
+        candidates.Sort((a, b) => CoverSuspicionScore(a).CompareTo(CoverSuspicionScore(b)));
+        foreach (Cover candidate in candidates)
+        {
+            Vector3 approach;
+            float pathLength;
+            if (!TryGetCoverApproach(candidate, out approach, out pathLength))
+            {
+                // This side cannot be reached now. Revisit after moving to
+                // another area viewpoint; only give up after several attempts.
+                deferredCoverThisPass.Add(candidate);
+                int failed;
+                failedCoverApproaches.TryGetValue(candidate, out failed);
+                failed++;
+                failedCoverApproaches[candidate] = failed;
+                if (failed >= Mathf.Max(6, maximumCoverApproachAttempts))
+                    inspectedCovers.Add(candidate);
+                if (logEvents) Log("COVER REQUIRES ALTERNATE APPROACH: " + candidate.name);
+                continue;
+            }
+            investigationCover = candidate;
+            investigationCoverStartTime = Time.time;
+            coverProgressCheckAt = Time.time + coverStuckCheckSeconds;
+            coverProgressPosition = transform.position;
+            coverStallAttempts = 0;
+            // Include time needed to get around the obstacle before the attack.
+            coverTargetDeadline = Time.time + Mathf.Max(
+                Mathf.Max(25f, investigationCoverTimeout),
+                pathLength / Mathf.Max(0.5f, investigateSpeed) * 2.2f + 14f);
+            currentCover = candidate;
+            coverApproachPoint = approach;
+            coverApproachValid = true;
+            hasSearchPoint = false;
+            nextCoverPath = 0f;
+            Log("BOSS BREAKING COVER: " + candidate.name);
+            return true;
+        }
+        return false;
+    }
+
+    private float CoverSuspicionScore(Cover cover)
+    {
+        if (cover == null) return float.PositiveInfinity;
+        Collider collider = cover.GetComponentInChildren<Collider>();
+        Vector3 clue = collider != null
+            ? collider.ClosestPoint(soundLocation) : cover.transform.position;
+        Vector3 body = collider != null
+            ? collider.ClosestPoint(transform.position) : cover.transform.position;
+        Vector3 fromClue = clue - soundLocation;
+        Vector3 fromBoss = body - transform.position;
+        fromClue.y = fromBoss.y = 0f;
+        int retries;
+        failedCoverApproaches.TryGetValue(cover, out retries);
+        return fromClue.magnitude * 0.55f + fromBoss.magnitude * 0.45f + retries * 5f;
+    }
+
+    // Surface-sampled perimeter: unlike AABB corners, this follows the actual
+    // collider silhouette, including rotated, concave and L-shaped geometry.
+    // Every candidate must be on the NavMesh and reachable by a complete path.
+    [SerializeField, Range(16, 96)] private int perimeterSurfaceSamples = 48;
+    [SerializeField, Min(0.25f)] private float perimeterSampleSpacing = 3.25f;
+    [SerializeField, Min(0.25f)] private float perimeterMaxSampleDistance = 2.0f;
+
     private void BuildWallCheckPoints(Vector3 center)
     {
         wallCheckPoints.Clear();
+        identifiedWall = null;
         if (!AgentReady()) return;
 
-        Collider targetWall = null;
-        float best = float.PositiveInfinity;
-        Collider[] nearby = Physics.OverlapSphere(center, perimeterSearchRadius,
-            searchObstructionLayers, QueryTriggerInteraction.Ignore);
-        foreach (Collider c in nearby)
+        float lowestScore = float.PositiveInfinity;
+        foreach (Collider col in Physics.OverlapSphere(center, perimeterSearchRadius,
+                     searchObstructionLayers, QueryTriggerInteraction.Ignore))
         {
-            if (c == null || c.transform.IsChildOf(transform)) continue;
-            if (trackedPlayer != null && c.transform.IsChildOf(trackedPlayer.transform)) continue;
-            if (c.GetComponentInParent<Cover>() != null) continue;
-            Bounds b = c.bounds;
-            // Ignore floors, small props, and very large enclosing geometry.
-            if (b.size.y < 1.1f || Mathf.Max(b.size.x, b.size.z) < 1.2f ||
-                Mathf.Max(b.size.x, b.size.z) > perimeterSearchRadius * 2.2f) continue;
-            Vector3 nearest = b.ClosestPoint(center);
-            float d = Vector3.Distance(center, nearest);
-            if (d < best) { best = d; targetWall = c; }
-        }
-
-        if (targetWall != null)
-        {
-            Bounds b = targetWall.bounds;
-            float clearance = Mathf.Max(perimeterClearance, agent.radius + 0.45f);
-            float x0 = b.min.x - clearance, x1 = b.max.x + clearance;
-            float z0 = b.min.z - clearance, z1 = b.max.z + clearance;
-            float y = center.y;
-            // Eight ordered points: four corners and four side midpoints.
-            Vector3[] loop = {
-                new Vector3(x0,y,z0), new Vector3((x0+x1)*0.5f,y,z0),
-                new Vector3(x1,y,z0), new Vector3(x1,y,(z0+z1)*0.5f),
-                new Vector3(x1,y,z1), new Vector3((x0+x1)*0.5f,y,z1),
-                new Vector3(x0,y,z1), new Vector3(x0,y,(z0+z1)*0.5f)
-            };
-            int start = -1;
-            float nearestDistance = float.PositiveInfinity;
-            Vector3[] valid = new Vector3[8];
-            bool[] usable = new bool[8];
-            for (int i = 0; i < loop.Length; i++)
+            if (col == null || col.isTrigger || col.transform.IsChildOf(transform) ||
+                (player != null && (col.transform == player || col.transform.IsChildOf(player))) ||
+                (trackedPlayer != null && col.transform.IsChildOf(trackedPlayer)))
+                continue;
+            Bounds b = col.bounds;
+            if (b.size.y < 1.1f || Mathf.Max(b.size.x, b.size.z) < 1.2f)
+                continue;
+            // Prefer a permanent wall, but still permit a large piece of
+            // destructible Cover to define the search perimeter.
+            bool destructible = col.GetComponentInParent<Cover>() != null;
+            float score = Vector3.Distance(center, col.ClosestPoint(center)) +
+                (destructible ? 2.5f : 0f);
+            if (score < lowestScore)
             {
-                NavMeshHit hit;
-                if (!NavMesh.SamplePosition(loop[i], out hit, 1.5f, agent.areaMask)) continue;
-                NavMeshPath path = new NavMeshPath();
-                if (!agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) continue;
-                valid[i] = hit.position;
-                usable[i] = true;
-                float distance = Vector3.Distance(transform.position, hit.position);
-                if (distance < nearestDistance) { nearestDistance = distance; start = i; }
-            }
-            if (start >= 0)
-            {
-                // Pick the direction that reaches the next valid waypoint with
-                // the shorter path. Then commit to that direction for the loop.
-                int direction = 1;
-                int cw = (start + 1) % 8, ccw = (start + 7) % 8;
-                if (usable[cw] && usable[ccw])
-                {
-                    NavMeshPath a = new NavMeshPath(), bPath = new NavMeshPath();
-                    agent.CalculatePath(valid[cw], a);
-                    agent.CalculatePath(valid[ccw], bPath);
-                    if (PathDistance(bPath) < PathDistance(a)) direction = -1;
-                }
-                for (int step = 0; step < 8; step++)
-                {
-                    int i = (start + direction * step + 16) % 8;
-                    if (!usable[i]) continue;
-                    Vector3 point = valid[i];
-                    if (wallCheckPoints.Exists(p => Vector3.Distance(p, point) < 0.8f)) continue;
-                    wallCheckPoints.Add(point);
-                }
+                lowestScore = score;
+                identifiedWall = col;
             }
         }
 
-        // If no suitable wall was found, fall back to a navigable loop around
-        // the clue. Never pretend a straight-line point is a reachable flank.
-        if (wallCheckPoints.Count == 0)
+        var radialSamples = new List<Vector3>();
+        float spacing = Mathf.Clamp(perimeterSampleSpacing, 1.2f, 2.75f);
+        if (identifiedWall != null)
         {
-            float radius = Mathf.Max(3f, wallFlankOffset + 1f);
-            for (int i = 0; i < 12; i++)
+            Bounds bounds = identifiedWall.bounds;
+            Vector3 pivot = bounds.center;
+            float clearance = Mathf.Max(perimeterClearance, agent.radius + 0.35f);
+            float radius = new Vector2(bounds.extents.x, bounds.extents.z).magnitude +
+                clearance + Mathf.Max(3f, wallFlankOffset);
+            int count = Mathf.Clamp(perimeterSurfaceSamples, 24, 96);
+            // This loop is in angular order; after a starting point is chosen
+            // we will retain that ordering rather than sort by distance.
+            for (int i = 0; i < count; i++)
             {
-                float angle = i * Mathf.PI * 2f / 12f;
-                Vector3 candidate = center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius;
-                NavMeshHit hit;
-                if (!NavMesh.SamplePosition(candidate, out hit, 1f, agent.areaMask)) continue;
-                NavMeshPath path = new NavMeshPath();
-                if (!agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) continue;
-                wallCheckPoints.Add(hit.position);
+                float angle = 2f * Mathf.PI * i / count;
+                Vector3 outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+                Vector3 outside = pivot + outward * radius;
+                RaycastHit hit;
+                if (!identifiedWall.Raycast(new Ray(outside, -outward), out hit,
+                    radius * 2.1f)) continue;
+                Vector3 normal = Vector3.ProjectOnPlane(hit.normal, Vector3.up);
+                if (normal.sqrMagnitude < 0.01f) normal = outward;
+                normal.Normalize();
+                Vector3 candidate = hit.point + normal * clearance;
+                candidate.y = center.y;
+                NavMeshHit nav;
+                if (!NavMesh.SamplePosition(candidate, out nav,
+                    Mathf.Max(1.4f, perimeterMaxSampleDistance), agent.areaMask))
+                    continue;
+                Vector3 horizontal = nav.position - candidate;
+                horizontal.y = 0f;
+                if (horizontal.magnitude > Mathf.Max(1.4f, perimeterMaxSampleDistance))
+                    continue;
+                if (radialSamples.Exists(p => Vector3.Distance(p, nav.position) < spacing))
+                    continue;
+                NavMeshPath toBoss = new NavMeshPath();
+                if (!agent.CalculatePath(nav.position, toBoss) ||
+                    toBoss.status != NavMeshPathStatus.PathComplete) continue;
+                radialSamples.Add(nav.position);
             }
         }
+
+        if (radialSamples.Count < 3)
+        {
+            // No suitable wall collider: walk an ordered ring of nearby
+            // reachable viewpoints around the actual heard/seen clue.
+            radialSamples.Clear();
+            float ringRadius = Mathf.Max(3f, wallFlankOffset + 1.3f);
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = i * Mathf.PI * 2f / 16f;
+                Vector3 p = center + new Vector3(Mathf.Cos(angle), 0f,
+                    Mathf.Sin(angle)) * ringRadius;
+                NavMeshHit nav;
+                if (!NavMesh.SamplePosition(p, out nav, 1.35f, agent.areaMask)) continue;
+                if (radialSamples.Exists(v => Vector3.Distance(v, nav.position) < spacing * 0.75f))
+                    continue;
+                NavMeshPath path = new NavMeshPath();
+                if (agent.CalculatePath(nav.position, path) &&
+                    path.status == NavMeshPathStatus.PathComplete)
+                    radialSamples.Add(nav.position);
+            }
+        }
+        if (radialSamples.Count == 0) return;
+
+        int start = 0;
+        float bestPath = float.PositiveInfinity;
+        for (int i = 0; i < radialSamples.Count; i++)
+        {
+            NavMeshPath navPath = new NavMeshPath();
+            if (!agent.CalculatePath(radialSamples[i], navPath) ||
+                navPath.status != NavMeshPathStatus.PathComplete) continue;
+            float length = PathDistance(navPath);
+            if (float.IsInfinity(length))
+                length = Vector3.Distance(transform.position, radialSamples[i]);
+            if (length < bestPath) { bestPath = length; start = i; }
+        }
+
+        int direction = 1;
+        if (radialSamples.Count > 2)
+        {
+            int clockwise = (start + 1) % radialSamples.Count;
+            int counterClockwise = (start - 1 + radialSamples.Count) % radialSamples.Count;
+            float forwardCost = PointToPointPathDistance(radialSamples[start], radialSamples[clockwise]);
+            float reverseCost = PointToPointPathDistance(radialSamples[start], radialSamples[counterClockwise]);
+            if (reverseCost < forwardCost) direction = -1;
+        }
+        for (int i = 0; i < radialSamples.Count; i++)
+        {
+            int index = (start + direction * i + radialSamples.Count * (i + 1)) % radialSamples.Count;
+            Vector3 point = radialSamples[index];
+            if (wallCheckPoints.Count > 0 &&
+                Vector3.Distance(wallCheckPoints[wallCheckPoints.Count - 1], point) < spacing * 0.6f)
+                continue;
+            if (wallCheckPoints.Count > 0 &&
+                float.IsInfinity(PointToPointPathDistance(wallCheckPoints[wallCheckPoints.Count - 1], point)))
+                continue;
+            wallCheckPoints.Add(point);
+        }
+        // Close the circuit only if returning to its first waypoint is
+        // naturally navigable, not if the path would be a major detour.
+        if (wallCheckPoints.Count >= 4)
+        {
+            Vector3 last = wallCheckPoints[wallCheckPoints.Count - 1];
+            Vector3 first = wallCheckPoints[0];
+            float direct = Vector3.Distance(last, first);
+            float route = PointToPointPathDistance(last, first);
+            if (route <= Mathf.Max(6f, direct * 2.8f) && direct > spacing * 0.8f)
+                wallCheckPoints.Add(first);
+        }
+    }
+
+    private float PointToPointPathDistance(Vector3 from, Vector3 to)
+    {
+        NavMeshPath path = new NavMeshPath();
+        if (!NavMesh.CalculatePath(from, to, agent.areaMask, path) ||
+            path.status != NavMeshPathStatus.PathComplete)
+            return float.PositiveInfinity;
+        float length = PathDistance(path);
+        return float.IsInfinity(length) ? Vector3.Distance(from, to) : length;
     }
 
     private static float PathDistance(NavMeshPath path)
@@ -1903,10 +2906,9 @@ public class BossEnemyAI : MonoBehaviour
                 transform.position + Vector3.up * eyeHeight;
 
             float score =
-                Random.Range(0f, 0.5f) -
-                Vector3.Distance(
-                    hit.position,
-                    soundLocation) * 0.1f;
+                Random.Range(0f, 0.15f) -
+                Vector3.Distance(hit.position, soundLocation) * 0.08f -
+                PathDistance(path) * 0.18f;
 
             if (IsBlocked(
                 eye,
@@ -1929,6 +2931,14 @@ public class BossEnemyAI : MonoBehaviour
 
     private void FinishSearch()
     {
+        Log("BOSS SEARCH COMPLETE | elapsed=" +
+            (Time.time - searchStartTime).ToString("F1") +
+            "s | cover passes=" + coverSweepPassesFinished +
+            " | area passes=" + extendedPassesFinished +
+            " | viewpoints reached=" + extendedStopsVisited +
+            " | cover targets approached=" + investigationCoverTargets +
+            " | covers destroyed=" + coversDestroyedThisSearch +
+            " | unbroken / not-exhausted cover=" + CountUnclearedCoverInRadius());
         mode = BossMode.Cover;
         investigatingVisualClue = false;
         lostPlayerCoverSearch = false;
@@ -1937,9 +2947,12 @@ public class BossEnemyAI : MonoBehaviour
         // still keep the same Fantacode meter visible.
         UpdateUnifiedAwareness();
         hasPartialVisualContact = false;
+        hadVisualContactLastScan = false;
         partialVisualInvestigationStarted = false;
         lastPartialVisualContactTime = float.NegativeInfinity;
         coverHuntActive = false;
+        patrolScanning = false;
+        nextPatrolScanTime = Time.time + patrolScanInterval;
         hasWanderDestination = false;
         trackedPlayer = null;
 
@@ -1970,50 +2983,84 @@ public class BossEnemyAI : MonoBehaviour
     private void UpdateWandering()
     {
         if (!AgentReady()) return;
-        // Ordinary wandering never destroys cover. Cover destruction is
-        // reserved for searching after losing visual contact with the player.
         coverHuntActive = false;
         currentCover = null;
         attackingCover = false;
         hasLockedCoverRotation = false;
-        if (Time.time < wanderPauseUntil)
+
+        if (patrolScanning)
+        {
+            StopAgent();
+            if (UpdateInvestigationScan() || Time.time >= patrolScanEndTime)
+            {
+                patrolScanning = false;
+                hasWanderDestination = false;
+            }
+            return;
+        }
+
+        if (!continuousWandering && Time.time < wanderPauseUntil)
         {
             StopAgent();
             return;
         }
-        if (!hasWanderDestination || (!agent.pathPending &&
-            (!agent.hasPath || agent.remainingDistance <= 1.2f)))
+
+        bool arrived = hasWanderDestination && !agent.pathPending &&
+            ((agent.hasPath && agent.remainingDistance <= 1.2f) ||
+             Vector3.Distance(transform.position, wanderDestination) <= 1.2f);
+
+        if (arrived && Time.time >= nextPatrolScanTime)
         {
-            if (hasWanderDestination)
+            patrolScanning = true;
+            patrolScanEndTime = Time.time + patrolScanDuration;
+            nextPatrolScanTime = Time.time + patrolScanInterval;
+            BeginInvestigationScan(transform.position + transform.forward * 3f);
+            StopAgent();
+            return;
+        }
+
+        if (arrived || !hasWanderDestination ||
+            (!agent.pathPending && agent.pathStatus == NavMeshPathStatus.PathInvalid))
+        {
+            hasWanderDestination = false;
+            if (!continuousWandering && arrived)
             {
-                hasWanderDestination = false;
                 wanderPauseUntil = Time.time + Random.Range(wanderPauseSeconds.x, wanderPauseSeconds.y);
                 StopAgent();
                 return;
             }
+
             for (int i = 0; i < 20; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * wanderRadius;
+                // Patrol continues around its present region, rather than
+                // permanently returning to the original spawn coordinates.
+                Vector3 center = Vector3.Lerp(wanderOrigin, transform.position, 0.65f);
                 NavMeshHit hit;
-                if (!NavMesh.SamplePosition(wanderOrigin + new Vector3(offset.x, 0f, offset.y),
-                    out hit, 3f, NavMesh.AllAreas)) continue;
+                if (!NavMesh.SamplePosition(center + new Vector3(offset.x, 0f, offset.y),
+                    out hit, 3f, agent.areaMask)) continue;
                 NavMeshPath path = new NavMeshPath();
                 if (!agent.CalculatePath(hit.position, path) ||
                     path.status != NavMeshPathStatus.PathComplete) continue;
+                if (Vector3.Distance(transform.position, hit.position) < 3f) continue;
+                if (!agent.SetPath(path)) continue;
                 wanderDestination = hit.position;
                 hasWanderDestination = true;
+                agent.isStopped = false;
+                agent.speed = wanderSpeed;
+                agent.stoppingDistance = 0.7f;
                 break;
             }
         }
+
         if (hasWanderDestination)
         {
             agent.isStopped = false;
             agent.speed = wanderSpeed;
             agent.stoppingDistance = 0.7f;
-            if (!agent.hasPath && !agent.pathPending)
-                agent.SetDestination(wanderDestination);
             FaceMovementDirection();
         }
+        else StopAgent();
     }
 
     private void BeginMelee()
@@ -2049,120 +3096,102 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateCoverHunting()
     {
-        if (mode != BossMode.Search || !lostPlayerCoverSearch || HasLiveSensoryClue() || !AgentReady())
-            return;
+        if (mode != BossMode.Search || !lostPlayerCoverSearch ||
+            hadVisualContactLastScan || !AgentReady()) return;
 
-        if (currentCover == null ||
-            !currentCover.isActiveAndEnabled ||
-            !currentCover.gameObject.activeInHierarchy ||
-            currentCover.IsDestroyed)
+        if (currentCover == null || currentCover.IsDestroyed ||
+            !currentCover.isActiveAndEnabled || !currentCover.gameObject.activeInHierarchy)
         {
-            currentCover = null;
-            attackingCover = false;
-            hasLockedCoverRotation = false;
-
-            // Investigation never falls back to unrelated random cover.
-            if (mode == BossMode.Search)
-            {
-                EndInvestigationCoverAttack();
-                return;
-            }
-            if (mode == BossMode.Chase)
-            {
-                ClearChaseCover();
-                nextChasePath = 0f;
-                return;
-            }
-
-            if (Time.time >= nextCoverSearch)
-            {
-                FindNearestCover();
-                nextCoverSearch =
-                    Time.time + coverSearchInterval;
-            }
-        }
-
-        if (currentCover == null)
-        {
-            attackingCover = false;
-            hasLockedCoverRotation = false;
-
-            if (agent.hasPath)
-                agent.ResetPath();
-
+            EndInvestigationCoverAttack();
             return;
         }
 
-        Collider coverCollider =
-            currentCover.GetComponentInChildren<Collider>();
+        Collider coverCollider = currentCover.GetComponentInChildren<Collider>();
+        Vector3 surface = coverCollider != null
+            ? coverCollider.ClosestPoint(transform.position)
+            : currentCover.transform.position;
+        Vector3 toSurface = surface - transform.position;
+        toSurface.y = 0f;
 
-        Vector3 navigationPoint =
-            coverCollider != null
-                ? coverCollider.ClosestPoint(transform.position)
-                : currentCover.transform.position;
-
-        Vector3 offset =
-            navigationPoint - transform.position;
-
-        offset.y = 0f;
-
-        if (offset.magnitude <= attackDistance)
+        if (toSurface.magnitude <= attackDistance + coverHitReachTolerance)
         {
             if (!attackingCover)
             {
                 attackingCover = true;
-                nextCoverFallbackHit = Time.time + Mathf.Max(0.2f, coverHitFallbackSeconds);
-
+                nextCoverFallbackHit = Time.time + Mathf.Max(0.2f,
+            Mathf.Min(coverHitFallbackSeconds, aggressiveCoverHitInterval));
                 StopAgent();
                 LockCoverAttackRotation();
                 ForceAnimation(attackHash);
-
-                Log(
-                    "BOSS ATTACKING COVER: " +
-                    currentCover.name
-                );
+                Log("BOSS ATTACKING COVER: " + currentCover.name);
             }
-
-            StopAgent();
-
-            if (hasLockedCoverRotation)
-                transform.rotation = lockedCoverRotation;
-
-            if (Time.time >= nextCoverFallbackHit)
-                DamageCover();
-
+            else
+            {
+                StopAgent();
+                // LateUpdate owns cover-facing rotation so there is only
+                // one rotation command per frame.
+            }
+            if (Time.time >= nextCoverFallbackHit) DamageCover();
             return;
         }
 
         attackingCover = false;
         hasLockedCoverRotation = false;
-
-        agent.isStopped = false;
-        agent.speed = originalAgentSpeed;
-        agent.stoppingDistance = 0f;
-
-        if (Time.time >= nextCoverPath)
+        if (!coverApproachValid)
         {
-            NavMeshHit reachable;
-            if (NavMesh.SamplePosition(navigationPoint, out reachable, 3f, NavMesh.AllAreas))
-                agent.SetDestination(reachable.position);
-            else
+            float distance;
+            if (!TryGetCoverApproach(currentCover, out coverApproachPoint, out distance))
             {
-                if (mode == BossMode.Search)
-                    EndInvestigationCoverAttack();
-                else if (mode == BossMode.Chase)
-                {
-                    ClearChaseCover();
-                    chaseCoverRetryUntil = Time.time + chaseCoverRetryDelay;
-                }
-                else
-                    InterruptCoverAttack();
+                EndInvestigationCoverAttack();
                 return;
             }
-            nextCoverPath =
-                Time.time + coverPathRefreshInterval;
+            coverApproachValid = true;
         }
 
+        // Keep the SAME reachable destination until arrival. Recomputing the
+        // collider's ClosestPoint every frame caused severe zigzags and stalls.
+        agent.isStopped = false;
+        agent.speed = investigateSpeed;
+        agent.stoppingDistance = 0.12f;
+        if (Time.time >= nextCoverPath && !agent.pathPending &&
+            (!agent.hasPath || Vector3.Distance(agent.destination, coverApproachPoint) > 0.6f))
+        {
+            agent.SetDestination(coverApproachPoint);
+            nextCoverPath = Time.time + coverPathRefreshInterval;
+        }
+        if (!agent.pathPending && agent.hasPath &&
+            agent.remainingDistance <= 0.3f &&
+            toSurface.magnitude > attackDistance + coverHitReachTolerance)
+        {
+            // NavMesh endpoint ended just outside range. Do not run in place.
+            coverStallAttempts++;
+            coverApproachValid = false;
+        }
+        if (Time.time >= coverProgressCheckAt)
+        {
+            Vector3 travelled = transform.position - coverProgressPosition;
+            travelled.y = 0f;
+            if (travelled.magnitude < coverMinimumProgress &&
+                toSurface.magnitude > attackDistance + coverHitReachTolerance)
+            {
+                coverStallAttempts++;
+                coverApproachValid = false;
+                nextCoverPath = 0f;
+                if (debugCoverSweep)
+                    Log("COVER APPROACH STALLED: " + currentCover.name +
+                        " retry " + coverStallAttempts);
+            }
+            else if (travelled.magnitude >= coverMinimumProgress)
+                coverStallAttempts = 0;
+            coverProgressPosition = transform.position;
+            coverProgressCheckAt = Time.time + coverStuckCheckSeconds;
+        }
+        if (coverStallAttempts >= coverStuckRetries)
+        {
+            // Defer just this cover; continue destroying the rest.
+            EndInvestigationCoverAttack();
+            return;
+        }
         FaceMovementDirection();
     }
 
@@ -2246,7 +3275,7 @@ public class BossEnemyAI : MonoBehaviour
             agent.velocity = Vector3.zero;
         }
 
-        transform.rotation = lockedCoverRotation;
+        // Don't snap instantly toward cover; rotate smoothly during the attack.
     }
 
     // =====================================================
@@ -2255,7 +3284,7 @@ public class BossEnemyAI : MonoBehaviour
 
     public void DamageCover()
     {
-        if (mode != BossMode.Search || !lostPlayerCoverSearch || HasLiveSensoryClue() ||
+        if (mode != BossMode.Search || !lostPlayerCoverSearch || hadVisualContactLastScan ||
             !attackingCover ||
             currentCover == null ||
             currentCover.IsDestroyed)
@@ -2263,21 +3292,30 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
-        nextCoverFallbackHit = Time.time + Mathf.Max(0.2f, coverHitFallbackSeconds);
-        currentCover.TakeDamage(coverDamage);
+        nextCoverFallbackHit = Time.time + Mathf.Max(0.2f,
+            Mathf.Min(coverHitFallbackSeconds, aggressiveCoverHitInterval));
+        Cover struckCover = currentCover;
+        struckCover.TakeDamage(coverDamage * (clearAllNearbyCover
+            ? coverSearchDamageMultiplier : 1f));
 
         if (currentCover != null && !currentCover.IsDestroyed)
         {
-            currentAnimationHash = 0;
-            ForceAnimation(attackHash);
+            // Re-trigger an attack swing only if the attack animation has
+            // actually played far enough. No per-frame animation restarts.
+            AnimatorStateInfo attackInfo = bossAnimator.GetCurrentAnimatorStateInfo(0);
+            if (attackInfo.shortNameHash != attackHash || attackInfo.normalizedTime >= 0.92f)
+                ForceAnimation(attackHash);
         }
 
-        if (currentCover != null && currentCover.IsDestroyed)
+        if (currentCover == null || currentCover.IsDestroyed)
         {
-            currentCover = null;
-            attackingCover = false;
-            hasLockedCoverRotation = false;
-            nextCoverSearch = 0f;
+            // TakeDamage can destroy its GameObject immediately, making
+            // investigationCover compare as null. Keep the pre-hit reference
+            // so we can record a destroyed target before proceeding.
+            if (!object.ReferenceEquals(struckCover, null) &&
+                inspectedCovers.Add(struckCover))
+                coversDestroyedThisSearch++;
+            EndInvestigationCoverAttack();
         }
     }
 
@@ -2316,7 +3354,18 @@ public class BossEnemyAI : MonoBehaviour
     {
         hasSearchPoint = false;
         searchPaused = false;
+        searchPauseHasScan = false;
+        coverApproachValid = false;
+        smoothedMovementHeading = Vector3.zero;
         visitedPoints.Clear();
+        perimeterHasDestination = false;
+        perimeterWaypointIndex = 0;
+        perimeterDestinationFailures = 0;
+        extendedHasDestination = false;
+        extendedLooking = false;
+        extendedSearchPoints.Clear();
+        deferredCoverThisPass.Clear();
+        if (AgentReady()) agent.autoBraking = originalAutoBraking;
     }
 
     private void UpdateMeasuredVelocity()
@@ -2332,36 +3381,37 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateMovementAnimation()
     {
-        if (bossAnimator == null ||
-            ChargeBusy ||
-            mode == BossMode.Melee ||
-            mode == BossMode.Detected ||
-            mode == BossMode.Suspicious)
-        {
-            return;
-        }
+        if (bossAnimator == null || ChargeBusy ||
+            mode == BossMode.Melee || mode == BossMode.Detected ||
+            mode == BossMode.Suspicious) return;
 
-        if ((mode == BossMode.Cover || mode == BossMode.Search || mode == BossMode.Chase) && attackingCover)
+        if (attackingCover && mode == BossMode.Search)
         {
             PlayAnimation(attackHash);
             return;
         }
-
-        float speed = measuredVelocity.magnitude;
-
-        if (AgentReady())
+        if (mode == BossMode.InvestigateLook || searchPaused ||
+            !AgentReady() || agent.isStopped)
         {
-            Vector3 velocity = agent.velocity;
-            velocity.y = 0f;
-
-            speed = Mathf.Max(speed, velocity.magnitude);
+            PlayAnimation(idleHash); // stationary always CrossFade to Idle
+            return;
         }
 
-        PlayAnimation(
-            speed > movementThreshold
-                ? runHash
-                : idleHash
-        );
+        float actualSpeed = measuredVelocity.magnitude;
+        float navSpeed = agent.velocity.magnitude;
+        bool moving = actualSpeed >= Mathf.Max(0.18f, movementThreshold);
+        // When the sound route is blocked, an agent can report simulated
+        // velocity even while the transform is stationary. That used to make
+        // the boss visibly run in place. Require actual position change after
+        // a short initial navigation handoff.
+        if (mode != BossMode.InvestigateTravel && navSpeed >= 0.3f)
+            moving = true;
+        if (moving) lastActuallyMovingTime = Time.time;
+        else if (agent.hasPath && !agent.pathPending &&
+                 Time.time - lastActuallyMovingTime < movementAnimationGrace)
+            moving = true;
+
+        PlayAnimation(moving ? runHash : idleHash);
     }
 
     private void PlayAnimation(int hash)
@@ -2372,7 +3422,7 @@ public class BossEnemyAI : MonoBehaviour
 
     private void ForceAnimation(int hash)
     {
-        if (bossAnimator == null)
+        if (bossAnimator == null || !bossAnimator.HasState(0, hash))
             return;
 
         bossAnimator.CrossFadeInFixedTime(
@@ -2393,30 +3443,45 @@ public class BossEnemyAI : MonoBehaviour
 
     private void StopAgent()
     {
-        if (!AgentReady())
-            return;
-
+        if (!AgentReady()) return;
         agent.isStopped = true;
-
-        if (agent.hasPath)
-            agent.ResetPath();
+        smoothedMovementHeading = Vector3.zero;
+        hasRequestedBodyRotation = false;
+        // Deliberately do NOT ResetPath here: resetting every time search
+        // scans or attacks causes stuttering / momentary path loss.
     }
 
     private void FaceMovementDirection()
     {
-        if (!AgentReady())
+        if (!AgentReady() || agent.isStopped || agent.pathPending || !agent.hasPath)
+            return;
+        if (agent.remainingDistance <= agent.stoppingDistance + 0.35f)
             return;
 
-        Vector3 direction = agent.desiredVelocity;
+        // SteeringTarget follows the next NavMesh corner. It is much more
+        // stable than agent.desiredVelocity (which oscillates with avoidance).
+        Vector3 direction = agent.steeringTarget - transform.position;
         direction.y = 0f;
-
-        if (direction.sqrMagnitude < 0.001f)
+        if (direction.sqrMagnitude < minimumSteeringLookAhead * minimumSteeringLookAhead)
             return;
+        direction.Normalize();
+        if (smoothedMovementHeading.sqrMagnitude < 0.5f)
+            smoothedMovementHeading = direction;
+        else
+            smoothedMovementHeading = Vector3.Slerp(smoothedMovementHeading,
+                direction, 1f - Mathf.Exp(-steeringDirectionSmoothness * Time.deltaTime));
 
-        FacePosition(
-            transform.position + direction,
-            turnSpeed
-        );
+        if (smoothedMovementHeading.sqrMagnitude < 0.4f) return;
+        Quaternion target = Quaternion.LookRotation(smoothedMovementHeading);
+        if (Quaternion.Angle(transform.rotation, target) <= rotationDeadZone) return;
+        RequestBodyRotation(target, movementTurnSpeed);
+    }
+
+    private void RequestBodyRotation(Quaternion target, float degreesPerSecond)
+    {
+        requestedBodyRotation = target;
+        requestedTurnSpeed = degreesPerSecond;
+        hasRequestedBodyRotation = true;
     }
 
     private void FacePosition(Vector3 position, float speed)
@@ -2432,12 +3497,7 @@ public class BossEnemyAI : MonoBehaviour
         Quaternion targetRotation =
             Quaternion.LookRotation(direction.normalized);
 
-        transform.rotation =
-            Quaternion.RotateTowards(
-                transform.rotation,
-                targetRotation,
-                speed * Time.deltaTime
-            );
+        RequestBodyRotation(targetRotation, Mathf.Min(speed, 320f));
     }
 
     private void Log(string message)
@@ -2482,6 +3542,33 @@ public class BossEnemyAI : MonoBehaviour
         if (!Application.isPlaying)
             return;
 
+        // Scene view: blue points are the ordered wall circuit, the yellow
+        // point is the next target. This reveals skipped/unreachable corners.
+        if (mode == BossMode.Search && wallCheckPoints.Count > 0)
+        {
+            Gizmos.color = Color.blue;
+            for (int i = 0; i < wallCheckPoints.Count; i++)
+            {
+                Gizmos.DrawWireSphere(wallCheckPoints[i], 0.22f);
+                if (i + 1 < wallCheckPoints.Count)
+                    Gizmos.DrawLine(wallCheckPoints[i], wallCheckPoints[i + 1]);
+            }
+            if (investigationSearchPhase == InvestigationSearchPhase.Perimeter &&
+                perimeterWaypointIndex < wallCheckPoints.Count)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(wallCheckPoints[perimeterWaypointIndex], 0.3f);
+            }
+        }
+
+        if (mode == BossMode.InvestigateTravel)
+        {
+            // Yellow: NavMesh-reachable target. Magenta: actual heard point.
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(committedInvestigationPoint, 0.35f);
+            Gizmos.DrawLine(investigationCluePosition, committedInvestigationPoint);
+        }
+
         if (mode == BossMode.Suspicious ||
             mode == BossMode.InvestigateTravel ||
             mode == BossMode.InvestigateLook ||
@@ -2497,14 +3584,37 @@ public class BossEnemyAI : MonoBehaviour
 
             Gizmos.DrawWireSphere(
                 soundLocation,
-                searchRadius
+                nearbyCoverSearchRadius
             );
+        }
+
+        if (mode == BossMode.Search && extendedSearchPoints.Count > 0 &&
+            investigationSearchPhase == InvestigationSearchPhase.AreaSweep)
+        {
+            Gizmos.color = Color.green;
+            for (int i = 0; i < extendedSearchPoints.Count; i++)
+            {
+                Gizmos.DrawWireSphere(extendedSearchPoints[i], 0.19f);
+                if (i + 1 < extendedSearchPoints.Count)
+                    Gizmos.DrawLine(extendedSearchPoints[i], extendedSearchPoints[i + 1]);
+            }
+            if (extendedWaypointIndex < extendedSearchPoints.Count)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(extendedSearchPoints[extendedWaypointIndex], 0.28f);
+            }
         }
 
         if (mode == BossMode.Search && hasSearchPoint)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(searchPoint, 0.25f);
+        }
+        if (mode == BossMode.Search && investigationCover != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, coverApproachPoint);
+            Gizmos.DrawWireSphere(coverApproachPoint, 0.35f);
         }
     }
 }

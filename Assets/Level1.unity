@@ -1385,13 +1385,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &125813733
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -1549,13 +1550,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &139790948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1701,13 +1703,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &173996053
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1853,13 +1856,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &176935458
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2775,13 +2779,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &248307920
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -3234,13 +3239,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &308487232
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -3474,13 +3480,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &334238046
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -4076,13 +4083,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &421192375
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -4149,13 +4157,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &440628146
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6656,13 +6665,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &758082456
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6808,13 +6818,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &758246056
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7050,13 +7061,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &832367680
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7509,13 +7521,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &868936303
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7837,13 +7850,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &889002138
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7956,16 +7970,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   forwardRoll: RollForward
-  backwardRoll: RollBackward
-  leftRoll: RollLeft
-  rightRoll: RollRight
+  backwardRoll: RollForward
+  leftRoll: RollForward
+  rightRoll: RollForward
   dodgeKey: 32
+  giveParkourPriority: 1
+  nearVaultCheckDistance: 7
   requireGrounded: 1
   dodgeCooldown: 0.25
   transitionDuration: 0.08
   maximumRollDuration: 2
   useRootMovement: 1
   useRootRotation: 0
+  restoreMovementAfterDodge: 1
+  movementStateOverride: 
+  movementResumeBlend: 0.1
+  idleStateOverride: Idle
+  rollPoseRecoverySeconds: 0.9
+  rollPoseRetryInterval: 0.16
+  movementRecoveryFrames: 8
+  preservePreDodgeMomentum: 1
+  minimumMomentumSpeed: 0.35
+  momentumRecoveryFrames: 4
+  momentumRestorationThreshold: 0.85
   debugLogs: 1
 --- !u!1 &898832992
 GameObject:
@@ -8096,13 +8123,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &898832998
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -8338,13 +8366,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &936821742
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -8412,13 +8441,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &938607755
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8564,13 +8594,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &939906691
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9093,13 +9124,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &975568893
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -9619,13 +9651,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1045818630
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9861,13 +9894,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1079465135
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10728,13 +10762,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1167872047
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11224,13 +11259,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1230138841
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11544,13 +11580,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &1270959844
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -11978,13 +12015,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1324734420
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12792,13 +12830,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &1360206543
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -13034,13 +13073,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &1392938995
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -13108,13 +13148,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1412465247
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13866,13 +13907,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &1496793985
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -14198,13 +14240,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &1505487901
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -14272,13 +14315,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1513381497
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14604,13 +14648,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1542164658
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14756,13 +14801,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1566943999
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16034,11 +16080,19 @@ MonoBehaviour:
   visionBlockingLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  sprintHearingRange: 100
-  runningHearingRange: 22.45
+  sprintHearingRange: 150
+  runningHearingRange: 150
   walkingHearingRange: 9.9
-  crouchingHearingRange: 8
+  crouchingHearingRange: 0
   minimumMovementSpeed: 0.05
+  hearCrouchedFootsteps: 0
+  minimumAudibleFootstepSpeed: 0.12
+  muffleFootstepsThroughWalls: 0
+  debugFootstepHearing: 0
+  hearingOcclusionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  obstructedHearingMultiplier: 0.75
   movementCheckInterval: 0.05
   movementInvestigationInterval: 0.5
   minimumNewSoundDistance: 1.5
@@ -16089,9 +16143,59 @@ MonoBehaviour:
   investigationScanHold: 0.45
   minimumSearchStops: 5
   nearbyCoverSearchRadius: 9
+  minimumCoverClearRadius: 32
+  coverHitReachTolerance: 0.35
+  coverStuckCheckSeconds: 2.5
+  coverMinimumProgress: 0.2
+  coverStuckRetries: 4
+  coverClearExtraTime: 140
+  debugCoverSweep: 0
+  maximumCoverApproachAttempts: 2
   maximumCoverTargetsPerInvestigation: 3
   investigationCoverTimeout: 18
   coverSearchPause: 1.5
+  movementTurnSpeed: 180
+  minimumSteeringLookAhead: 0.85
+  steeringDirectionSmoothness: 6
+  rotationDeadZone: 2.5
+  distanceBetweenFullScans: 4
+  minimumSecondsBetweenScans: 3
+  deliberateScanTimeout: 3
+  coverAttackApproachMargin: 0.25
+  clearAllNearbyCover: 1
+  initialCoverSearchGrace: 0.7
+  chainedCoverDelay: 0.03
+  aggressiveCoverHitInterval: 0.55
+  coverSearchDamageMultiplier: 1.5
+  meaningfulHearingSpeed: 0.75
+  soundRetargetDistance: 12
+  soundRetargetCooldown: 7
+  postCoverSweepLookSeconds: 8
+  patrolScanInterval: 12
+  patrolScanDuration: 1.5
+  continuousWandering: 1
+  movementAnimationGrace: 0.18
+  wallChecksBeforeFirstCoverAttack: 2
+  wallChecksBetweenCoverAttacks: 2
+  minimumCoverSearchDuration: 50
+  minimumInvestigationSearchSeconds: 85
+  maximumInvestigationSearchSeconds: 190
+  extendedAreaViewpoints: 14
+  extendedAreaSearchRadius: 19
+  minimumAreaSearchPasses: 2
+  minimumExtendedViewpointsVisited: 12
+  minimumCoverSweepPasses: 3
+  extendedWaypointLookSeconds: 0.65
+  extendedWaypointArrival: 0.95
+  extendedWaypointTimeout: 18
+  maximumExtendedAreaPasses: 5
+  circleWallBeforeCover: 1
+  perimeterWaypointArrival: 0.75
+  perimeterStuckCheck: 2.5
+  perimeterMinimumProgress: 0.25
+  perimeterMaximumRepaths: 3
+  finalInvestigationScanSeconds: 3.5
+  retargetOnNewSoundDistance: 4.5
   destroyCoverDuringChase: 1
   chaseObstacleCheckInterval: 0.2
   chaseObstacleCheckDistance: 4
@@ -16119,6 +16223,15 @@ MonoBehaviour:
   logEvents: 1
   logMovementChecks: 0
   showGizmos: 1
+  soundPathRetryInterval: 0.8
+  soundStuckCheckInterval: 2
+  soundMinimumPathProgress: 0.22
+  soundApproachDirections: 8
+  soundApproachMaxRadius: 5
+  soundTravelRetargetDistance: 11
+  soundTravelRetargetCooldown: 5
+  debugSoundNavigation: 0
+  freshSightingAwareness: 0.26
   hearingAwarenessLevel: 0.42
   hearingAwarenessHoldSeconds: 1.1
   hearingAwarenessFadeSeconds: 2.5
@@ -16127,6 +16240,9 @@ MonoBehaviour:
   stuckMinimumProgress: 0.3
   searchRestartCooldown: 3
   coverHitFallbackSeconds: 1.4
+  perimeterSurfaceSamples: 64
+  perimeterSampleSpacing: 1.1
+  perimeterMaxSampleDistance: 2
 --- !u!1 &1758792925
 GameObject:
   m_ObjectHideFlags: 0
@@ -16268,13 +16384,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1761481715
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16639,13 +16756,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1816846520
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -17241,13 +17359,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &1856803277
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18808,13 +18927,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!208 &2037579063
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -18882,13 +19002,14 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &2051648507
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -19302,13 +19423,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &2101589302
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -19454,13 +19576,14 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   fragmentsPerAxis: 3
-  explosionForce: 5
-  explosionRadius: 3
-  upwardModifier: 0.5
-  fragmentLifetime: 10
+  fractureIrregularity: 0.4
   inheritMaterial: 1
-  preventFragmentVaulting: 1
-  fragmentCollisions: 1
+  explosionForce: 1
+  explosionRadius: 1
+  upwardModifier: 0.5
+  spinImpulse: 2
+  fragmentLifetime: 10
+  fragmentMassPerCubicUnit: 0.15
 --- !u!23 &2113316605
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -22276,9 +22399,15 @@ MonoBehaviour:
   minimumChargeDistance: 13
   maximumChargeDistance: 24
   chargeCooldown: 5
-  chargeSpeed: 9
+  chargeSpeed: 14
   chargeDuration: 1000000
   chargeTurnSpeed: 440
+  chargePathRefreshInterval: 0.1
+  playerNavMeshSampleRadius: 2
+  chargeAcceleration: 100
+  coverLookAhead: 1.25
+  preDodgeCoverBreakHealth: 25
+  createTemporaryObstaclesForDurableCover: 1
   recoveryDuration: 3
   navMeshRecoverySampleRadius: 3
   collisionRadius: 0.65
