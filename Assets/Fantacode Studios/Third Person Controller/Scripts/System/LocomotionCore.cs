@@ -1381,7 +1381,7 @@ namespace FS_LocomotionSystem
                 Animator.SetFloat(AnimatorParameters.crouchType, balanceHasSpace ? 0 : 1, 0.2f, Time.deltaTime);
 
             if (crouchVal > 0.3f)
-                characterCapsule?.ScaleColliderSize(0.7f);
+                characterCapsule?.ScaleColliderSize(0.5f);
             else
                 characterCapsule?.ResetColliderSize();
         }

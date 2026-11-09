@@ -79,6 +79,11 @@ public class BossEnemyAI : MonoBehaviour
     [SerializeField] private float chasePathRefreshInterval = 0.15f;
     [SerializeField] private float losePlayerAfter = 4f;
 
+    [Header("Post-Stun Suspicion / Investigation")]
+    [Tooltip("After a charge stun, face the dodge location and play Suspicious before returning to investigate.")]
+    [SerializeField, Min(0.1f)] private float postStunSuspicionSeconds = 2.1f;
+    [SerializeField, Min(15f)] private float postStunTurnSpeed = 200f;
+
     [Header("Post-Charge Recovery")]
     [SerializeField, Min(0f)]
     private float postChargeVisionCooldown = 2.5f;
@@ -358,6 +363,18 @@ public class BossEnemyAI : MonoBehaviour
     [Tooltip("A moving player must make a substantially different sound before the boss changes its current path.")]
     [SerializeField, Min(3f)] private float soundTravelRetargetDistance = 11f;
     [SerializeField, Min(1f)] private float soundTravelRetargetCooldown = 5f;
+
+    [Header("Nearby Sound Priority")]
+    [Tooltip("Within this distance, new footsteps quickly redirect an investigation.")]
+    [SerializeField, Min(1f)] private float highPrioritySoundRadius = 6f;
+    [Tooltip("By this distance, sound retargeting uses the original cautious long-range rules.")]
+    [SerializeField, Min(2f)] private float lowPrioritySoundRadius = 30f;
+    [Tooltip("How far the NEW sound must move before a nearby sound investigation retargets.")]
+    [SerializeField, Min(0.3f)] private float nearbySoundMinimumMove = 1.25f;
+    [Tooltip("Minimum time between nearby sound retargets; prevents path resets every frame.")]
+    [SerializeField, Min(0.2f)] private float nearbySoundRetargetCooldown = 0.8f;
+    [Tooltip("Only close new sound can override an old visual clue, after vision has been gone this long.")]
+    [SerializeField, Min(0f)] private float nearbySoundOverridesOldSightAfter = 0.35f;
     [SerializeField] private bool debugSoundNavigation = false;
 
     // The actual noise/visual clue and the WALKABLE NavMesh goal are not the same.
@@ -392,6 +409,10 @@ public class BossEnemyAI : MonoBehaviour
     private float visionSuppressedUntil;
     private float hearingSuppressedUntil;
 
+    private bool pendingPostChargeSuspicion;
+    private bool postChargeSuspicionActive;
+    private Vector3 postChargeInvestigationPoint;
+    private Vector3 postChargeLookPoint;
     private bool pendingPostChargeSearch;
     private bool suspicionAnimationEntered;
     private bool attackingCover;
@@ -456,6 +477,17 @@ public class BossEnemyAI : MonoBehaviour
     private Vector3 wanderDestination;
     private bool hasWanderDestination;
     private bool coverHuntActive;
+    [Header("Patrol Cover Destruction")]
+    [Tooltip("When a patrol check succeeds, randomly choose from the nearest few reachable Cover objects; walls need a Cover component.")]
+    [SerializeField, Range(1, 6)] private int patrolNearestCoverCandidates = 3;
+    [Tooltip("The boss must finish this patrol attack or abandon it if stuck.")]
+    [SerializeField, Min(3f)] private float patrolCoverAttackTimeout = 24f;
+    private bool patrolCoverHuntActive;
+    private Vector3 patrolCoverApproachPoint;
+    private float patrolCoverAttackDeadline;
+    private float patrolCoverProgressCheckAt;
+    private Vector3 patrolCoverProgressPosition;
+    private int patrolCoverFailedApproaches;
     [SerializeField] private float coverHitFallbackSeconds = 0.55f;
     private float nextCoverFallbackHit;
     private Vector3 wanderOrigin;
@@ -594,7 +626,8 @@ public class BossEnemyAI : MonoBehaviour
         {
             // Keep checking vision during the charge.
             // Do not run normal AI or overwrite Dash/Stunned.
-            if (chargeAttack.IsCharging)
+            if (chargeAttack.IsCharging || chargeAttack.IsPositioning ||
+                chargeAttack.IsWindingUp)
                 CheckVision();
 
             previousPosition = transform.position;
@@ -606,7 +639,12 @@ public class BossEnemyAI : MonoBehaviour
         // Exactly one navigation / scan / cover-facing request per frame.
         hasRequestedBodyRotation = false;
 
-        if (pendingPostChargeSearch)
+        if (pendingPostChargeSuspicion)
+        {
+            pendingPostChargeSuspicion = false;
+            EnterPostChargeSuspicion();
+        }
+        else if (pendingPostChargeSearch)
         {
             pendingPostChargeSearch = false;
 
@@ -685,7 +723,8 @@ public class BossEnemyAI : MonoBehaviour
         // for this frame without interrupting the investigation itself.
         UpdateUnifiedAwareness();
 
-        if (mode == BossMode.Search && attackingCover && hasLockedCoverRotation)
+        if ((mode == BossMode.Search || patrolCoverHuntActive) &&
+            attackingCover && hasLockedCoverRotation)
             RequestBodyRotation(lockedCoverRotation, movementTurnSpeed);
 
         if (mode == BossMode.Detected && trackedPlayer != null)
@@ -709,6 +748,80 @@ public class BossEnemyAI : MonoBehaviour
     // =====================================================
     // CHARGE RECOVERY
     // =====================================================
+
+    // Called as soon as a charge enters Stunned. Its location is SNAPSHOTTED
+    // by BossChargeAttack (at the moment of dodge, not after the dash travels
+    // away). We queue the actual reaction for after stun & NavMesh recovery.
+    public void SchedulePostChargeSuspicion(Vector3 lastKnownPoint, Vector3 lookPoint)
+    {
+        if (ai != null && ai.Target != null)
+            ai.TargetHandler.TrySetTarget(null);
+
+        trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
+        hadVisualContactLastScan = false;
+        hasPartialVisualContact = false;
+        partialVisualInvestigationStarted = false;
+        investigatingVisualClue = false;
+        lostPlayerCoverSearch = false;
+        hasPreviousFootstepPosition = false;
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        currentCover = null;
+        investigationCover = null;
+        patrolCoverHuntActive = false;
+        coverHuntActive = false;
+        hasWanderDestination = false;
+        patrolScanning = false;
+        CancelSearch();
+
+        // Don't immediately reacquire/recharge while recovering or while
+        // turning to investigate. The marker goes to partial suspicion.
+        suspicion = Mathf.Max(freshSightingAwareness, 0.35f);
+        audibleAwareness = 0f;
+        lastAudibleContactTime = float.NegativeInfinity;
+        UpdateUnifiedAwareness();
+
+        postChargeInvestigationPoint = lastKnownPoint;
+        postChargeLookPoint = lookPoint;
+        lastKnownPlayerPosition = lastKnownPoint;
+        soundLocation = lastKnownPoint;
+        pendingPostChargeSearch = false;
+        pendingPostChargeSuspicion = true;
+        postChargeSuspicionActive = false;
+        float remaining = chargeAttack != null ?
+            chargeAttack.RecoveryTimeRemaining : 0f;
+        visionSuppressedUntil = Mathf.Max(visionSuppressedUntil,
+            Time.time + remaining + postChargeVisionCooldown);
+        if (suppressHearingAfterCharge)
+            hearingSuppressedUntil = Mathf.Max(hearingSuppressedUntil,
+                Time.time + remaining + postChargeVisionCooldown);
+        currentAnimationHash = 0;
+        Log("BOSS STUNNED - WILL FACE DODGE POSITION AND INVESTIGATE: " + lastKnownPoint);
+    }
+
+    private void EnterPostChargeSuspicion()
+    {
+        if (mode == BossMode.Cover) InterruptCoverAttack();
+        CancelSearch();
+        investigationCluePosition = postChargeInvestigationPoint;
+        soundLocation = postChargeInvestigationPoint;
+        lastKnownPlayerPosition = postChargeInvestigationPoint;
+        committedInvestigationPoint = postChargeInvestigationPoint;
+        mode = BossMode.Suspicious;
+        postChargeSuspicionActive = true;
+        suspicionStartTime = Time.time;
+        suspicionAnimationEntered = false;
+        // LateUpdate uses authored stable yaw; BossChargeAttack controlled
+        // the previous frame, so its final stun orientation is the baseline.
+        stableBodyRotation = transform.rotation;
+        stableBodyRotationInitialized = true;
+        StopAgent();
+        currentAnimationHash = 0;
+        ForceAnimation(suspiciousHash);
+        FacePosition(postChargeLookPoint, postStunTurnSpeed);
+        Log("POST-STUN SUSPICIOUS - TURNING BACK TO LAST KNOWN POSITION");
+    }
 
     public void ForgetPlayerAfterCharge()
     {
@@ -748,6 +861,50 @@ public class BossEnemyAI : MonoBehaviour
         Log(
             "BOSS LOST PLAYER AFTER CHARGE - STUNNED"
         );
+    }
+
+    // Heavy-cover impact ends the combat encounter instead of starting another
+    // last-seen investigation. Called by BossChargeAttack once stun begins.
+    public void ReturnToPatrolAfterCharge()
+    {
+        if (ai != null && ai.Target != null)
+            ai.TargetHandler.TrySetTarget(null);
+
+        trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
+        hadVisualContactLastScan = false;
+        hasPartialVisualContact = false;
+        partialVisualInvestigationStarted = false;
+        lastPartialVisualContactTime = float.NegativeInfinity;
+        investigatingVisualClue = false;
+        lostPlayerCoverSearch = false;
+        suspicion = 0f;
+        audibleAwareness = 0f;
+        lastAudibleContactTime = float.NegativeInfinity;
+        if (awareness != null) awareness.SetAwareness(0f);
+        hasPreviousFootstepPosition = false;
+        pendingPostChargeSearch = false;
+        patrolScanning = false;
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        currentCover = null;
+        investigationCover = null;
+        patrolCoverHuntActive = false;
+        coverHuntActive = false;
+        hasWanderDestination = false;
+        CancelSearch();
+        mode = BossMode.Cover;
+        currentAnimationHash = 0;
+
+        // Not allowed to instantly rediscover the player during stun.
+        float remaining = chargeAttack != null
+            ? chargeAttack.RecoveryTimeRemaining : 0f;
+        visionSuppressedUntil = Mathf.Max(visionSuppressedUntil,
+            Time.time + remaining + postChargeVisionCooldown);
+        hearingSuppressedUntil = Mathf.Max(hearingSuppressedUntil,
+            Time.time + remaining + postChargeVisionCooldown);
+        nextCoverDecision = Time.time + NextPatrolCoverInterval();
+        Log("BOSS STUNNED BY IMPACT - TARGET FORGOTTEN; PATROL AFTER RECOVERY");
     }
 
     // =====================================================
@@ -919,14 +1076,8 @@ public class BossEnemyAI : MonoBehaviour
         }
         if (!audible) return;
 
-        // Walking/running may produce a continuous stream of samples. A sound
-        // is NEW when it resumes after silence or changes its location enough
-        // to give the boss genuinely new information. This prevents thrashing.
-        bool newlyAudibleAfterSilence =
-            Time.time - lastAudibleContactTime >= 1.3f;
-
-        // Hearing contributes to the SAME Fantacode awareness meter as sight.
-        // This happens regardless of the boss's investigation state.
+        // Hearing contributes to the same Fantacode indicator, even while the
+        // monster is already searching or clearing cover.
         lastAudibleContactTime = Time.time;
         audibleAwareness = Mathf.Max(audibleAwareness, hearingAwarenessLevel);
         UpdateUnifiedAwareness();
@@ -935,7 +1086,7 @@ public class BossEnemyAI : MonoBehaviour
             Debug.Log("[BOSS HEARD] " + moveType + " at " + heardPosition +
                       " | state=" + mode, this);
 
-        // A confirmed visual target always overrides footstep investigations.
+        // An actual sighting and charge/combat outrank any audio sample.
         if (hadVisualContactLastScan || mode == BossMode.Chase ||
             mode == BossMode.Detected || mode == BossMode.Melee)
             return;
@@ -944,41 +1095,81 @@ public class BossEnemyAI : MonoBehaviour
             mode != BossMode.InvestigateTravel && mode != BossMode.InvestigateLook)
             return;
 
-        // Once a visual clue is committed, don't replace it with minor sounds.
+        float distanceFromBoss = FlatDistance(transform.position, heardPosition);
+        float requiredChange, cooldown;
+        GetSoundRetargetRules(distanceFromBoss, mode, out requiredChange, out cooldown);
+        bool closeEnoughToOverrideOldSight =
+            distanceFromBoss <= highPrioritySoundRadius &&
+            Time.time - lastPlayerSeenTime >= nearbySoundOverridesOldSightAfter;
+
+        // Current sight remains absolute priority. A STALE last-seen position,
+        // however, should yield to nearby footsteps that reveal a new location.
         if (investigatingVisualClue &&
-            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook))
+            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook) &&
+            !closeEnoughToOverrideOldSight)
             return;
 
-        // Walking/running while patrolling triggers a new sound investigation.
-        // During investigation, a substantially DIFFERENT sound can redirect
-        // the boss, but footsteps inside the current area won't restart the
-        // NavMesh path or constantly interrupt cover attacks.
         if (mode != BossMode.Cover)
         {
-            Vector3 currentClue = mode == BossMode.Search ? soundLocation : committedInvestigationPoint;
-            Vector3 offset = heardPosition - currentClue;
-            offset.y = 0f;
-            float relocationDistance = mode == BossMode.InvestigateTravel
-                ? Mathf.Max(soundTravelRetargetDistance, retargetOnNewSoundDistance)
-                : Mathf.Max(5f, retargetOnNewSoundDistance);
-            bool significantNewLocation = offset.magnitude >= relocationDistance;
-            bool newEventWithNewPosition = mode != BossMode.InvestigateTravel &&
-                newlyAudibleAfterSilence && offset.magnitude >= relocationDistance;
-            float cooldown = mode == BossMode.InvestigateTravel
-                ? soundTravelRetargetCooldown : 3.5f;
-            // Only a genuinely new clue changes the current sound destination.
-            // Small steps within the same area must NEVER restart navigation.
-            if ((!significantNewLocation && !newEventWithNewPosition) ||
+            // Use the REAL sound/clue position, not the nearest NavMesh point.
+            Vector3 oldClue = mode == BossMode.Search
+                ? soundLocation : investigationCluePosition;
+            float relocated = FlatDistance(heardPosition, oldClue);
+
+            // Near sounds can trigger at roughly 1.25m / 0.8s. More distant
+            // sounds retain progressively stronger hysteresis, so the agent
+            // doesn't drop its path for every footstep.
+            if (relocated < requiredChange ||
                 Time.time - lastSoundRetargetTime < cooldown)
                 return;
         }
         else if (Time.time < nextMovementInvestigation)
             return;
 
-        nextMovementInvestigation = Time.time + Mathf.Max(0.25f, movementInvestigationInterval);
-        lastSoundRetargetTime = Time.time;
-        BeginMovementInvestigation(heardPosition);
-        Log("BOSS HEARD WALKING/RUNNING - INVESTIGATING: " + heardPosition);
+        if (BeginMovementInvestigation(heardPosition))
+        {
+            nextMovementInvestigation = Time.time +
+                Mathf.Max(0.25f, movementInvestigationInterval);
+            lastSoundRetargetTime = Time.time;
+            if (debugSoundNavigation)
+                Debug.Log("[BOSS SOUND PRIORITY] distance=" +
+                    distanceFromBoss.ToString("F1") + " | minChange=" +
+                    requiredChange.ToString("F2") + " | cooldown=" +
+                    cooldown.ToString("F2") + " | clue=" + heardPosition, this);
+            Log("BOSS HEARD NEW FOOTSTEPS - INVESTIGATING: " + heardPosition);
+        }
+    }
+
+    // Smooth proximity scaling, not a single fixed 11m relocation rule:
+    // near sounds are urgent; distant ones only redirect for major changes.
+    private void GetSoundRetargetRules(float distanceFromBoss, BossMode currentMode,
+        out float minimumRelocation, out float cooldown)
+    {
+        float farRadius = Mathf.Max(highPrioritySoundRadius + 0.1f,
+            lowPrioritySoundRadius);
+        float t = Mathf.InverseLerp(highPrioritySoundRadius, farRadius,
+            distanceFromBoss);
+
+        float farMinMove = currentMode == BossMode.InvestigateTravel
+            ? Mathf.Max(soundTravelRetargetDistance, retargetOnNewSoundDistance)
+            : Mathf.Max(5f, retargetOnNewSoundDistance);
+        float farCooldown = currentMode == BossMode.InvestigateTravel
+            ? soundTravelRetargetCooldown : 3.5f;
+
+        minimumRelocation = Mathf.Lerp(nearbySoundMinimumMove,
+            farMinMove, t);
+        cooldown = Mathf.Lerp(nearbySoundRetargetCooldown,
+            farCooldown, t);
+
+        // An active cover/perimeter search should not restart for tiny steps,
+        // even nearby. It still reacts much faster than distant sounds.
+        if (currentMode == BossMode.Search)
+        {
+            minimumRelocation = Mathf.Max(minimumRelocation,
+                nearbySoundMinimumMove * 1.5f);
+            cooldown = Mathf.Max(cooldown,
+                nearbySoundRetargetCooldown * 1.4f);
+        }
     }
 
     private bool IsSoundAudible(Vector3 soundPosition, float normalRange)
@@ -1048,23 +1239,28 @@ public class BossEnemyAI : MonoBehaviour
         Log("BOSS VISUAL CONTACT - OVERRIDING SOUND INVESTIGATION: " + position);
     }
 
-    private void BeginMovementInvestigation(Vector3 position)
+    private bool BeginMovementInvestigation(Vector3 position)
     {
         if (mode != BossMode.Cover && mode != BossMode.Search &&
             mode != BossMode.InvestigateTravel && mode != BossMode.InvestigateLook)
-            return;
+            return false;
+        float soundDistance = FlatDistance(transform.position, position);
         if (investigatingVisualClue &&
-            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook))
-            return;
+            (mode == BossMode.InvestigateTravel || mode == BossMode.InvestigateLook) &&
+            (soundDistance > highPrioritySoundRadius ||
+             Time.time - lastPlayerSeenTime < nearbySoundOverridesOldSightAfter))
+            return false;
 
         // Retarget while STILL MOVING. Do not call CancelSearch / StopAgent:
         // those were causing the boss to restart its running animation and
         // hesitate every time the walking player emitted another sound.
         if (mode == BossMode.InvestigateTravel)
         {
-            if (Time.time - lastSoundTravelRetarget < soundTravelRetargetCooldown ||
-                FlatDistance(position, investigationCluePosition) < soundTravelRetargetDistance)
-                return;
+            float minimumMove, cooldown;
+            GetSoundRetargetRules(soundDistance, mode, out minimumMove, out cooldown);
+            if (Time.time - lastSoundTravelRetarget < cooldown ||
+                FlatDistance(position, investigationCluePosition) < minimumMove)
+                return false;
 
             Vector3 priorClue = investigationCluePosition;
             Vector3 priorGoal = committedInvestigationPoint;
@@ -1073,22 +1269,23 @@ public class BossEnemyAI : MonoBehaviour
             nextSoundPathAttempt = 0f;
             if (TrySetInvestigationPath())
             {
+                investigatingVisualClue = false; // Nearby fresh audio beats stale sight.
+                soundLocation = position;
                 lastSoundTravelRetarget = Time.time;
                 investigationStartTime = Time.time;
                 investigationFailedPaths = 0;
                 investigationProgressPosition = transform.position;
                 nextInvestigationProgressCheck = Time.time + soundStuckCheckInterval;
-                Log("BOSS FOLLOWING SIGNIFICANT NEW SOUND: " + position);
+                Log("BOSS FOLLOWING NEW SOUND: " + position);
+                return true;
             }
-            else
-            {
-                // The new sound cannot be reached. Keep pursuing the valid
-                // existing destination instead of stopping or running in place.
-                investigationCluePosition = priorClue;
-                committedInvestigationPoint = priorGoal;
-                investigationPathRequested = AgentReady() && agent.hasPath;
-            }
-            return;
+
+            // Unreachable new clue: preserve current valid route and keep
+            // working toward the previous position instead of freezing.
+            investigationCluePosition = priorClue;
+            committedInvestigationPoint = priorGoal;
+            investigationPathRequested = AgentReady() && agent.hasPath;
+            return false;
         }
 
         if (mode == BossMode.Cover)
@@ -1124,6 +1321,7 @@ public class BossEnemyAI : MonoBehaviour
         if (!TrySetInvestigationPath())
             Log("SOUND LOCATION NOT DIRECTLY REACHABLE - TRYING ALTERNATE APPROACH");
         Log("BOSS INVESTIGATING SOUND: " + position);
+        return true;
     }
 
     private static float FlatDistance(Vector3 a, Vector3 b)
@@ -1237,6 +1435,8 @@ public class BossEnemyAI : MonoBehaviour
     private void UpdateSuspicious()
     {
         StopAgent();
+        if (postChargeSuspicionActive)
+            FacePosition(postChargeLookPoint, postStunTurnSpeed);
 
         if (AgentReady())
             agent.velocity = Vector3.zero;
@@ -1285,6 +1485,24 @@ public class BossEnemyAI : MonoBehaviour
         {
             completed =
                 elapsed >= suspiciousFallbackDuration;
+        }
+
+        if (postChargeSuspicionActive)
+        {
+            // Ensure we really turn toward the dodge clue, even if the
+            // Suspicious animation happens to finish before the turn does.
+            Vector3 toClue = postChargeLookPoint - transform.position;
+            toClue.y = 0f;
+            bool facingClue = toClue.sqrMagnitude < 0.05f ||
+                Vector3.Angle(transform.forward, toClue) <= 9f;
+            bool timeElapsed = elapsed >= postStunSuspicionSeconds;
+            if (timeElapsed && (facingClue ||
+                elapsed >= postStunSuspicionSeconds + 1.5f))
+            {
+                postChargeSuspicionActive = false;
+                BeginInvestigationTravel();
+            }
+            return;
         }
 
         if (completed)
@@ -1738,6 +1956,8 @@ public class BossEnemyAI : MonoBehaviour
         }
 
         investigatingVisualClue = false;
+        postChargeSuspicionActive = false;
+        pendingPostChargeSuspicion = false;
         lostPlayerCoverSearch = false;
         suspicion = 1f;
         hasPartialVisualContact = false;
@@ -2983,6 +3203,26 @@ public class BossEnemyAI : MonoBehaviour
     private void UpdateWandering()
     {
         if (!AgentReady()) return;
+
+        // A patrol cover attack is a committed task, not a regular wander step.
+        // Sight/hearing can interrupt it at any frame via the existing modes.
+        if (patrolCoverHuntActive)
+        {
+            UpdatePatrolCoverAttack();
+            return;
+        }
+
+        // Use the previously unused 30-60 second / 25% patrol decision fields.
+        if (Time.time >= nextCoverDecision)
+        {
+            nextCoverDecision = Time.time + NextPatrolCoverInterval();
+            if (UnityEngine.Random.value < coverDestructionChance &&
+                TryBeginPatrolCoverAttack())
+            {
+                UpdatePatrolCoverAttack();
+                return;
+            }
+        }
         coverHuntActive = false;
         currentCover = null;
         attackingCover = false;
@@ -3061,6 +3301,161 @@ public class BossEnemyAI : MonoBehaviour
             FaceMovementDirection();
         }
         else StopAgent();
+    }
+
+    private float NextPatrolCoverInterval()
+    {
+        float min = Mathf.Max(1f, Mathf.Min(coverDecisionSeconds.x, coverDecisionSeconds.y));
+        float max = Mathf.Max(min, Mathf.Max(coverDecisionSeconds.x, coverDecisionSeconds.y));
+        return UnityEngine.Random.Range(min, max);
+    }
+
+    // On a successful patrol decision, choose ONE reachable target from the
+    // nearest few Cover objects. Never select a distant random object just
+    // because it is within the large investigation sweep radius.
+    private bool TryBeginPatrolCoverAttack()
+    {
+        if (!AgentReady() || ChargeBusy || hadVisualContactLastScan) return false;
+        List<Cover> closest = new List<Cover>();
+        List<float> distances = new List<float>();
+        foreach (Cover cover in FindObjectsOfType<Cover>())
+        {
+            if (cover == null || cover.IsDestroyed ||
+                !cover.isActiveAndEnabled || !cover.gameObject.activeInHierarchy)
+                continue;
+
+            Collider part = cover.GetComponentInChildren<Collider>();
+            Vector3 surface = part != null
+                ? part.ClosestPoint(transform.position) : cover.transform.position;
+            float distance = FlatDistance(transform.position, surface);
+            if (distance > randomCoverMaxDistance) continue;
+
+            int insert = 0;
+            while (insert < distances.Count && distances[insert] <= distance)
+                insert++;
+            closest.Insert(insert, cover);
+            distances.Insert(insert, distance);
+            if (closest.Count > Mathf.Max(1, patrolNearestCoverCandidates))
+            {
+                closest.RemoveAt(closest.Count - 1);
+                distances.RemoveAt(distances.Count - 1);
+            }
+        }
+        // Randomize among the nearest, but only pick reachable attack points.
+        while (closest.Count > 0)
+        {
+            int index = UnityEngine.Random.Range(0, closest.Count);
+            Cover target = closest[index];
+            closest.RemoveAt(index);
+            Vector3 approach;
+            float routeLength;
+            if (target == null ||
+                !TryGetCoverApproach(target, out approach, out routeLength))
+                continue;
+
+            currentCover = target;
+            patrolCoverApproachPoint = approach;
+            patrolCoverAttackDeadline = Time.time + patrolCoverAttackTimeout;
+            patrolCoverProgressCheckAt = Time.time + coverStuckCheckSeconds;
+            patrolCoverProgressPosition = transform.position;
+            patrolCoverFailedApproaches = 0;
+            patrolCoverHuntActive = true;
+            attackingCover = false;
+            hasLockedCoverRotation = false;
+            currentAnimationHash = 0;
+            if (agent.hasPath) agent.ResetPath();
+            agent.isStopped = false;
+            agent.speed = investigateSpeed;
+            agent.stoppingDistance = 0.1f;
+            agent.SetDestination(patrolCoverApproachPoint);
+            Log("PATROL COVER ATTACK SELECTED: " + target.name);
+            return true;
+        }
+        return false;
+    }
+
+    private void UpdatePatrolCoverAttack()
+    {
+        if (!AgentReady() || currentCover == null || currentCover.IsDestroyed ||
+            !currentCover.isActiveAndEnabled ||
+            !currentCover.gameObject.activeInHierarchy ||
+            Time.time >= patrolCoverAttackDeadline)
+        {
+            FinishPatrolCoverAttack();
+            return;
+        }
+
+        Collider part = currentCover.GetComponentInChildren<Collider>();
+        Vector3 contact = part != null
+            ? part.ClosestPoint(transform.position) : currentCover.transform.position;
+        if (FlatDistance(transform.position, contact) <=
+            attackDistance + coverHitReachTolerance)
+        {
+            StopAgent();
+            if (!attackingCover)
+            {
+                attackingCover = true;
+                LockCoverAttackRotation();
+                nextCoverFallbackHit = Time.time + Mathf.Max(0.2f,
+                    Mathf.Min(coverHitFallbackSeconds, aggressiveCoverHitInterval));
+                ForceAnimation(attackHash);
+                Log("PATROL ATTACKING COVER: " + currentCover.name);
+            }
+            if (Time.time >= nextCoverFallbackHit)
+                DamageCover();
+            return;
+        }
+
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        agent.isStopped = false;
+        agent.speed = investigateSpeed;
+        agent.stoppingDistance = 0.1f;
+        if (!agent.pathPending &&
+            (!agent.hasPath ||
+             Vector3.Distance(agent.destination, patrolCoverApproachPoint) > 0.5f))
+            agent.SetDestination(patrolCoverApproachPoint);
+        FaceMovementDirection();
+
+        if (Time.time >= patrolCoverProgressCheckAt)
+        {
+            if (FlatDistance(transform.position, patrolCoverProgressPosition) <
+                coverMinimumProgress)
+            {
+                patrolCoverFailedApproaches++;
+                Vector3 alternative;
+                float length;
+                if (TryGetCoverApproach(currentCover, out alternative, out length))
+                {
+                    patrolCoverApproachPoint = alternative;
+                    agent.ResetPath();
+                    agent.SetDestination(alternative);
+                }
+            }
+            else patrolCoverFailedApproaches = 0;
+            patrolCoverProgressPosition = transform.position;
+            patrolCoverProgressCheckAt = Time.time + coverStuckCheckSeconds;
+            if (patrolCoverFailedApproaches >= coverStuckRetries)
+                FinishPatrolCoverAttack();
+        }
+    }
+
+    private void FinishPatrolCoverAttack()
+    {
+        // Always leave a fresh 30-60 second interval between patrol decisions.
+        nextCoverDecision = Time.time + NextPatrolCoverInterval();
+        patrolCoverHuntActive = false;
+        currentCover = null;
+        attackingCover = false;
+        hasLockedCoverRotation = false;
+        hasWanderDestination = false;
+        currentAnimationHash = 0;
+        if (AgentReady())
+        {
+            agent.ResetPath();
+            agent.isStopped = false;
+        }
+        Log("PATROL COVER CHECK COMPLETE - RESUMING WANDER");
     }
 
     private void BeginMelee()
@@ -3284,7 +3679,9 @@ public class BossEnemyAI : MonoBehaviour
 
     public void DamageCover()
     {
-        if (mode != BossMode.Search || !lostPlayerCoverSearch || hadVisualContactLastScan ||
+        bool isSearchAttack = mode == BossMode.Search && lostPlayerCoverSearch;
+        bool isPatrolAttack = mode == BossMode.Cover && patrolCoverHuntActive;
+        if ((!isSearchAttack && !isPatrolAttack) || hadVisualContactLastScan ||
             !attackingCover ||
             currentCover == null ||
             currentCover.IsDestroyed)
@@ -3295,7 +3692,7 @@ public class BossEnemyAI : MonoBehaviour
         nextCoverFallbackHit = Time.time + Mathf.Max(0.2f,
             Mathf.Min(coverHitFallbackSeconds, aggressiveCoverHitInterval));
         Cover struckCover = currentCover;
-        struckCover.TakeDamage(coverDamage * (clearAllNearbyCover
+        struckCover.TakeDamage(coverDamage * (isSearchAttack && clearAllNearbyCover
             ? coverSearchDamageMultiplier : 1f));
 
         if (currentCover != null && !currentCover.IsDestroyed)
@@ -3309,6 +3706,11 @@ public class BossEnemyAI : MonoBehaviour
 
         if (currentCover == null || currentCover.IsDestroyed)
         {
+            if (isPatrolAttack)
+            {
+                FinishPatrolCoverAttack();
+                return;
+            }
             // TakeDamage can destroy its GameObject immediately, making
             // investigationCover compare as null. Keep the pre-hit reference
             // so we can record a destroyed target before proceeding.
@@ -3327,6 +3729,8 @@ public class BossEnemyAI : MonoBehaviour
         hasLockedCoverRotation = false;
         currentCover = null;
         coverHuntActive = false;
+        patrolCoverHuntActive = false;
+        hasWanderDestination = false;
         nextCoverPath = 0f;
         nextCoverSearch = 0f;
 
@@ -3385,7 +3789,8 @@ public class BossEnemyAI : MonoBehaviour
             mode == BossMode.Melee || mode == BossMode.Detected ||
             mode == BossMode.Suspicious) return;
 
-        if (attackingCover && mode == BossMode.Search)
+        if (attackingCover &&
+            (mode == BossMode.Search || (mode == BossMode.Cover && patrolCoverHuntActive)))
         {
             PlayAnimation(attackHash);
             return;

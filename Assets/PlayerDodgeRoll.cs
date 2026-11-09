@@ -26,8 +26,12 @@ public class PlayerDodgeRoll : SystemBase
     public string rightRoll = "RollRight";
 
     [Header("Input")]
-    [Tooltip("Press Space once to dodge when no parkour action has priority.")]
+    [Tooltip("Double-tap Space to dodge in the held movement direction.")]
     public KeyCode dodgeKey = KeyCode.Space;
+
+    [Min(0.1f)]
+    [Tooltip("Maximum time between Space presses for a dodge.")]
+    public float doubleTapWindow = 0.3f;
 
     [Header("Vault Priority")]
     [Tooltip("When Space is shared with Fantacode parkour, let vault / climb / predictive jump win over a dodge.")]
@@ -124,6 +128,7 @@ public class PlayerDodgeRoll : SystemBase
     private bool ownsFocus;
 
     private float nextAllowedDodgeTime;
+    private float lastSpacePressTime = float.NegativeInfinity;
 
     private Coroutine dodgeRoutine;
     private Coroutine actionRoutine;
@@ -190,7 +195,7 @@ public class PlayerDodgeRoll : SystemBase
 
         RegisterDodgeSystem();
 
-        Log("Dodge system initialized. Press Space to dodge when vault/predictive jump is unavailable.");
+        Log("Dodge initialized. Double-tap Space for a directional dodge; vaulting and jumping retain priority.");
     }
 
     private void RegisterDodgeSystem()
@@ -224,50 +229,42 @@ public class PlayerDodgeRoll : SystemBase
 
     private void Update()
     {
-        if (Time.timeScale <= 0f)
-            return;
-
-        if (IsDodging || pendingParkourDecision != null)
+        if (Time.timeScale <= 0f || IsDodging)
             return;
 
         if (!WasDodgePressedThisFrame())
             return;
 
-        Log("DODGE KEY DETECTED: " + dodgeKey);
+        float now = Time.unscaledTime;
+        bool doubleTap = now - lastSpacePressTime <= doubleTapWindow;
+        lastSpacePressTime = now;
 
-        // Input priority must be decided BEFORE starting the roll. Fantacode
-        // performs its own parkour test in FixedUpdate; if the roll takes focus
-        // first, the vault is prevented from starting on that same Space press.
-        bool sharedSpace = giveParkourPriority && dodgeKey == KeyCode.Space &&
-                           parkour != null && parkour.isActiveAndEnabled;
-
-        if (sharedSpace && ParkourHasPriority())
+        // The first Space press belongs entirely to Fantacode's normal
+        // vault / jump input. Only the second press requests a dodge.
+        if (!doubleTap)
         {
-            Log("Vault / parkour takes priority over dodge.");
+            Log("First Space press; waiting for second press.");
             return;
         }
 
-        // Close to an obstacle, the physics scan may differ slightly from this
-        // render-frame scan. Give Fantacode ONE physics tick to claim the press.
-        // No delay is introduced for dodges in open space.
-        if (sharedSpace && NearPotentialVaultObstacle())
-        {
-            pendingParkourDecision = StartCoroutine(WaitForParkourBeforeRolling());
-            return;
-        }
+        // Consume this pair. A third press begins a new pair.
+        lastSpacePressTime = float.NegativeInfinity;
 
         if (Time.time < nextAllowedDodgeTime)
-        {
-            Log("Dodge on cooldown.");
             return;
+
+        // Never steal focus from a vault, predictive jump or climb.
+        if (giveParkourPriority && parkour != null && parkour.isActiveAndEnabled)
+        {
+            if (ParkourHasPriority() || NearPotentialVaultObstacle())
+            {
+                Log("Double Space: parkour takes priority.");
+                return;
+            }
         }
 
-        if (ParkourHasPriority())
-        {
-            Log("Parkour is available; dodge rejected.");
-            return;
-        }
-
+        // TryStartDodge preserves the grounded, focus and action checks,
+        // and chooses the directional roll from currently held WASD keys.
         TryStartDodge();
     }
 
@@ -1230,6 +1227,7 @@ public class PlayerDodgeRoll : SystemBase
 
     private void OnDisable()
     {
+        lastSpacePressTime = float.NegativeInfinity;
         if (pendingParkourDecision != null)
         {
             StopCoroutine(pendingParkourDecision);
