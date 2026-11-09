@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using FS_Core;
@@ -22,6 +23,8 @@ public class BossChargeAttack : MonoBehaviour
     [SerializeField] private bool facePlayerDuringWindup = true;
     [SerializeField] private string dashAnimation = "Dash";
     [SerializeField] private string stunnedAnimation = "Stunned";
+    [SerializeField] private string playerKillIdleAnimation = "Idle";
+    [SerializeField, Min(0f)] private float playerKillIdleCrossfade = 0.15f;
     [SerializeField, Min(0f)] private float dashCrossfade = 0.1f;
     [SerializeField, Min(0f)] private float stunnedCrossfade = 0.1f;
     [SerializeField] private bool holdStunnedUntilRecoveryEnds = true;
@@ -64,6 +67,31 @@ public class BossChargeAttack : MonoBehaviour
     [Header("Charge Cover Impact Rules")]
     [Tooltip("EVERY Cover physically hit by the charge is destroyed in one impact. If its CURRENT health before destruction is ABOVE this value, the boss is also stunned.")]
     [SerializeField, Min(0.01f)] private float coverImpactStunThreshold = 75f;
+
+    [Header("Lethal Player Impact")]
+    [SerializeField] private bool killPlayerOnChargeContact = true;
+    [Tooltip("Additional launch momentum distributed across the WHOLE ragdoll (never only the hips, which can destabilize the joints).")]
+    [SerializeField, Min(0f)] private float playerImpactForce = 75f;
+    [Tooltip("Horizontal launch speed shared by the entire ragdoll (m/s).")]
+    [SerializeField, Min(0f)] private float playerLaunchForwardSpeed = 18f;
+    [Tooltip("Upward launch velocity given to EVERY ragdoll bone on impact (m/s).")]
+    [SerializeField, Min(0f)] private float playerLaunchUpwardSpeed = 8f;
+    [Tooltip("Whole-body tumble rate (radians/s). Safely capped to prevent joint instability.")]
+    [SerializeField, Min(0f)] private float playerLaunchTumble = 4.5f;
+    [SerializeField, Min(0.1f)] private float playerImpactDetectionRadius = 0.85f;
+    [Header("Post-Kill Run Through")]
+    [Tooltip("Distance the boss keeps dashing STRAIGHT past the player after killing them, before entering Idle (meters).")]
+    [SerializeField, Min(0f)] private float playerKillRunThroughDistance = 6f;
+    [Tooltip("Follow-through speed as a multiplier of Charge Speed. 1 = full charge speed.")]
+    [SerializeField, Min(0.1f)] private float playerKillRunThroughSpeedMultiplier = 1f;
+    [Tooltip("Optional: assign BoneMapper on the player's child model. If empty, it is found automatically on death.")]
+    [SerializeField] private BoneMapper playerBoneMapper;
+    [Tooltip("Rigidbody, Collider and CharacterJoint components are created only when the boss kills the player. No ragdoll physics is needed while alive.")]
+    [SerializeField] private bool buildRagdollOnDeath = true;
+    [Tooltip("Disable other player colliders on death so they do not block the new ragdoll.")]
+    [SerializeField] private bool disableNonRagdollCollidersOnDeath = true;
+    [Tooltip("Ignore collisions between the new ragdoll and the boss, preventing explosive overlap on impact.")]
+    [SerializeField] private bool ignoreBossCollidersOnDeath = true;
 
     [Header("Recovery")]
     [Tooltip("Exact recovery time in seconds. Animation length is ignored.")]
@@ -180,6 +208,10 @@ public class BossChargeAttack : MonoBehaviour
     private int dodgeSequenceAtChargeStart;
     private int stunnedHash;
     private bool stunnedEntered;
+    private bool playerKilledByCharge;
+    private bool postKillRunThroughActive;
+    private Vector3 postKillRunThroughDirection;
+    private float postKillRunThroughRemaining;
 
     private readonly HashSet<Cover> hitCovers =
         new HashSet<Cover>();
@@ -233,6 +265,14 @@ public class BossChargeAttack : MonoBehaviour
 
     private void Update()
     {
+        // After a lethal hit, keep playing Dash and physically travel THROUGH
+        // the player's ragdoll. Only crossfade to Idle once this is finished.
+        if (playerKilledByCharge)
+        {
+            if (postKillRunThroughActive) UpdatePostKillRunThrough();
+            return;
+        }
+
         if (IsPositioning)
         {
             UpdatePreChargePositioning();
@@ -663,6 +703,7 @@ public class BossChargeAttack : MonoBehaviour
 
         CheckPlayerDodge();
         if (!IsCharging) return;
+        if (CheckLethalPlayerContact()) return;
 
         if (HasLostTracking)
         {
@@ -680,6 +721,7 @@ public class BossChargeAttack : MonoBehaviour
             if (CheckChargeCollisions(displacement, true)) return;
 
             transform.position += displacement;
+            if (CheckLethalPlayerContact()) return;
             transform.rotation = Quaternion.LookRotation(chargeDirection);
             priorChargePosition = transform.position;
         }
@@ -1023,6 +1065,7 @@ public class BossChargeAttack : MonoBehaviour
                     0.02f, false)) return;
         }
         priorChargePosition = transform.position;
+        if (CheckLethalPlayerContact()) return;
 
         Vector3 ahead = agent.desiredVelocity;
         ahead.y = 0f;
@@ -1039,7 +1082,7 @@ public class BossChargeAttack : MonoBehaviour
         if (player != null && FlatChargeDistance(transform.position, player.position) <=
             collisionRadius + 0.7f)
         {
-            StopCharge("Reached player", true);
+            KillPlayerOnImpact();
             return;
         }
 
@@ -1215,21 +1258,601 @@ public class BossChargeAttack : MonoBehaviour
             return false;
         }
 
-        if (!stopForSolidCollision) return false; // Let NavMesh route around walls.
-
+        // Player impact must work during BOTH NavMesh and straight charges.
+        // A long look-ahead probe is NOT physical contact, so it cannot kill.
         if (player != null)
         {
             Transform playerRoot = player.root;
             if (target == player || target.IsChildOf(player) ||
                 target == playerRoot || target.IsChildOf(playerRoot))
             {
-                StopCharge("Collided with player", true);
+                if (!allowHeavyImpact) return false;
+                KillPlayerOnImpact();
                 return true;
             }
         }
 
+        if (!stopForSolidCollision) return false; // Let NavMesh route around walls.
+
         StopCharge("Solid obstacle collision: " + collider.name, true);
         return true;
+    }
+
+    private bool CheckLethalPlayerContact()
+    {
+        if (!IsCharging || !killPlayerOnChargeContact || player == null) return false;
+        var targetController = player.GetComponentInParent<CharacterController>();
+        Vector3 targetPosition = targetController != null
+            ? targetController.bounds.center : player.position + Vector3.up;
+        Vector3 bossPosition = transform.position + Vector3.up;
+        Vector3 delta = targetPosition - bossPosition;
+        delta.y *= 0.4f;
+        float radius = playerImpactDetectionRadius +
+            (targetController != null ? targetController.radius : 0.35f);
+        if (delta.sqrMagnitude > radius * radius) return false;
+        KillPlayerOnImpact();
+        return true;
+    }
+
+    private void KillPlayerOnImpact()
+    {
+        if (!IsCharging || player == null) return;
+        if (!killPlayerOnChargeContact)
+        {
+            StopCharge("Reached player", true);
+            return;
+        }
+
+        var damageable = player.GetComponentInParent<Damagable>();
+        if (damageable == null) damageable = player.GetComponentInChildren<Damagable>(true);
+        if (damageable == null) damageable = player.root.GetComponentInChildren<Damagable>(true);
+        if (damageable == null)
+        {
+            Debug.LogWarning("[BossChargeAttack] Player has no FS_Core.Damagable; cannot apply lethal damage.", this);
+            StopCharge("Player contact without Damagable", true);
+            return;
+        }
+
+        // Prepare the physics skeleton BEFORE Fantacode fires its death events.
+        // Release and launch on the next fixed step after the joints are built.
+        Vector3 impulseDirection = chargeDirection.sqrMagnitude > 0.01f
+            ? chargeDirection.normalized : transform.forward;
+
+        BoneMapper mapper = ResolvePlayerBoneMapper(damageable);
+        if (buildRagdollOnDeath)
+        {
+            if (mapper != null)
+            {
+                if (!BuildAndActivateDeathRagdoll(mapper, damageable, impulseDirection))
+                    Debug.LogWarning("[BossChargeAttack] BoneMapper was found, but the death ragdoll could not be built. Check Hips/Head and mapped limb bones.", mapper);
+            }
+            else
+            {
+                Debug.LogWarning("[BossChargeAttack] No BoneMapper found on the player or its child model. Add BoneMapper to the child model (with its Animator) to build ragdoll physics on death.", this);
+            }
+        }
+
+        if (!damageable.IsDead)
+        {
+            // We launch the physics ragdoll ourselves. TakeImpactDamage would ALSO
+            // broadcast OnImpactDamage, potentially triggering a second knockback/
+            // ragdoll reaction that fights these joints and causes violent jitter.
+            damageable.TakeDamage(Mathf.Max(1f, damageable.CurrentHealth + 1f));
+        }
+
+        if (mapper != null && !mapper.gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning("[BossChargeAttack] A Damagable OnDead event disabled the player's model. Keep the model active if the ragdoll corpse should remain visible.", mapper);
+        }
+
+        BeginPostKillRunThrough();
+    }
+
+    private void BeginPostKillRunThrough()
+    {
+        if (playerKilledByCharge) return;
+        playerKilledByCharge = true;
+        postKillRunThroughActive = true;
+        IsPositioning = false;
+        IsWindingUp = false;
+        IsRecovering = false;
+        HasLostTracking = false;
+        // Keep IsCharging TRUE until the follow-through finishes, so Dash
+        // stays in control and the normal recovery/stun path cannot run.
+
+        // Commit to the direction the boss was already traveling. Never
+        // retarget the dead player's hips or steer back toward their ragdoll.
+        postKillRunThroughDirection = transform.forward;
+        postKillRunThroughDirection.y = 0f;
+        if (postKillRunThroughDirection.sqrMagnitude < 0.001f)
+        {
+            postKillRunThroughDirection = chargeDirection;
+            postKillRunThroughDirection.y = 0f;
+        }
+        if (postKillRunThroughDirection.sqrMagnitude < 0.001f)
+            postKillRunThroughDirection = Vector3.forward;
+        postKillRunThroughDirection.Normalize();
+        postKillRunThroughRemaining = Mathf.Max(0f, playerKillRunThroughDistance);
+
+        // AI and NavMesh must not slow the boss down as the player's physics
+        // body falls in front of it. Continue straight by transform motion.
+        if (ai != null) ai.enabled = false;
+        if (boss != null) boss.enabled = false;
+        if (agent != null && agent.enabled)
+        {
+            if (agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+                agent.velocity = Vector3.zero;
+            }
+            agent.enabled = false;
+        }
+        if (bossAnimator != null)
+        {
+            bossAnimator.applyRootMotion = false;
+            // Do not crossfade to Idle on impact: let Dash continue.
+        }
+
+        Log("PLAYER KILLED - DASHING THROUGH BODY | remaining=" +
+            postKillRunThroughRemaining.ToString("F1") + "m");
+        if (postKillRunThroughRemaining <= 0.001f)
+            StopAfterPlayerKill();
+    }
+
+    private void UpdatePostKillRunThrough()
+    {
+        if (!postKillRunThroughActive) return;
+
+        // No player hit tests, dodge handling, or NavMesh steering here.
+        // The boss passes through the newly spawned ragdoll without stopping.
+        float speed = Mathf.Max(0f, chargeSpeed * playerKillRunThroughSpeedMultiplier);
+        float distance = Mathf.Min(postKillRunThroughRemaining,
+            speed * Time.deltaTime);
+        if (distance > 0f)
+        {
+            transform.position += postKillRunThroughDirection * distance;
+            transform.rotation = Quaternion.LookRotation(postKillRunThroughDirection);
+            postKillRunThroughRemaining -= distance;
+        }
+        if (postKillRunThroughRemaining <= 0.001f || speed <= 0.001f)
+            StopAfterPlayerKill();
+    }
+
+    private void StopAfterPlayerKill()
+    {
+        if (!playerKilledByCharge) return;
+        postKillRunThroughActive = false;
+        postKillRunThroughRemaining = 0f;
+        IsCharging = false;
+        IsPositioning = false;
+        IsWindingUp = false;
+        IsRecovering = false;
+        HasLostTracking = false;
+
+        // Never enter Stunned or post-charge suspicion on a successful kill.
+        // Prevent both AI systems from overriding the Idle crossfade.
+        if (ai != null) ai.enabled = false;
+        if (boss != null) boss.enabled = false;
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
+        }
+
+        RestoreCoverNavMeshObstacles();
+        if (bossAnimator != null)
+        {
+            bossAnimator.applyRootMotion = false;
+            PlayState(playerKillIdleAnimation, playerKillIdleCrossfade);
+        }
+        // Do not restore controllers: the boss remains idle until reset/reloaded.
+        savedControllerState = false;
+        savedAnimatorState = false;
+        Log("PLAYER KILLED - RUN THROUGH COMPLETE - BOSS IDLE");
+    }
+
+    // BoneMapper belongs on the player's child model in many Fantacode prefabs.
+    // No Rigidbody/Collider/Joint is required on the model before death.
+    private BoneMapper ResolvePlayerBoneMapper(Damagable damageable)
+    {
+        if (playerBoneMapper != null && playerBoneMapper.gameObject.activeInHierarchy)
+            return playerBoneMapper;
+
+        BoneMapper mapper = null;
+        if (damageable != null)
+        {
+            mapper = damageable.GetComponent<BoneMapper>();
+            if (mapper == null)
+                mapper = damageable.GetComponentInChildren<BoneMapper>(true);
+        }
+        if (mapper == null && player != null)
+        {
+            mapper = player.GetComponent<BoneMapper>();
+            if (mapper == null) mapper = player.GetComponentInChildren<BoneMapper>(true);
+            if (mapper == null) mapper = player.root.GetComponentInChildren<BoneMapper>(true);
+        }
+        if (mapper != null) playerBoneMapper = mapper;
+        return mapper;
+    }
+
+    private struct DeathRagdollBone
+    {
+        public Transform bone;
+        public Transform end;
+        public float mass;
+        public float radius;
+        public bool sphere;
+
+        public DeathRagdollBone(Transform bone, Transform end, float mass,
+            float radius, bool sphere = false)
+        {
+            this.bone = bone;
+            this.end = end;
+            this.mass = mass;
+            this.radius = radius;
+            this.sphere = sphere;
+        }
+    }
+
+    // Build a physical skeleton on impact. Components are NEVER added in Awake,
+    // Start or Update, so normal locomotion is unaffected while alive.
+    // The new joints are fully assembled before any rigidbody becomes dynamic.
+    private bool BuildAndActivateDeathRagdoll(BoneMapper mapper,
+        Damagable damageable, Vector3 direction)
+    {
+        Transform hips = mapper.GetBone(BoneType.Hips);
+        Transform head = mapper.GetBone(BoneType.Head);
+        if (hips == null || head == null)
+        {
+            Debug.LogWarning("[BossChargeAttack] BoneMapper must resolve Hips and Head for death ragdoll.", mapper);
+            return false;
+        }
+
+        Animator modelAnimator = mapper.GetComponent<Animator>();
+        bool humanoid = modelAnimator != null && modelAnimator.isHuman;
+        Transform torso = humanoid
+            ? FirstHumanoidBone(modelAnimator, HumanBodyBones.Chest,
+                HumanBodyBones.UpperChest, HumanBodyBones.Spine)
+            : InferTorsoBone(hips, head);
+        if (torso == null || torso == hips || torso == head)
+            torso = InferTorsoBone(hips, head);
+
+        Transform leftElbow = mapper.GetBone(BoneType.LeftElbow);
+        Transform rightElbow = mapper.GetBone(BoneType.RightElbow);
+        Transform leftKnee = mapper.GetBone(BoneType.LeftKnee);
+        Transform rightKnee = mapper.GetBone(BoneType.RightKnee);
+        Transform leftHand = mapper.GetBone(BoneType.LeftHand);
+        Transform rightHand = mapper.GetBone(BoneType.RightHand);
+        Transform leftFoot = mapper.GetBone(BoneType.LeftFoot);
+        Transform rightFoot = mapper.GetBone(BoneType.RightFoot);
+
+        Transform leftUpperArm = humanoid
+            ? modelAnimator.GetBoneTransform(HumanBodyBones.LeftUpperArm)
+            : (leftElbow != null ? leftElbow.parent : null);
+        Transform rightUpperArm = humanoid
+            ? modelAnimator.GetBoneTransform(HumanBodyBones.RightUpperArm)
+            : (rightElbow != null ? rightElbow.parent : null);
+        Transform leftUpperLeg = humanoid
+            ? modelAnimator.GetBoneTransform(HumanBodyBones.LeftUpperLeg)
+            : (leftKnee != null ? leftKnee.parent : null);
+        Transform rightUpperLeg = humanoid
+            ? modelAnimator.GetBoneTransform(HumanBodyBones.RightUpperLeg)
+            : (rightKnee != null ? rightKnee.parent : null);
+
+        float size = Mathf.Clamp(Vector3.Distance(hips.position, head.position) / 0.85f,
+            0.55f, 2.0f);
+        var specs = new List<DeathRagdollBone>(16);
+        AddDeathBone(specs, hips, torso, 10f, 0.16f * size);
+        AddDeathBone(specs, torso, head, 13f, 0.18f * size);
+        AddDeathBone(specs, head, null, 4f, 0.115f * size, true);
+        AddDeathBone(specs, leftUpperArm, leftElbow, 2.5f, 0.07f * size);
+        AddDeathBone(specs, leftElbow, leftHand, 1.5f, 0.055f * size);
+        AddDeathBone(specs, leftHand, null, 0.5f, 0.055f * size, true);
+        AddDeathBone(specs, rightUpperArm, rightElbow, 2.5f, 0.07f * size);
+        AddDeathBone(specs, rightElbow, rightHand, 1.5f, 0.055f * size);
+        AddDeathBone(specs, rightHand, null, 0.5f, 0.055f * size, true);
+        AddDeathBone(specs, leftUpperLeg, leftKnee, 6f, 0.11f * size);
+        AddDeathBone(specs, leftKnee, leftFoot, 3.5f, 0.085f * size);
+        AddDeathBone(specs, leftFoot, null, 1f, 0.075f * size, true);
+        AddDeathBone(specs, rightUpperLeg, rightKnee, 6f, 0.11f * size);
+        AddDeathBone(specs, rightKnee, rightFoot, 3.5f, 0.085f * size);
+        AddDeathBone(specs, rightFoot, null, 1f, 0.075f * size, true);
+
+        var valid = new List<DeathRagdollBone>(specs.Count);
+        var seen = new HashSet<Transform>();
+        foreach (DeathRagdollBone spec in specs)
+        {
+            if (spec.bone == null || !seen.Add(spec.bone)) continue;
+            if (spec.bone != hips && !spec.bone.IsChildOf(hips)) continue;
+            valid.Add(spec);
+        }
+        if (valid.Count < 3)
+        {
+            Debug.LogWarning("[BossChargeAttack] BoneMapper resolved too few bones under Hips. Check the Avatar/bone mappings.", mapper);
+            return false;
+        }
+
+        // The ActiveRagdollSystem is for prebuilt rigs; do not let its LateUpdate
+        // overwrite this on-demand physics skeleton.
+        Transform characterRoot = damageable != null ? damageable.transform : mapper.transform.root;
+        CharacterController parentController = damageable != null
+            ? damageable.GetComponentInParent<CharacterController>() : null;
+        if (parentController != null) characterRoot = parentController.transform;
+
+        foreach (ActiveRagdollSystem active in
+            characterRoot.GetComponentsInChildren<ActiveRagdollSystem>(true))
+            active.enabled = false;
+        foreach (CharacterController controller in
+            characterRoot.GetComponentsInChildren<CharacterController>(true))
+            controller.enabled = false;
+        foreach (PlayerController controller in
+            characterRoot.GetComponentsInChildren<PlayerController>(true))
+            controller.enabled = false;
+        foreach (FS_LocomotionSystem.LocomotionController controller in
+            characterRoot.GetComponentsInChildren<FS_LocomotionSystem.LocomotionController>(true))
+            controller.enabled = false;
+        foreach (PlayerDodgeRoll dodge in
+            characterRoot.GetComponentsInChildren<PlayerDodgeRoll>(true))
+            dodge.enabled = false;
+        // Animation on ANY child of the player can fight a jointed ragdoll.
+        foreach (Animator animator in characterRoot.GetComponentsInChildren<Animator>(true))
+            animator.enabled = false;
+        foreach (Animation animation in characterRoot.GetComponentsInChildren<Animation>(true))
+            animation.enabled = false;
+
+        var bodies = new Dictionary<Transform, Rigidbody>(valid.Count);
+        var boneColliders = new List<Collider>(valid.Count);
+        var boneColliderSet = new HashSet<Collider>();
+        var ragdollBodySet = new HashSet<Rigidbody>();
+
+        // Pass 1: create dedicated PHYSICS colliders. Never turn an existing
+        // hitbox/trigger collider into a solid collider: hitboxes can be huge
+        // and their overlap with the world causes ragdoll explosions.
+        foreach (DeathRagdollBone spec in valid)
+        {
+            Rigidbody rb = spec.bone.GetComponent<Rigidbody>();
+            if (rb == null) rb = spec.bone.gameObject.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = true;
+            rb.mass = spec.mass;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.solverIterations = 18;
+            rb.solverVelocityIterations = 12;
+            rb.maxAngularVelocity = 12f;
+            rb.maxDepenetrationVelocity = 4f;
+            rb.linearDamping = 0.05f;
+            rb.angularDamping = 1.5f;
+            bodies.Add(spec.bone, rb);
+            ragdollBodySet.Add(rb);
+
+            Collider collider = CreateDeathRagdollCollider(spec);
+            collider.isTrigger = false;
+            collider.enabled = true;
+            collider.excludeLayers = 0;
+            boneColliders.Add(collider);
+            boneColliderSet.Add(collider);
+        }
+
+        // Pass 2: connect the joints while every body is still kinematic.
+        foreach (DeathRagdollBone spec in valid)
+        {
+            if (spec.bone == hips) continue;
+            Transform parent = spec.bone.parent;
+            while (parent != null && !bodies.ContainsKey(parent))
+                parent = parent.parent;
+            if (parent == null) continue;
+
+            CharacterJoint joint = spec.bone.GetComponent<CharacterJoint>();
+            if (joint == null) joint = spec.bone.gameObject.AddComponent<CharacterJoint>();
+            // Joint is not a Behaviour and has no enabled property.
+            // Remove competing joints rather than trying to disable them.
+            foreach (Joint other in spec.bone.GetComponents<Joint>())
+            {
+                if (other != joint) Destroy(other);
+            }
+            joint.connectedBody = bodies[parent];
+            joint.autoConfigureConnectedAnchor = false;
+            joint.anchor = Vector3.zero;
+            joint.connectedAnchor = parent.InverseTransformPoint(spec.bone.position);
+
+            // Align the twist axis with the actual limb, instead of using the
+            // same arbitrary local X axis for every arm, leg and spine bone.
+            Vector3 worldAxis = spec.end != null
+                ? spec.end.position - spec.bone.position
+                : spec.bone.position - parent.position;
+            if (worldAxis.sqrMagnitude < 0.0001f)
+                worldAxis = spec.bone.up;
+            Vector3 axis = spec.bone.InverseTransformDirection(worldAxis.normalized);
+            if (axis.sqrMagnitude < 0.0001f) axis = Vector3.up;
+            axis.Normalize();
+            Vector3 swing = Vector3.Cross(axis, Vector3.forward);
+            if (swing.sqrMagnitude < 0.0001f)
+                swing = Vector3.Cross(axis, Vector3.up);
+            joint.axis = axis;
+            joint.swingAxis = swing.normalized;
+            joint.enableCollision = false;
+            joint.enablePreprocessing = false;
+
+            bool isKneeOrElbow = spec.bone == leftKnee || spec.bone == rightKnee ||
+                spec.bone == leftElbow || spec.bone == rightElbow;
+            float twist = isKneeOrElbow ? 20f : 40f;
+            float swingLimit = isKneeOrElbow ? 40f : 60f;
+            joint.lowTwistLimit = new SoftJointLimit { limit = -twist };
+            joint.highTwistLimit = new SoftJointLimit { limit = twist };
+            joint.swing1Limit = new SoftJointLimit { limit = swingLimit };
+            joint.swing2Limit = new SoftJointLimit { limit = swingLimit };
+        }
+
+        // Freeze any OTHER rigidbodies on the player root/model. An active root
+        // rigidbody can move the parent Transform while the bones simulate.
+        foreach (Rigidbody other in characterRoot.GetComponentsInChildren<Rigidbody>(true))
+        {
+            if (other == null || ragdollBodySet.Contains(other)) continue;
+            if (!other.isKinematic)
+            {
+                other.linearVelocity = Vector3.zero;
+                other.angularVelocity = Vector3.zero;
+            }
+            other.isKinematic = true;
+        }
+
+        if (disableNonRagdollCollidersOnDeath)
+        {
+            foreach (Collider collider in characterRoot.GetComponentsInChildren<Collider>(true))
+            {
+                if (collider != null && !boneColliderSet.Contains(collider))
+                    collider.enabled = false;
+            }
+        }
+
+        // All bone-vs-bone and bone-vs-boss contacts are suppressed, including
+        // adjacent bones, so the corpse cannot explode from initial overlaps.
+        Collider[] bossColliders = ignoreBossCollidersOnDeath
+            ? GetComponentsInChildren<Collider>(true) : null;
+        for (int i = 0; i < boneColliders.Count; i++)
+        {
+            Collider a = boneColliders[i];
+            for (int j = i + 1; j < boneColliders.Count; j++)
+                Physics.IgnoreCollision(a, boneColliders[j], true);
+            if (bossColliders == null) continue;
+            foreach (Collider b in bossColliders)
+                if (b != null && b != a) Physics.IgnoreCollision(a, b, true);
+        }
+
+        // A fixed-step delay gives Unity a chance to register the new joints
+        // before launching. A single giant impulse on Hips would wrench the
+        // pelvis away from the other bodies and destabilize the entire rig.
+        StartCoroutine(ReleaseAndLaunchDeathRagdoll(bodies, hips, direction, mapper));
+        Log("PREPARED STABLE DEATH RAGDOLL USING BONEMAPPER | bones=" + bodies.Count);
+        return true;
+    }
+
+    private static Collider CreateDeathRagdollCollider(DeathRagdollBone spec)
+    {
+        Vector3 scale = spec.bone.lossyScale;
+        float sx = Mathf.Max(0.001f, Mathf.Abs(scale.x));
+        float sy = Mathf.Max(0.001f, Mathf.Abs(scale.y));
+        float sz = Mathf.Max(0.001f, Mathf.Abs(scale.z));
+
+        if (spec.sphere || spec.end == null)
+        {
+            SphereCollider sphere = spec.bone.gameObject.AddComponent<SphereCollider>();
+            sphere.center = Vector3.zero;
+            sphere.radius = spec.radius / Mathf.Max(sx, Mathf.Max(sy, sz));
+            return sphere;
+        }
+
+        Vector3 localEnd = spec.bone.InverseTransformPoint(spec.end.position);
+        Vector3 abs = new Vector3(Mathf.Abs(localEnd.x),
+            Mathf.Abs(localEnd.y), Mathf.Abs(localEnd.z));
+        int axis = abs.x > abs.y && abs.x > abs.z ? 0 : (abs.z > abs.y ? 2 : 1);
+        float axisScale = axis == 0 ? sx : (axis == 1 ? sy : sz);
+        float perpendicularScale = axis == 0 ? Mathf.Max(sy, sz) :
+            (axis == 1 ? Mathf.Max(sx, sz) : Mathf.Max(sx, sy));
+        float length = Vector3.Distance(spec.bone.position, spec.end.position);
+        float worldRadius = Mathf.Min(spec.radius, Mathf.Max(0.018f, length * 0.23f));
+        float localRadius = worldRadius / perpendicularScale;
+        float localLength = length / axisScale;
+
+        CapsuleCollider capsule = spec.bone.gameObject.AddComponent<CapsuleCollider>();
+        capsule.direction = axis;
+        capsule.center = localEnd * 0.5f;
+        capsule.radius = localRadius;
+        // Keep the capsule INSIDE the bone segment. Oversized capsules clip
+        // into floors and neighboring geometry when the ragdoll first spawns.
+        capsule.height = Mathf.Max(localRadius * 2.05f,
+            localLength * 0.88f);
+        return capsule;
+    }
+
+    private IEnumerator ReleaseAndLaunchDeathRagdoll(
+        Dictionary<Transform, Rigidbody> bodies, Transform hips,
+        Vector3 direction, BoneMapper mapper)
+    {
+        yield return new WaitForFixedUpdate();
+        if (mapper == null || !mapper.gameObject.activeInHierarchy) yield break;
+
+        // A death callback might have re-enabled animation after we prepared
+        // the rig. Keep the physics skeleton fully in charge of bone transforms.
+        foreach (Animator animator in mapper.GetComponentsInChildren<Animator>(true))
+            animator.enabled = false;
+        foreach (ActiveRagdollSystem active in
+            mapper.GetComponentsInChildren<ActiveRagdollSystem>(true))
+            active.enabled = false;
+        Physics.SyncTransforms();
+        Vector3 push = direction;
+        push.y = 0f;
+        if (push.sqrMagnitude < 0.001f)
+        {
+            push = transform.forward;
+            push.y = 0f;
+        }
+        if (push.sqrMagnitude < 0.001f) push = Vector3.forward;
+        push.Normalize();
+
+        float totalMass = 0f;
+        foreach (Rigidbody rb in bodies.Values)
+            if (rb != null) totalMass += rb.mass;
+
+        // Keep the strong flying launch, but distribute extra impact momentum
+        // across the entire body. Do not kick only the hips.
+        float bonusSpeed = Mathf.Max(0f, playerImpactForce) /
+            Mathf.Max(25f, totalMass * 0.5f);
+        Vector3 launchVelocity = push * (playerLaunchForwardSpeed + bonusSpeed) +
+            Vector3.up * playerLaunchUpwardSpeed;
+
+        // Apply one coherent angular velocity to the entire body, with the
+        // corresponding tangential velocity at each bone's center of mass.
+        // This makes the ragdoll tumble as a whole instead of twisting apart.
+        Vector3 tumbleAxis = Vector3.Cross(Vector3.up, push);
+        Vector3 omega = tumbleAxis.sqrMagnitude > 0.0001f
+            ? tumbleAxis.normalized * Mathf.Min(playerLaunchTumble, 2.5f)
+            : Vector3.zero;
+        Rigidbody hipsBody;
+        Vector3 pivot = bodies.TryGetValue(hips, out hipsBody) && hipsBody != null
+            ? hipsBody.worldCenterOfMass : hips.position;
+
+        foreach (Rigidbody rb in bodies.Values)
+        {
+            if (rb == null) continue;
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.linearVelocity = launchVelocity +
+                Vector3.Cross(omega, rb.worldCenterOfMass - pivot);
+            rb.angularVelocity = omega;
+            rb.WakeUp();
+        }
+        Log("STABLE DEATH RAGDOLL LAUNCHED | speed=" +
+            launchVelocity.magnitude.ToString("F1") + "m/s | bones=" + bodies.Count);
+    }
+
+    private static void AddDeathBone(List<DeathRagdollBone> list, Transform bone,
+        Transform end, float mass, float radius, bool sphere = false)
+    {
+        if (bone != null)
+            list.Add(new DeathRagdollBone(bone, end, mass, radius, sphere));
+    }
+
+    private static Transform FirstHumanoidBone(Animator animator,
+        HumanBodyBones first, HumanBodyBones second, HumanBodyBones third)
+    {
+        Transform t = animator.GetBoneTransform(first);
+        if (t != null) return t;
+        t = animator.GetBoneTransform(second);
+        return t != null ? t : animator.GetBoneTransform(third);
+    }
+
+    private static Transform InferTorsoBone(Transform hips, Transform head)
+    {
+        if (hips == null || head == null) return null;
+        var chain = new List<Transform>();
+        for (Transform t = head.parent; t != null && t != hips; t = t.parent)
+            chain.Add(t);
+        return chain.Count > 0 ? chain[chain.Count / 2] : null;
     }
 
     private bool IsCoverFragment(Collider collider)
@@ -1451,7 +2074,7 @@ public class BossChargeAttack : MonoBehaviour
 
     private void OnDisable()
     {
-        RestoreControllers();
+        if (!playerKilledByCharge) RestoreControllers();
 
         IsPositioning = false;
         IsWindingUp = false;

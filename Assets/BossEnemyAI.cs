@@ -465,6 +465,20 @@ public class BossEnemyAI : MonoBehaviour
     private bool partialVisualInvestigationStarted;
     private float lastPartialVisualContactTime = float.NegativeInfinity;
     private Vector3 partialVisualLastSeenPosition;
+    [Header("Investigation Anti-Stuck Recovery")]
+    [Tooltip("If a NavMesh path remains pending this long, cancel it and recover the current investigation waypoint.")]
+    [SerializeField, Min(0.5f)] private float investigationPathPendingTimeout = 3f;
+    [Tooltip("Only used if the agent is disabled, off the NavMesh or stopped updating its physical position after a charge.")]
+    [SerializeField, Min(0.5f)] private float investigationNavMeshResyncRadius = 2f;
+    [SerializeField, Min(0.25f)] private float investigationNavMeshRetryInterval = 1.25f;
+    [Tooltip("How long the boss may work on one perimeter point even if a repeatedly renewed path claims to be valid.")]
+    [SerializeField, Min(8f)] private float perimeterAbsoluteTimeout = 27f;
+    private float pendingInvestigationPathSince = -1f;
+    private float nextInvestigationNavMeshResync;
+    private float perimeterPointStartedAt;
+    private Cover failedCoverApproachOwner;
+    private Vector3 failedCoverApproachPoint;
+    private bool hasFailedCoverApproach;
     [Header("Navigation Stability")]
     [SerializeField, Min(0.1f)] private float stuckCheckSeconds = 2.5f;
     [SerializeField, Min(0f)] private float stuckMinimumProgress = 0.3f;
@@ -657,6 +671,11 @@ public class BossEnemyAI : MonoBehaviour
 
         if (mode != BossMode.Chase && chaseObstacleCover != null)
             ClearChaseCover();
+
+        // Repair navigation state left invalid by a charge, and recover a
+        // stalled asynchronous path before this frame's investigation update.
+        if (mode == BossMode.InvestigateTravel || mode == BossMode.Search)
+            CheckInvestigationNavigationHealth();
 
         UpdateMeasuredVelocity();
         CheckVision();
@@ -2133,6 +2152,7 @@ public class BossEnemyAI : MonoBehaviour
         perimeterWaypointIndex = 0;
         perimeterDestinationFailures = 0;
         perimeterHasDestination = false;
+        perimeterPointStartedAt = Time.time;
         extendedSearchPoints.Clear();
         deferredCoverThisPass.Clear();
         extendedWaypointIndex = 0;
@@ -2200,6 +2220,14 @@ public class BossEnemyAI : MonoBehaviour
         Vector3 remaining = target - transform.position;
         remaining.y = 0f;
         float arrival = Mathf.Max(0.35f, perimeterWaypointArrival);
+        if (perimeterPointStartedAt <= 0f) perimeterPointStartedAt = Time.time;
+        if (Time.time - perimeterPointStartedAt >
+            Mathf.Max(8f, perimeterAbsoluteTimeout))
+        {
+            Log("PERIMETER corner exceeded time budget - moving to next waypoint");
+            AdvancePerimeterWaypoint();
+            return;
+        }
 
         if (!perimeterHasDestination)
         {
@@ -2209,7 +2237,6 @@ public class BossEnemyAI : MonoBehaviour
             }
             else
             {
-                // Unreachable waypoints are logged and skipped, not spun toward.
                 Log("PERIMETER point unreachable: " + perimeterWaypointIndex);
                 AdvancePerimeterWaypoint();
                 return;
@@ -2218,14 +2245,16 @@ public class BossEnemyAI : MonoBehaviour
 
         if (!agent.pathPending &&
             (remaining.magnitude <= arrival ||
-             (agent.hasPath && agent.remainingDistance <= arrival)))
+             (perimeterHasDestination && agent.hasPath &&
+              FlatDistance(agent.destination, target) < 0.9f &&
+              agent.remainingDistance <= arrival)))
         {
             AdvancePerimeterWaypoint();
             return;
         }
 
         if (!agent.pathPending &&
-            (agent.pathStatus == NavMeshPathStatus.PathInvalid || !agent.hasPath ||
+            (agent.pathStatus != NavMeshPathStatus.PathComplete || !agent.hasPath ||
              Time.time >= perimeterWaypointDeadline))
         {
             RetryPerimeterWaypoint();
@@ -2277,11 +2306,22 @@ public class BossEnemyAI : MonoBehaviour
 
     private void RetryPerimeterWaypoint()
     {
+        if (perimeterWaypointIndex >= wallCheckPoints.Count) return;
         perimeterDestinationFailures++;
-        if (perimeterDestinationFailures <= perimeterMaximumRepaths &&
-            TrySetPerimeterDestination(wallCheckPoints[perimeterWaypointIndex]))
-            return;
-
+        if (perimeterDestinationFailures <= perimeterMaximumRepaths)
+        {
+            Vector3 nearby;
+            Vector3 current = wallCheckPoints[perimeterWaypointIndex];
+            if (TryFindAlternateInvestigationWaypoint(current, out nearby) &&
+                TrySetPerimeterDestination(nearby))
+            {
+                wallCheckPoints[perimeterWaypointIndex] = nearby;
+                Log("PERIMETER recovering around blocked corner " + perimeterWaypointIndex);
+                return;
+            }
+            if (perimeterDestinationFailures == 1 &&
+                TrySetPerimeterDestination(current)) return;
+        }
         Log("PERIMETER skipped stalled point " + perimeterWaypointIndex);
         AdvancePerimeterWaypoint();
     }
@@ -2299,6 +2339,7 @@ public class BossEnemyAI : MonoBehaviour
         perimeterWaypointIndex++;
         perimeterDestinationFailures = 0;
         perimeterHasDestination = false;
+        perimeterPointStartedAt = Time.time;
 
         if (perimeterWaypointIndex >= wallCheckPoints.Count)
         {
@@ -2554,7 +2595,9 @@ public class BossEnemyAI : MonoBehaviour
         }
         if (!agent.pathPending &&
             (delta.magnitude <= extendedWaypointArrival ||
-             (agent.hasPath && agent.remainingDistance <= extendedWaypointArrival)))
+             (extendedHasDestination && agent.hasPath &&
+              FlatDistance(agent.destination, target) < 1f &&
+              agent.remainingDistance <= extendedWaypointArrival)))
         {
             AdvanceExtendedWaypoint(true);
             return;
@@ -2585,10 +2628,20 @@ public class BossEnemyAI : MonoBehaviour
 
     private void RetryExtendedWaypoint()
     {
+        if (extendedWaypointIndex >= extendedSearchPoints.Count) return;
         extendedRetries++;
-        if (extendedRetries <= 2 &&
-            TrySetExtendedDestination(extendedSearchPoints[extendedWaypointIndex]))
-            return;
+        if (extendedRetries <= 2)
+        {
+            Vector3 original = extendedSearchPoints[extendedWaypointIndex];
+            Vector3 alternate;
+            if (TryFindAlternateInvestigationWaypoint(original, out alternate) &&
+                TrySetExtendedDestination(alternate))
+            {
+                extendedSearchPoints[extendedWaypointIndex] = alternate;
+                return;
+            }
+            if (extendedRetries == 1 && TrySetExtendedDestination(original)) return;
+        }
         AdvanceExtendedWaypoint(false);
     }
 
@@ -2690,6 +2743,8 @@ public class BossEnemyAI : MonoBehaviour
             }
         }
         investigationCover = null;
+        failedCoverApproachOwner = null;
+        hasFailedCoverApproach = false;
         currentCover = null;
         attackingCover = false;
         hasLockedCoverRotation = false;
@@ -2751,6 +2806,9 @@ public class BossEnemyAI : MonoBehaviour
                 Vector3 test = surface + radial * offsets[j];
                 NavMeshHit hit;
                 if (!NavMesh.SamplePosition(test, out hit, 1.15f, agent.areaMask)) continue;
+                if (hasFailedCoverApproach && failedCoverApproachOwner == cover &&
+                    FlatDistance(hit.position, failedCoverApproachPoint) < 1.55f)
+                    continue;
                 Vector3 contact = collider != null ? collider.ClosestPoint(hit.position) : center;
                 Vector3 gap = contact - hit.position;
                 gap.y = 0f;
@@ -2844,6 +2902,8 @@ public class BossEnemyAI : MonoBehaviour
                 continue;
             }
             investigationCover = candidate;
+            failedCoverApproachOwner = null;
+            hasFailedCoverApproach = false;
             investigationCoverStartTime = Time.time;
             coverProgressCheckAt = Time.time + coverStuckCheckSeconds;
             coverProgressPosition = transform.position;
@@ -3549,18 +3609,25 @@ public class BossEnemyAI : MonoBehaviour
         agent.speed = investigateSpeed;
         agent.stoppingDistance = 0.12f;
         if (Time.time >= nextCoverPath && !agent.pathPending &&
-            (!agent.hasPath || Vector3.Distance(agent.destination, coverApproachPoint) > 0.6f))
+            (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete ||
+             Vector3.Distance(agent.destination, coverApproachPoint) > 0.6f))
         {
-            agent.SetDestination(coverApproachPoint);
+            if (!agent.SetDestination(coverApproachPoint))
+            {
+                RegisterFailedInvestigationCoverApproach();
+                return;
+            }
             nextCoverPath = Time.time + coverPathRefreshInterval;
         }
         if (!agent.pathPending && agent.hasPath &&
             agent.remainingDistance <= 0.3f &&
+            FlatDistance(transform.position, coverApproachPoint) <= 0.5f &&
             toSurface.magnitude > attackDistance + coverHitReachTolerance)
         {
-            // NavMesh endpoint ended just outside range. Do not run in place.
-            coverStallAttempts++;
-            coverApproachValid = false;
+            // NavMesh endpoint ended just outside attack range. Recalculate
+            // from a different side instead of walking in place.
+            RegisterFailedInvestigationCoverApproach();
+            return;
         }
         if (Time.time >= coverProgressCheckAt)
         {
@@ -3569,21 +3636,16 @@ public class BossEnemyAI : MonoBehaviour
             if (travelled.magnitude < coverMinimumProgress &&
                 toSurface.magnitude > attackDistance + coverHitReachTolerance)
             {
-                coverStallAttempts++;
-                coverApproachValid = false;
-                nextCoverPath = 0f;
-                if (debugCoverSweep)
-                    Log("COVER APPROACH STALLED: " + currentCover.name +
-                        " retry " + coverStallAttempts);
+                RegisterFailedInvestigationCoverApproach();
+                return;
             }
-            else if (travelled.magnitude >= coverMinimumProgress)
-                coverStallAttempts = 0;
+            // Preserve the number of failed approaches on this cover even
+            // when one detour briefly moves; reset only for a new target.
             coverProgressPosition = transform.position;
             coverProgressCheckAt = Time.time + coverStuckCheckSeconds;
         }
-        if (coverStallAttempts >= coverStuckRetries)
+        if (coverStallAttempts >= Mathf.Max(1, coverStuckRetries))
         {
-            // Defer just this cover; continue destroying the rest.
             EndInvestigationCoverAttack();
             return;
         }
@@ -3762,6 +3824,10 @@ public class BossEnemyAI : MonoBehaviour
         coverApproachValid = false;
         smoothedMovementHeading = Vector3.zero;
         visitedPoints.Clear();
+        hasFailedCoverApproach = false;
+        failedCoverApproachOwner = null;
+        pendingInvestigationPathSince = -1f;
+        perimeterPointStartedAt = 0f;
         perimeterHasDestination = false;
         perimeterWaypointIndex = 0;
         perimeterDestinationFailures = 0;
@@ -3837,6 +3903,154 @@ public class BossEnemyAI : MonoBehaviour
         );
 
         currentAnimationHash = hash;
+    }
+
+    // Keep investigation moving even after a failed NavMesh handoff or a
+    // path request that never finishes. Only affects investigation, not chase,
+    // charging, stunned animation, deliberate corner scans or melee.
+    private void CheckInvestigationNavigationHealth()
+    {
+        if (agent == null || ChargeBusy) return;
+
+        if ((!agent.enabled || !agent.isOnNavMesh || !agent.updatePosition) &&
+            Time.time >= nextInvestigationNavMeshResync)
+        {
+            nextInvestigationNavMeshResync = Time.time +
+                Mathf.Max(0.25f, investigationNavMeshRetryInterval);
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit,
+                Mathf.Max(0.5f, investigationNavMeshResyncRadius), NavMesh.AllAreas))
+            {
+                if (!agent.enabled) agent.enabled = true;
+                if (agent.isActiveAndEnabled && agent.Warp(hit.position))
+                {
+                    agent.updatePosition = true;
+                    agent.updateRotation = false;
+                    agent.isStopped = false;
+                    pendingInvestigationPathSince = -1f;
+                    investigationPathRequested = false;
+                    nextSoundPathAttempt = 0f;
+                    perimeterHasDestination = false;
+                    extendedHasDestination = false;
+                    coverApproachValid = false;
+                    nextCoverPath = 0f;
+                    if (debugSoundNavigation)
+                        Log("INVESTIGATION NAVMESH RESTORED: " + hit.position);
+                }
+            }
+        }
+
+        if (!AgentReady())
+        {
+            pendingInvestigationPathSince = -1f;
+            return;
+        }
+
+        bool needsMovingPath = mode == BossMode.InvestigateTravel ||
+            (mode == BossMode.Search &&
+                (investigationSearchPhase == InvestigationSearchPhase.Perimeter ||
+                 (investigationSearchPhase == InvestigationSearchPhase.AreaSweep &&
+                  !extendedLooking && extendedHasDestination) ||
+                 (investigationSearchPhase == InvestigationSearchPhase.CoverSweep &&
+                  investigationCover != null && !attackingCover && coverApproachValid)));
+        if (!needsMovingPath || !agent.pathPending)
+        {
+            pendingInvestigationPathSince = -1f;
+            return;
+        }
+        if (pendingInvestigationPathSince < 0f)
+        {
+            pendingInvestigationPathSince = Time.time;
+            return;
+        }
+        if (Time.time - pendingInvestigationPathSince < investigationPathPendingTimeout)
+            return;
+
+        // Cancel the hung request, then use this phase's normal bounded
+        // recovery. Never keep waiting for pathPending to become false.
+        pendingInvestigationPathSince = -1f;
+        agent.ResetPath();
+        if (mode == BossMode.InvestigateTravel)
+        {
+            investigationFailedPaths++;
+            investigationPathRequested = false;
+            failedSoundApproachPoint = committedInvestigationPoint;
+            hasFailedSoundApproach = true;
+            nextSoundPathAttempt = 0f;
+        }
+        else if (investigationSearchPhase == InvestigationSearchPhase.Perimeter &&
+            perimeterWaypointIndex < wallCheckPoints.Count)
+            RetryPerimeterWaypoint();
+        else if (investigationSearchPhase == InvestigationSearchPhase.AreaSweep &&
+            extendedWaypointIndex < extendedSearchPoints.Count)
+            RetryExtendedWaypoint();
+        else if (investigationSearchPhase == InvestigationSearchPhase.CoverSweep)
+            RegisterFailedInvestigationCoverApproach();
+
+        if (debugSoundNavigation || debugCoverSweep)
+            Log("INVESTIGATION NAVMESH PATH TIMED OUT - selecting a new approach");
+    }
+
+    // Candidate must be close to the original corner but have a COMPLETE
+    // walkable route. Using a nearby alternate avoids retrying exactly the
+    // same blocked surface or unreachable NavMesh corner forever.
+    private bool TryFindAlternateInvestigationWaypoint(Vector3 original,
+        out Vector3 alternate)
+    {
+        alternate = Vector3.zero;
+        if (!AgentReady()) return false;
+        float bestScore = float.PositiveInfinity;
+        for (int ring = 0; ring < 3; ring++)
+        {
+            float radius = 1.4f + ring * 1.1f;
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = (i + ring * 0.5f) * Mathf.PI * 2f / 12f;
+                Vector3 candidate = original + new Vector3(
+                    Mathf.Cos(angle) * radius, 0f,
+                    Mathf.Sin(angle) * radius);
+                NavMeshHit hit;
+                if (!NavMesh.SamplePosition(candidate, out hit, 0.8f, agent.areaMask))
+                    continue;
+                if (FlatDistance(hit.position, original) < 0.85f ||
+                    (FlatDistance(hit.position, transform.position) < 0.9f &&
+                     FlatDistance(transform.position, original) > 2f))
+                    continue;
+                NavMeshPath route = new NavMeshPath();
+                if (!agent.CalculatePath(hit.position, route) ||
+                    route.status != NavMeshPathStatus.PathComplete)
+                    continue;
+                float distance = PathDistance(route);
+                if (float.IsNaN(distance) || float.IsInfinity(distance)) continue;
+                float score = FlatDistance(hit.position, original) * 2f +
+                    distance * 0.15f;
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    alternate = hit.position;
+                }
+            }
+        }
+        return !float.IsInfinity(bestScore);
+    }
+
+    private void RegisterFailedInvestigationCoverApproach()
+    {
+        if (investigationCover == null || !AgentReady()) return;
+        failedCoverApproachOwner = investigationCover;
+        failedCoverApproachPoint = coverApproachPoint;
+        hasFailedCoverApproach = true;
+        coverStallAttempts++;
+        coverApproachValid = false;
+        nextCoverPath = 0f;
+        coverProgressPosition = transform.position;
+        coverProgressCheckAt = Time.time + Mathf.Max(0.5f, coverStuckCheckSeconds);
+        agent.ResetPath();
+        if (debugCoverSweep)
+            Log("COVER APPROACH UNREACHABLE - trying another side: " +
+                investigationCover.name + " (" + coverStallAttempts + ")");
+        if (coverStallAttempts >= Mathf.Max(1, coverStuckRetries))
+            EndInvestigationCoverAttack();
     }
 
     private bool AgentReady()

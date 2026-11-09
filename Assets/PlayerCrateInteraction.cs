@@ -74,6 +74,9 @@ public class PlayerCrateInteraction : SystemBase
     [Header("Tunnel Crate Interaction (Press E)")]
     public bool enableTunnelCrateInteraction = true;
 
+    [Tooltip("Magnitude of the opening X angle. Direction is selected automatically from the crate parent local Y rotation.")]
+    public float tunnelOpenParentLocalX = 116.96f;
+
     [Min(0.1f)]
     public float tunnelCrateDetectionDistance = 3f;
 
@@ -288,6 +291,10 @@ public class PlayerCrateInteraction : SystemBase
             return;
         }
 
+        // Never enter the animated interaction while inside the tunnel or FPS.
+        if (tunnelOverlaps.Count > 0 || IsFirstPersonCameraActive())
+            return;
+
         locomotion.FocusSystem(this);
 
         if (player.FocusedScript != this)
@@ -302,7 +309,7 @@ public class PlayerCrateInteraction : SystemBase
 
     private IEnumerator PerformInteraction(Transform crate)
     {
-        if (crate == null)
+        if (crate == null || tunnelOverlaps.Count > 0 || IsFirstPersonCameraActive())
         {
             FinishInteraction();
             yield break;
@@ -431,7 +438,7 @@ public class PlayerCrateInteraction : SystemBase
         while (elapsed < duration)
         {
             if (player.FocusedScript != this ||
-                crate == null)
+                crate == null || tunnelOverlaps.Count > 0 || IsFirstPersonCameraActive())
             {
                 FinishInteraction();
                 yield break;
@@ -562,7 +569,7 @@ public class PlayerCrateInteraction : SystemBase
 
                     parentTargetRotation =
                         Quaternion.Euler(
-                            openParentLocalX,
+                            GetOpeningXForParent(crateParent, false),
                             euler.y,
                             euler.z
                         );
@@ -807,6 +814,19 @@ public class PlayerCrateInteraction : SystemBase
             );
     }
 
+    // Both tunnel and normal interactions use the SAME opening direction.
+    // Local Y near 0 degrees: +116.96 X.
+    // Local Y near 90 degrees: -116.96 X.
+    // For other Y values, choose the nearest of those two orientations.
+    private float GetOpeningXForParent(Transform crateParent, bool insideTunnel)
+    {
+        float y = crateParent.localEulerAngles.y;
+        float distanceToZero = Mathf.Abs(Mathf.DeltaAngle(y, 0f));
+        float distanceToNinety = Mathf.Abs(Mathf.DeltaAngle(y, 90f));
+        float magnitude = Mathf.Abs(tunnelOpenParentLocalX);
+        return distanceToNinety < distanceToZero ? magnitude : -magnitude;
+    }
+
     private IEnumerator OpenTunnelCrateAndClose(
         Transform crateParent)
     {
@@ -820,7 +840,7 @@ public class PlayerCrateInteraction : SystemBase
 
         Quaternion openRotation =
             Quaternion.Euler(
-                openParentLocalX,
+                GetOpeningXForParent(crateParent, true),
                 angles.y,
                 angles.z
             );
@@ -1094,6 +1114,28 @@ public class PlayerCrateInteraction : SystemBase
         return true;
     }
 
+    private void CancelAnimatedInteractionForTunnel()
+    {
+        if (!IsInteracting)
+            return;
+
+        if (interactionRoutine != null)
+        {
+            StopCoroutine(interactionRoutine);
+            interactionRoutine = null;
+        }
+
+        FinishInteraction(false);
+
+        // Restore locomotion only if the crate animation was active.
+        if (animator != null && !string.IsNullOrEmpty(locomotionAnimation))
+        {
+            int hash = Animator.StringToHash(locomotionAnimation);
+            if (animator.HasState(0, hash))
+                animator.CrossFadeInFixedTime(locomotionAnimation, returnTransition, 0);
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!IsTunnel(other) ||
@@ -1102,6 +1144,10 @@ public class PlayerCrateInteraction : SystemBase
 
         if (tunnelOverlaps.Count == 1)
         {
+            // An interaction started just before entering the trigger must not
+            // keep moving or animating the player once they are inside.
+            CancelAnimatedInteractionForTunnel();
+
             hasSavedCameraMode =
                 TryReadCameraMode(
                     out cameraModeBeforeTunnel
