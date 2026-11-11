@@ -24118,50 +24118,6 @@ Transform:
   - {fileID: 1578381295}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1640111666
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1640111668}
-  - component: {fileID: 1640111667}
-  m_Layer: 0
-  m_Name: FS System
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1640111667
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1640111666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 967290df63c39ff4d951b0f682affa79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FS_Core.FSSystemsSetup
---- !u!4 &1640111668
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1640111666}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1643877337
 GameObject:
   m_ObjectHideFlags: 0
@@ -32832,7 +32788,10 @@ MonoBehaviour:
   preChargePathRefreshInterval: 0.15
   preChargeCorridorRadius: 0.42
   approachAnimation: run
-  chargeSpeed: 14
+  chargeSpeed: 30
+  chargeStartingSpeed: 14
+  chargeSpeedGainPerSecond: 5
+  currentChargeSpeed: 0
   maximumChargeSeconds: 0
   postDodgeStraightDuration: 1.5
   chargeTurnSpeed: 440
@@ -32845,6 +32804,16 @@ MonoBehaviour:
   chargeMaximumRouteRecoveries: 5
   chargeSideRouteRadius: 5
   chargeSideRouteHoldSeconds: 2.4
+  missingChargePathRetryInterval: 0.35
+  missingChargePathManualDelay: 0.55
+  manualChargeSpeedMultiplier: 0.9
+  manualChargeCornerArrival: 0.6
+  farNavigationDistance: 18
+  farPathRefreshInterval: 0.7
+  farRetargetDistance: 5
+  farNavigationTurnSpeed: 160
+  farHeadingSmoothness: 4
+  clearChargeLaneConfirmSeconds: 0.25
   logChargeNavigationRecovery: 1
   coverLookAhead: 1.25
   coverImpactStunThreshold: 75
@@ -32924,4 +32893,3 @@ SceneRoots:
   - {fileID: 5975755690045294639}
   - {fileID: 1336805804}
   - {fileID: 1582100102}
-  - {fileID: 1640111668}

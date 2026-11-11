@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using FS_Core;
+using FS_StealthSystem;
 
 [DefaultExecutionOrder(10001)]
 [DisallowMultipleComponent]
@@ -41,7 +42,14 @@ public class BossChargeAttack : MonoBehaviour
     [SerializeField] private string approachAnimation = "run";
 
     [Header("Charge Movement")]
-    [SerializeField, Min(0f)] private float chargeSpeed = 15f;
+    [SerializeField, Min(0f)] private float chargeSpeed = 22f;
+    [Header("Charge Speed Ramp")]
+    [Tooltip("Speed at the start of Dash, before accelerating toward Charge Speed.")]
+    [SerializeField, Min(0f)] private float chargeStartingSpeed = 6f;
+    [Tooltip("How many meters/second of speed the boss gains each second while charging.")]
+    [SerializeField, Min(0f)] private float chargeSpeedGainPerSecond = 5f;
+    [Tooltip("Current dash speed. Ramps up while charging and carries through dodge/run-through.")]
+    [SerializeField] private float currentChargeSpeed;
     [Tooltip("Optional fail-safe limit (0 = charge continuously until an impact/stun).")]
     [SerializeField, Min(0f)] private float maximumChargeSeconds = 0f;
     [Tooltip("How long to continue straight ahead after a dodge before entering Stunned.")]
@@ -61,6 +69,29 @@ public class BossChargeAttack : MonoBehaviour
     [SerializeField, Range(1, 10)] private int chargeMaximumRouteRecoveries = 5;
     [SerializeField, Min(1.5f)] private float chargeSideRouteRadius = 5f;
     [SerializeField, Min(0.5f)] private float chargeSideRouteHoldSeconds = 2.4f;
+
+    [Header("Missing Path / Frozen Charge Recovery")]
+    [Tooltip("If Unity drops a valid charge path, attempt to restore its destination this often instead of waiting for the full stall timeout.")]
+    [SerializeField, Min(0.1f)] private float missingChargePathRetryInterval = 0.35f;
+    [Tooltip("After a real path disappears for this long, follow the last VALID NavMesh corners manually instead of repeatedly picking left/right detours.")]
+    [SerializeField, Min(0.15f)] private float missingChargePathManualDelay = 0.55f;
+    [Tooltip("NavMesh-checked movement speed when Unity's agent refuses to advance along a previously calculated complete path.")]
+    [SerializeField, Range(0.25f, 1.5f)] private float manualChargeSpeedMultiplier = 0.9f;
+    [Tooltip("How closely the fallback must approach a route corner before continuing to the next one.")]
+    [SerializeField, Range(0.2f, 1.25f)] private float manualChargeCornerArrival = 0.6f;
+
+    [Header("Long-Distance Charge / Approach Stability")]
+    [Tooltip("Past this distance, keep an existing complete NavMesh path longer instead of constantly replanning as the player moves.")]
+    [SerializeField, Min(8f)] private float farNavigationDistance = 18f;
+    [Tooltip("Minimum time between complete path replans while the target is far away.")]
+    [SerializeField, Min(0.2f)] private float farPathRefreshInterval = 0.7f;
+    [Tooltip("How far the player must move before a distant complete path is replaced.")]
+    [SerializeField, Min(1f)] private float farRetargetDistance = 5f;
+    [Tooltip("Limit distant steering rotation so a NavMesh corner cannot whip the model left and right.")]
+    [SerializeField, Range(45f, 360f)] private float farNavigationTurnSpeed = 160f;
+    [SerializeField, Min(0.25f)] private float farHeadingSmoothness = 4f;
+    [Tooltip("Require a wall bypass to remain clear briefly before switching from approach to charge windup.")]
+    [SerializeField, Min(0f)] private float clearChargeLaneConfirmSeconds = 0.25f;
     [SerializeField] private bool logChargeNavigationRecovery = true;
     [Tooltip("Proactive cover impact probe, in addition to the distance moved this frame.")]
     [SerializeField, Min(0.1f)] private float coverLookAhead = 1.25f;
@@ -130,10 +161,12 @@ public class BossChargeAttack : MonoBehaviour
 
     private BossEnemyAI boss;
     private AIController ai;
+    private StealthAIController stealthAI;
     private NavMeshAgent agent;
     private PlayerDodgeRoll playerDodge;
 
     private bool aiWasEnabled;
+    private bool stealthAIWasEnabled;
     private bool agentWasEnabled;
     private float agentOriginalSpeed;
     private float agentOriginalAcceleration;
@@ -152,9 +185,22 @@ public class BossChargeAttack : MonoBehaviour
     private bool chargeUsingSideRoute;
     private Vector3 chargeSideRoutePoint;
     private float chargeSideRouteStartedAt;
+    private float chargeSideRouteDeadline;
     private Vector3 lastFailedSideRoutePoint;
     private bool hasFailedSideRoute;
     private Vector3 chargeLastRecoveryPosition;
+    // Keep the complete path corners when NavMeshAgent.SetPath succeeds.
+    // Runtime obstacle/carving updates can silently clear the agent's path;
+    // the stored corners let us keep moving on the walkable NavMesh instead.
+    private readonly List<Vector3> chargeCachedPathCorners = new List<Vector3>();
+    private int chargeCachedCornerIndex;
+    private bool chargeManualNavigationActive;
+    private float chargeManualNavigationDeadline;
+    private float chargeNoPathSince = -1f;
+    private float nextChargeMissingPathRetry;
+    private float lastChargeRouteAssignedAt = -100f;
+    private int chargeManualBlockedCount;
+    private Vector3 chargeCachedRouteDestination;
 
     private Vector3 preChargeCommittedDestination;
     private Vector3 preChargePlayerPositionAtLastPlan;
@@ -165,6 +211,9 @@ public class BossChargeAttack : MonoBehaviour
     private bool preChargeUsingSideRoute;
     private Vector3 preChargeSideRoutePoint;
     private float preChargeSideRouteStartedAt;
+    private float preChargeSideRouteDeadline;
+    private float clearChargeLaneSince = -1f;
+    private Vector3 smoothedChargeSteeringHeading;
     // Save existing cover obstacle state while charging. All Cover objects
     // become pass-through targets on the NavMesh, irrespective of health.
     private struct StoredCoverObstacle
@@ -226,6 +275,7 @@ public class BossChargeAttack : MonoBehaviour
     {
         boss = GetComponent<BossEnemyAI>();
         ai = GetComponent<AIController>();
+        stealthAI = GetComponent<StealthAIController>();
         agent = GetComponent<NavMeshAgent>();
 
         if (bossAnimator == null)
@@ -383,6 +433,8 @@ public class BossChargeAttack : MonoBehaviour
         lastPreChargeMotionPosition = transform.position;
         preChargeRecoveryAttempts = 0;
         preChargeUsingSideRoute = false;
+        clearChargeLaneSince = -1f;
+        smoothedChargeSteeringHeading = Vector3.zero;
         agent.speed = preChargeApproachSpeed;
         agent.acceleration = Mathf.Max(20f, chargeAcceleration);
         agent.stoppingDistance = 0.3f;
@@ -406,14 +458,25 @@ public class BossChargeAttack : MonoBehaviour
 
         if (HasClearPreChargeLane())
         {
-            // The boss has actually flanked the obstruction. Do not enter
-            // Dash while a wall still lies between the boss and player.
-            IsPositioning = false;
-            agent.isStopped = true;
-            if (agent.hasPath) agent.ResetPath();
-            Log("CHARGE LANE CLEAR - STARTING DETECTED WINDUP");
-            BeginWindup();
-            return;
+            // At long distances NavMesh/collider clearance can alternate at
+            // a corner. Require a brief, uninterrupted clear lane before
+            // changing state; otherwise Approach <-> Windup can oscillate.
+            if (clearChargeLaneSince < 0f)
+                clearChargeLaneSince = Time.time;
+            if (Time.time - clearChargeLaneSince >= clearChargeLaneConfirmSeconds)
+            {
+                IsPositioning = false;
+                agent.isStopped = true;
+                if (agent.hasPath) agent.ResetPath();
+                smoothedChargeSteeringHeading = Vector3.zero;
+                Log("CHARGE LANE CLEAR - STARTING DETECTED WINDUP");
+                BeginWindup();
+                return;
+            }
+        }
+        else
+        {
+            clearChargeLaneSince = -1f;
         }
 
         if (Time.time - preChargePositioningStartedAt >= preChargeApproachTimeout)
@@ -429,8 +492,10 @@ public class BossChargeAttack : MonoBehaviour
         {
             bool finished = !agent.pathPending &&
                 FlatChargeDistance(transform.position, preChargeSideRoutePoint) < 0.95f;
-            bool expired = Time.time - preChargeSideRouteStartedAt >=
-                chargeSideRouteHoldSeconds;
+            // The route may go around a large wall. A fixed 2.4-second
+            // expiry abandoned that detour halfway through and made the boss
+            // repeatedly veer left/right instead of finishing the path.
+            bool expired = Time.time >= preChargeSideRouteDeadline;
             if (finished || expired)
             {
                 preChargeUsingSideRoute = false;
@@ -468,6 +533,14 @@ public class BossChargeAttack : MonoBehaviour
                     preChargeUsingSideRoute = true;
                     preChargeSideRoutePoint = sidePoint;
                     preChargeSideRouteStartedAt = Time.time;
+                    float detourLength = CalculatePathLength(sidePath);
+                    float detourSeconds = float.IsInfinity(detourLength)
+                        ? chargeSideRouteHoldSeconds
+                        : detourLength / Mathf.Max(0.5f, preChargeApproachSpeed) * 2f + 1f;
+                    preChargeSideRouteDeadline = Time.time + Mathf.Clamp(
+                        Mathf.Max(chargeSideRouteHoldSeconds, detourSeconds),
+                        chargeSideRouteHoldSeconds,
+                        Mathf.Max(chargeSideRouteHoldSeconds, preChargeApproachTimeout));
                     NavLog("PRE-CHARGE SIDE ROUTE " + preChargeRecoveryAttempts +
                         " -> " + sidePoint);
                     return;
@@ -483,13 +556,18 @@ public class BossChargeAttack : MonoBehaviour
     {
         if (Time.time < nextPreChargePathRefresh || player == null ||
             agent == null || !agent.enabled || !agent.isOnNavMesh) return;
-        nextPreChargePathRefresh = Time.time + preChargePathRefreshInterval;
+        nextPreChargePathRefresh = Time.time + EffectivePathRefreshInterval(preChargePathRefreshInterval);
 
+        // Keep a complete route committed while the player is far away.
+        // Replanning every 0.15s was making the agent alternate between
+        // different NavMesh corners, producing the long-range zigzag.
         bool validExistingPath = agent.pathPending ||
             (agent.hasPath && agent.pathStatus == NavMeshPathStatus.PathComplete);
+        if (agent.pathPending && hasPreChargeCommittedDestination) return;
+        float retargetThreshold = EffectiveRetargetDistance();
         if (hasPreChargeCommittedDestination && validExistingPath &&
             FlatChargeDistance(preChargePlayerPositionAtLastPlan, player.position) <
-                chargeRetargetDistance) return;
+                retargetThreshold) return;
         Vector3 desired;
         NavMeshPath path;
         if (!TryFindReachablePlayerPoint(out desired, out path)) return;
@@ -498,7 +576,7 @@ public class BossChargeAttack : MonoBehaviour
             (agent.hasPath && agent.pathStatus == NavMeshPathStatus.PathComplete);
         if (hasPreChargeCommittedDestination && validExistingPath &&
             FlatChargeDistance(preChargeCommittedDestination, desired) <
-                chargeRetargetDistance) return;
+                retargetThreshold) return;
         if (agent.SetPath(path))
         {
             preChargeCommittedDestination = desired;
@@ -626,12 +704,21 @@ public class BossChargeAttack : MonoBehaviour
         lastChargeMotionAt = Time.time;
         lastChargeMotionPosition = transform.position;
         chargeStartTime = Time.time;
+        currentChargeSpeed = Mathf.Clamp(chargeStartingSpeed, 0f, chargeSpeed);
         nextChargePathRefresh = 0f;
         hasChargeCommittedDestination = false;
         chargeRouteRecoveries = 0;
         chargeUsingSideRoute = false;
         hasFailedSideRoute = false;
         chargeLastRecoveryPosition = transform.position;
+        chargeCachedPathCorners.Clear();
+        chargeCachedCornerIndex = 0;
+        chargeManualNavigationActive = false;
+        chargeNoPathSince = -1f;
+        nextChargeMissingPathRetry = 0f;
+        lastChargeRouteAssignedAt = -100f;
+        chargeManualBlockedCount = 0;
+        smoothedChargeSteeringHeading = Vector3.zero;
         dodgeSequenceAtChargeStart = playerDodge != null
             ? playerDodge.DodgeSequence : -1;
         HasLostTracking = false;
@@ -643,7 +730,7 @@ public class BossChargeAttack : MonoBehaviour
         // NavMeshAgent owns position until the player dodges.
         agent.updatePosition = true;
         agent.updateRotation = false;
-        agent.speed = chargeSpeed;
+        agent.speed = currentChargeSpeed;
         agent.acceleration = Mathf.Max(chargeAcceleration, chargeSpeed * 3f);
         agent.stoppingDistance = 0f;
         agent.autoBraking = false;
@@ -659,6 +746,7 @@ public class BossChargeAttack : MonoBehaviour
     private void SaveAndPauseControllers()
     {
         aiWasEnabled = ai != null && ai.enabled;
+        stealthAIWasEnabled = stealthAI != null && stealthAI.enabled;
         agentWasEnabled = agent != null && agent.enabled;
         agentWasStopped = agentWasEnabled && agent.isOnNavMesh && agent.isStopped;
         agentWasUpdatingPosition = agentWasEnabled && agent.updatePosition;
@@ -672,6 +760,10 @@ public class BossChargeAttack : MonoBehaviour
         }
         savedControllerState = true;
 
+        // Fantacode's StealthAIController can also write movement/path state.
+        // Disable it while this component owns the charge NavMeshAgent;
+        // otherwise it can clear a successfully assigned route every frame.
+        if (stealthAI != null) stealthAI.enabled = false;
         if (ai != null) ai.enabled = false;
         if (agentWasEnabled && agent.isOnNavMesh)
         {
@@ -701,6 +793,11 @@ public class BossChargeAttack : MonoBehaviour
             return;
         }
 
+        // Accelerate smoothly from starting speed to the configured top speed.
+        // This applies to NavMesh pursuit, manual path recovery, and post-dodge motion.
+        currentChargeSpeed = Mathf.MoveTowards(currentChargeSpeed,
+            Mathf.Max(0f, chargeSpeed),
+            Mathf.Max(0f, chargeSpeedGainPerSecond) * Time.deltaTime);
         CheckPlayerDodge();
         if (!IsCharging) return;
         if (CheckLethalPlayerContact()) return;
@@ -715,7 +812,7 @@ public class BossChargeAttack : MonoBehaviour
                 return;
             }
             // NavMesh has been disabled; no more steering or player tracking.
-            Vector3 displacement = chargeDirection * chargeSpeed * Time.deltaTime;
+            Vector3 displacement = chargeDirection * currentChargeSpeed * Time.deltaTime;
             if (displacement.sqrMagnitude < 0.000001f) return;
 
             if (CheckChargeCollisions(displacement, true)) return;
@@ -762,6 +859,8 @@ public class BossChargeAttack : MonoBehaviour
         hasDodgeLastKnownPosition = true;
         HasLostTracking = true;
         chargeUsingSideRoute = false;
+        chargeManualNavigationActive = false;
+        chargeNoPathSince = -1f;
         postDodgeStartedAt = Time.time;
         if (agent != null && agent.enabled)
         {
@@ -776,18 +875,74 @@ public class BossChargeAttack : MonoBehaviour
         Log("PLAYER DODGED - NAVMESH DISABLED, STRAIGHT-LINE CHARGE LOCKED");
     }
 
+    // Far away, prefer a committed route and rotate toward its travel direction
+    // smoothly. Close to the player we recover the original fast steering and
+    // frequent retargeting so impacts/dodges remain responsive.
+    private float FarNavigationWeight()
+    {
+        if (player == null) return 0f;
+        float distance = FlatChargeDistance(transform.position, player.position);
+        return Mathf.InverseLerp(6f, Mathf.Max(8f, farNavigationDistance), distance);
+    }
+
+    private float EffectivePathRefreshInterval(float nearInterval)
+    {
+        return Mathf.Lerp(nearInterval,
+            Mathf.Max(nearInterval, farPathRefreshInterval), FarNavigationWeight());
+    }
+
+    private float EffectiveRetargetDistance()
+    {
+        float nearDistance = Mathf.Max(0.25f, chargeRetargetDistance);
+        return Mathf.Lerp(nearDistance,
+            Mathf.Max(nearDistance, farRetargetDistance), FarNavigationWeight());
+    }
+
     private void TrackPlayer()
     {
-        // Kept as a small helper for consistency with older code paths.
-        if (agent == null || !agent.enabled || !agent.isOnNavMesh) return;
-        Vector3 direction = agent.steeringTarget - transform.position;
-        direction.y = 0f;
-        if (direction.sqrMagnitude < 0.01f) direction = agent.velocity;
-        direction.y = 0f;
-        if (direction.sqrMagnitude < 0.01f) return;
-        Quaternion heading = Quaternion.LookRotation(direction.normalized);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation, heading, chargeTurnSpeed * Time.deltaTime);
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh ||
+            agent.isStopped || agent.pathPending || !agent.hasPath) return;
+
+        // SteeringTarget is the next NavMesh corner; near a corner it can snap
+        // behind the character, so use the agent's actual velocity there.
+        Vector3 cornerDirection = agent.steeringTarget - transform.position;
+        cornerDirection.y = 0f;
+        Vector3 travelDirection = agent.velocity;
+        travelDirection.y = 0f;
+        Vector3 desiredDirection = cornerDirection;
+        float closeCornerDistance = Mathf.Max(0.9f, agent.radius + 0.65f);
+        if (cornerDirection.sqrMagnitude < closeCornerDistance * closeCornerDistance ||
+            (travelDirection.sqrMagnitude > 0.16f &&
+             Vector3.Dot(cornerDirection.normalized, travelDirection.normalized) < -0.35f))
+            desiredDirection = travelDirection;
+        if (desiredDirection.sqrMagnitude < 0.01f)
+            desiredDirection = agent.desiredVelocity;
+        desiredDirection.y = 0f;
+        if (desiredDirection.sqrMagnitude < 0.01f) return;
+        desiredDirection.Normalize();
+
+        float far = FarNavigationWeight();
+        if (smoothedChargeSteeringHeading.sqrMagnitude < 0.2f)
+            smoothedChargeSteeringHeading = desiredDirection;
+        else
+        {
+            float smoothing = Mathf.Lerp(14f, farHeadingSmoothness, far);
+            float blend = 1f - Mathf.Exp(-Mathf.Max(0.25f, smoothing) * Time.deltaTime);
+            smoothedChargeSteeringHeading = Vector3.Slerp(
+                smoothedChargeSteeringHeading, desiredDirection, blend);
+        }
+        // Only yaw should change. Avoid a vertical tilt if the steering
+        // direction ever reverses by 180 degrees at a NavMesh corner.
+        smoothedChargeSteeringHeading.y = 0f;
+        if (smoothedChargeSteeringHeading.sqrMagnitude < 0.01f)
+            smoothedChargeSteeringHeading = desiredDirection;
+        else
+            smoothedChargeSteeringHeading.Normalize();
+        float turnSpeed = Mathf.Lerp(chargeTurnSpeed,
+            Mathf.Min(chargeTurnSpeed, farNavigationTurnSpeed), far);
+        Quaternion heading = Quaternion.LookRotation(smoothedChargeSteeringHeading);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation,
+            heading, Mathf.Max(1f, turnSpeed) * Time.deltaTime);
         chargeDirection = transform.forward;
     }
 
@@ -860,13 +1015,15 @@ public class BossChargeAttack : MonoBehaviour
         if (player == null || agent == null || !agent.enabled ||
             !agent.isOnNavMesh ||
             (!force && Time.time < nextChargePathRefresh)) return;
-        nextChargePathRefresh = Time.time + chargePathRefreshInterval;
+        nextChargePathRefresh = Time.time + EffectivePathRefreshInterval(chargePathRefreshInterval);
 
         bool pathUsable = agent.pathPending ||
             (agent.hasPath && agent.pathStatus == NavMeshPathStatus.PathComplete);
+        if (!force && hasChargeCommittedDestination && agent.pathPending) return;
+        float retargetThreshold = EffectiveRetargetDistance();
         if (!force && hasChargeCommittedDestination && pathUsable &&
             FlatChargeDistance(chargePlayerPositionAtLastPlan, player.position) <
-                chargeRetargetDistance)
+                retargetThreshold)
             return;
         Vector3 desired;
         NavMeshPath route;
@@ -879,7 +1036,7 @@ public class BossChargeAttack : MonoBehaviour
             (agent.hasPath && agent.pathStatus == NavMeshPathStatus.PathComplete);
         if (!force && hasChargeCommittedDestination && pathUsable &&
             FlatChargeDistance(chargeCommittedDestination, desired) <
-                chargeRetargetDistance)
+                retargetThreshold)
             return;
 
         // SetPath uses the already validated route. Don't replace movement
@@ -889,7 +1046,17 @@ public class BossChargeAttack : MonoBehaviour
             chargeCommittedDestination = desired;
             chargePlayerPositionAtLastPlan = player.position;
             hasChargeCommittedDestination = true;
+            lastChargeRouteAssignedAt = Time.time;
+            CacheChargeNavMeshRoute(route, desired);
             if (force) NavLog("NavMesh route refreshed -> " + desired);
+        }
+        else if (force)
+        {
+            // SetPath sometimes rejects a previously COMPLETE calculated route
+            // while a NavMeshObstacle is updating. A cached complete route is
+            // still useful for recovery; do not replace it with a random detour.
+            CacheChargeNavMeshRoute(route, desired);
+            NavLog("SetPath rejected calculated complete path; saved corners for fallback");
         }
     }
 
@@ -921,7 +1088,14 @@ public class BossChargeAttack : MonoBehaviour
                     Mathf.Max(0.2f, snap), agent.areaMask)) continue;
                 NavMeshPath candidate = new NavMeshPath();
                 if (!agent.CalculatePath(hit.position, candidate) ||
-                    candidate.status != NavMeshPathStatus.PathComplete) continue;
+                    candidate.status != NavMeshPathStatus.PathComplete ||
+                    candidate.corners == null || candidate.corners.Length == 0) continue;
+                // A one-corner "complete" path is only meaningful if the boss
+                // is already at that destination. Otherwise Unity would accept
+                // it, immediately clear hasPath, and leave the charge frozen.
+                if (candidate.corners.Length < 2 &&
+                    FlatChargeDistance(transform.position, hit.position) > 0.8f)
+                    continue;
                 float score = FlatChargeDistance(hit.position, target) * 5f +
                     CalculatePathLength(candidate) * 0.25f;
                 if (score >= bestScore) continue;
@@ -1021,7 +1195,7 @@ public class BossChargeAttack : MonoBehaviour
             NavLog("Reattached charge agent to nearby walkable NavMesh");
         }
 
-        agent.speed = chargeSpeed;
+        agent.speed = currentChargeSpeed;
         agent.updatePosition = true;
         if (agent.isStopped) agent.isStopped = false;
 
@@ -1029,8 +1203,9 @@ public class BossChargeAttack : MonoBehaviour
         {
             bool reached = !agent.pathPending &&
                 FlatChargeDistance(transform.position, chargeSideRoutePoint) <= 0.85f;
-            bool expired = Time.time - chargeSideRouteStartedAt >=
-                chargeSideRouteHoldSeconds;
+            // Let a valid side route finish; short fixed timers could
+            // cancel the path before a distant corner was reached.
+            bool expired = Time.time >= chargeSideRouteDeadline;
             if (reached || expired)
             {
                 if (expired && !reached)
@@ -1043,9 +1218,11 @@ public class BossChargeAttack : MonoBehaviour
                 nextChargePathRefresh = 0f;
             }
         }
-        if (!chargeUsingSideRoute)
+        if (!chargeUsingSideRoute && !chargeManualNavigationActive)
             RefreshChargeDestination();
-        TrackPlayer();
+        bool manuallyMovedThisFrame = MaintainChargeNavigation();
+        if (!manuallyMovedThisFrame && !chargeManualNavigationActive)
+            TrackPlayer();
 
         // Test physical body displacement plus a short prediction along the
         // NavMesh route. A distant heavy cover should not cause a stun.
@@ -1075,7 +1252,7 @@ public class BossChargeAttack : MonoBehaviour
         if (ahead.sqrMagnitude > 0.01f)
         {
             if (ProbeChargeHits(transform.position, ahead.normalized,
-                coverLookAhead + chargeSpeed * Time.deltaTime, false, false)) return;
+                coverLookAhead + currentChargeSpeed * Time.deltaTime, false, false)) return;
         }
 
         // A player in range has been reached; this is not a navigation stall.
@@ -1086,8 +1263,9 @@ public class BossChargeAttack : MonoBehaviour
             return;
         }
 
-        if (FlatChargeDistance(transform.position, lastChargeMotionPosition) >=
-            chargeMinimumProgress)
+        if (manuallyMovedThisFrame ||
+            FlatChargeDistance(transform.position, lastChargeMotionPosition) >=
+                chargeMinimumProgress)
         {
             lastChargeMotionPosition = transform.position;
             lastChargeMotionAt = Time.time;
@@ -1097,8 +1275,26 @@ public class BossChargeAttack : MonoBehaviour
                 Mathf.Max(3f, chargeSideRouteRadius))
                 chargeRouteRecoveries = 0;
         }
-        else if (Time.time - lastChargeMotionAt >= chargeStuckCheckSeconds)
+        else if (Time.time - lastChargeMotionAt >= chargeStuckCheckSeconds &&
+                 (!agent.pathPending ||
+                  Time.time - lastChargeMotionAt >=
+                      Mathf.Max(4f, chargeStuckCheckSeconds * 3f)))
         {
+            // A stationary agent WITH a valid path may be trapped by avoidance
+            // or a runtime carving change. Follow that same route before
+            // choosing a completely different side every 1.4 seconds.
+            if (!chargeManualNavigationActive && TryStartManualChargeNavigation(true))
+            {
+                lastChargeMotionAt = Time.time;
+                NavLog("Stall with a calculated path - manually traversing its NavMesh corners");
+                return;
+            }
+            if (chargeManualNavigationActive)
+                return;
+            // A briefly pending path is normal. If it remains pending for
+            // several seconds without moving, it needs the same recovery as
+            // a stalled complete route rather than waiting forever.
+            if (agent.pathPending) agent.ResetPath();
             // The Dash animation can show running even if the agent can't
             // move. Try new walkable side routes instead of doing that forever.
             lastChargeMotionAt = Time.time;
@@ -1127,7 +1323,18 @@ public class BossChargeAttack : MonoBehaviour
                     chargeUsingSideRoute = true;
                     chargeSideRoutePoint = detour;
                     chargeSideRouteStartedAt = Time.time;
+                    float detourLength = CalculatePathLength(detourPath);
+                    float detourSeconds = float.IsInfinity(detourLength)
+                        ? chargeSideRouteHoldSeconds
+                        : detourLength / Mathf.Max(0.5f, chargeSpeed) * 2f + 1f;
+                    chargeSideRouteDeadline = Time.time + Mathf.Clamp(
+                        Mathf.Max(chargeSideRouteHoldSeconds, detourSeconds),
+                        chargeSideRouteHoldSeconds,
+                        Mathf.Max(chargeSideRouteHoldSeconds, 12f));
                     hasChargeCommittedDestination = false;
+                    CacheChargeNavMeshRoute(detourPath, detour);
+                    lastChargeRouteAssignedAt = Time.time;
+                    chargeNoPathSince = -1f;
                     NavLog("CHARGE STALLED: trying side route " +
                         chargeRouteRecoveries + " -> " + detour);
                     return;
@@ -1141,6 +1348,225 @@ public class BossChargeAttack : MonoBehaviour
             NavLog("CHARGE STALLED: retrying a fresh complete NavMesh path " +
                 chargeRouteRecoveries);
         }
+    }
+
+    // Store ONLY complete, reachable path corners. If Unity silently clears
+    // agent.hasPath (often after mass runtime cover-obstacle changes), these
+    // are the last reliable waypoints toward the actual player or a detour.
+    private void CacheChargeNavMeshRoute(NavMeshPath route, Vector3 destination)
+    {
+        if (route == null || route.status != NavMeshPathStatus.PathComplete ||
+            route.corners == null || route.corners.Length < 2) return;
+        chargeCachedPathCorners.Clear();
+        chargeCachedPathCorners.AddRange(route.corners);
+        chargeCachedRouteDestination = destination;
+        chargeCachedCornerIndex = 1;
+        chargeManualNavigationActive = false;
+        chargeManualBlockedCount = 0;
+    }
+
+    // Automatic path following is preferred. This recovers from the exact
+    // console state "PathComplete, hasPath=False, desiredVelocity=0" without
+    // endlessly alternating side routes or leaving the boss running in place.
+    private bool MaintainChargeNavigation()
+    {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh || HasLostTracking)
+            return false;
+
+        bool realPath = agent.hasPath &&
+            agent.pathStatus == NavMeshPathStatus.PathComplete;
+        if (realPath && agent.desiredVelocity.sqrMagnitude > 0.04f)
+        {
+            chargeNoPathSince = -1f;
+            if (chargeManualNavigationActive)
+            {
+                chargeManualNavigationActive = false;
+                NavLog("Agent resumed NavMesh path movement - leaving manual fallback");
+            }
+            return false;
+        }
+
+        if (!realPath && !agent.pathPending)
+        {
+            if (chargeNoPathSince < 0f) chargeNoPathSince = Time.time;
+            // SetPath can report success one frame before the native agent
+            // exposes hasPath. Don't throw away that fresh route immediately.
+            if (Time.time - lastChargeRouteAssignedAt < 0.2f)
+                return false;
+            if (Time.time >= nextChargeMissingPathRetry)
+            {
+                nextChargeMissingPathRetry = Time.time +
+                    Mathf.Max(0.1f, missingChargePathRetryInterval);
+
+                // Prefer a direct COMPLETE route to the player. Side routes
+                // are a last resort and must not replace a viable main route.
+                if (!chargeUsingSideRoute && !chargeManualNavigationActive)
+                {
+                    hasChargeCommittedDestination = false;
+                    nextChargePathRefresh = 0f;
+                    RefreshChargeDestination(true);
+                    if (!agent.hasPath && !agent.pathPending &&
+                        hasChargeCommittedDestination)
+                    {
+                        if (agent.SetDestination(chargeCommittedDestination))
+                            lastChargeRouteAssignedAt = Time.time;
+                    }
+                }
+                else if (chargeUsingSideRoute && !chargeManualNavigationActive)
+                    agent.SetDestination(chargeSideRoutePoint);
+            }
+        }
+        else if (agent.pathPending)
+        {
+            // A fresh asynchronous path must have time to complete.
+            if (chargeNoPathSince < 0f) chargeNoPathSince = Time.time;
+            if (Time.time - chargeNoPathSince < Mathf.Max(1f,
+                missingChargePathManualDelay * 2f)) return false;
+        }
+
+        if (!chargeManualNavigationActive && chargeNoPathSince >= 0f &&
+            Time.time - chargeNoPathSince >= missingChargePathManualDelay)
+            TryStartManualChargeNavigation(false);
+
+        if (!chargeManualNavigationActive) return false;
+        if (Time.time >= chargeManualNavigationDeadline)
+        {
+            StopManualChargeNavigation("stored NavMesh route timed out");
+            return false;
+        }
+        return MoveAlongCachedChargeNavMeshRoute();
+    }
+
+    private bool TryStartManualChargeNavigation(bool forceStallRecovery)
+    {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh ||
+            chargeCachedPathCorners.Count < 2 || HasLostTracking)
+            return false;
+        if (!forceStallRecovery && chargeManualBlockedCount >= 2)
+            return false;
+
+        // If an agent is stuck with a valid complete path, capture its newest
+        // NavMesh corners first; avoid following an obsolete cached route.
+        if (forceStallRecovery && agent.hasPath &&
+            agent.pathStatus == NavMeshPathStatus.PathComplete)
+        {
+            NavMeshPath current = agent.path;
+            if (current != null && current.corners != null &&
+                current.corners.Length >= 2)
+                CacheChargeNavMeshRoute(current, agent.destination);
+        }
+
+        chargeCachedCornerIndex = Mathf.Clamp(chargeCachedCornerIndex,
+            1, chargeCachedPathCorners.Count - 1);
+        // Ignore passed corners (e.g. the cached path starts behind the boss).
+        while (chargeCachedCornerIndex < chargeCachedPathCorners.Count - 1 &&
+               FlatChargeDistance(agent.nextPosition,
+                   chargeCachedPathCorners[chargeCachedCornerIndex]) <=
+               manualChargeCornerArrival)
+            chargeCachedCornerIndex++;
+
+        chargeManualNavigationActive = true;
+        float remainingRouteDistance = 0f;
+        Vector3 last = agent.nextPosition;
+        for (int i = chargeCachedCornerIndex; i < chargeCachedPathCorners.Count; i++)
+        {
+            remainingRouteDistance += FlatChargeDistance(last, chargeCachedPathCorners[i]);
+            last = chargeCachedPathCorners[i];
+        }
+        float fallbackSpeed = Mathf.Max(0.5f,
+            currentChargeSpeed * manualChargeSpeedMultiplier);
+        chargeManualNavigationDeadline = Time.time + Mathf.Clamp(
+            remainingRouteDistance / fallbackSpeed * 3f + 3f, 4f, 24f);
+        NavLog("Agent has no usable movement; following " +
+            (chargeCachedPathCorners.Count - chargeCachedCornerIndex) +
+            " saved walkable corners toward " + chargeCachedRouteDestination);
+        return true;
+    }
+
+    private bool MoveAlongCachedChargeNavMeshRoute()
+    {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh ||
+            chargeCachedPathCorners.Count < 2) return false;
+
+        // Never blindly move through non-cover walls: every manual step is
+        // checked against NavMesh polygons. Dodge still switches to the
+        // existing unconstrained straight-line charge immediately.
+        for (int i = 0; i < 3; i++)
+        {
+            if (chargeCachedCornerIndex >= chargeCachedPathCorners.Count)
+            {
+                StopManualChargeNavigation("reached stored NavMesh destination");
+                if (chargeUsingSideRoute) chargeUsingSideRoute = false;
+                hasChargeCommittedDestination = false;
+                nextChargePathRefresh = 0f;
+                return false;
+            }
+            if (FlatChargeDistance(agent.nextPosition,
+                chargeCachedPathCorners[chargeCachedCornerIndex]) >
+                manualChargeCornerArrival) break;
+            chargeCachedCornerIndex++;
+        }
+        if (chargeCachedCornerIndex >= chargeCachedPathCorners.Count)
+        {
+            StopManualChargeNavigation("reached stored NavMesh destination");
+            if (chargeUsingSideRoute) chargeUsingSideRoute = false;
+            hasChargeCommittedDestination = false;
+            nextChargePathRefresh = 0f;
+            return false;
+        }
+
+        Vector3 toward = chargeCachedPathCorners[chargeCachedCornerIndex] -
+            agent.nextPosition;
+        toward.y = 0f;
+        if (toward.sqrMagnitude < 0.0001f) return false;
+        float allowedStep = Mathf.Min(toward.magnitude,
+            Mathf.Max(0.5f, currentChargeSpeed * manualChargeSpeedMultiplier) *
+            Time.deltaTime);
+        if (allowedStep < 0.0001f) return false;
+        Vector3 step = toward.normalized * allowedStep;
+        NavMeshHit blocked;
+        if (NavMesh.Raycast(agent.nextPosition, agent.nextPosition + step,
+            out blocked, agent.areaMask))
+        {
+            // The baked mesh or dynamic carving changed beneath a cached
+            // segment; don't push into solid walls or keep spinning in place.
+            chargeManualBlockedCount++;
+            StopManualChargeNavigation("cached segment blocked by current NavMesh");
+            hasChargeCommittedDestination = false;
+            nextChargePathRefresh = 0f;
+            nextChargeMissingPathRetry = Time.time;
+            return false;
+        }
+
+        agent.isStopped = false;
+        Vector3 oldPosition = agent.nextPosition;
+        agent.Move(step);
+        if (FlatChargeDistance(oldPosition, agent.nextPosition) < 0.005f)
+        {
+            // NavMeshAgent.Move itself was suppressed (possibly by an
+            // avoidance conflict). Don't claim movement occurred.
+            chargeManualBlockedCount++;
+            StopManualChargeNavigation("agent.Move refused NavMesh-safe movement");
+            return false;
+        }
+        // Rotation is cosmetic; do not change the saved path or turn away
+        // toward the player until a new real NavMesh path is available.
+        float far = FarNavigationWeight();
+        float turn = Mathf.Lerp(chargeTurnSpeed,
+            Mathf.Min(chargeTurnSpeed, farNavigationTurnSpeed), far);
+        Quaternion heading = Quaternion.LookRotation(step.normalized);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation,
+            heading, Mathf.Max(1f, turn) * Time.deltaTime);
+        chargeDirection = transform.forward;
+        return true;
+    }
+
+    private void StopManualChargeNavigation(string reason)
+    {
+        if (!chargeManualNavigationActive) return;
+        chargeManualNavigationActive = false;
+        chargeNoPathSince = -1f;
+        NavLog("Manual NavMesh recovery: " + reason);
     }
 
     private void NavLog(string detail)
@@ -1406,7 +1832,7 @@ public class BossChargeAttack : MonoBehaviour
 
         // No player hit tests, dodge handling, or NavMesh steering here.
         // The boss passes through the newly spawned ragdoll without stopping.
-        float speed = Mathf.Max(0f, chargeSpeed * playerKillRunThroughSpeedMultiplier);
+        float speed = Mathf.Max(0f, currentChargeSpeed * playerKillRunThroughSpeedMultiplier);
         float distance = Mathf.Min(postKillRunThroughRemaining,
             speed * Time.deltaTime);
         if (distance > 0f)
@@ -2034,6 +2460,8 @@ public class BossChargeAttack : MonoBehaviour
             bossAnimator.applyRootMotion = animatorRootMotionWasEnabled;
         savedAnimatorState = false;
 
+        if (stealthAI != null)
+            stealthAI.enabled = stealthAIWasEnabled && ready;
         if (ai != null)
         {
             // Re-enable AI when navigation is valid, rather than leaving
