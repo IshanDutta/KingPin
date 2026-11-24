@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 373c94f30c572c1489b6c9e0c3f7cbf6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/RedDark_URP/Blood_Arterial_Small_RedDark_URP.prefab
+  uploadId: 471979

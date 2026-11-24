@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 40a56eb01e4d03040a1046c53ffb3ea6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Systems/RagdollDismembermentSystem/Example/Content/Human/Materials/EH-1_eyes.mat
+  uploadId: 451426

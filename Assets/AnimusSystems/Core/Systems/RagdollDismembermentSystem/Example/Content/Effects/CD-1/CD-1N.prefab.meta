@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 59a2fb524637ba44cb6dc2856790b2d0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Systems/RagdollDismembermentSystem/Example/Content/Effects/CD-1/CD-1N.prefab
+  uploadId: 451426

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: feaae0b8df4305f469e1d6ce8ee8fd4f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 8629
+  packageName: Cartoon Blood FX
+  packageVersion: 2
+  assetPath: Assets/CartoonBloodFX/Source/Materials/Blood.mat
+  uploadId: 435810

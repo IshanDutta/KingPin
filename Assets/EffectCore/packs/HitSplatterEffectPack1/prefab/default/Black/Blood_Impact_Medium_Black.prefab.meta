@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 4751644a0290373438d60f3189859bf1
+timeCreated: 1522299360
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/Black/Blood_Impact_Medium_Black.prefab
+  uploadId: 471979

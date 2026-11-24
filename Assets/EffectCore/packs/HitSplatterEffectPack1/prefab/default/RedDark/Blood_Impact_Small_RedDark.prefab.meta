@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d17993d50f39e15459eb0b006e138466
+timeCreated: 1522517085
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/RedDark/Blood_Impact_Small_RedDark.prefab
+  uploadId: 471979

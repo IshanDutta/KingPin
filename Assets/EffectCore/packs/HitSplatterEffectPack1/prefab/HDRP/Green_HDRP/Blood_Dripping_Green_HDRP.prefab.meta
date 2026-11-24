@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 932fe5f2a20c19f4196bbcd1fd71d545
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Green_HDRP/Blood_Dripping_Green_HDRP.prefab
+  uploadId: 471979

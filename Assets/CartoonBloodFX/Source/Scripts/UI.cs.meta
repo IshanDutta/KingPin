@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 77ecf9cbe0b044e12a53af40b6b456d4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 8629
+  packageName: Cartoon Blood FX
+  packageVersion: 2
+  assetPath: Assets/CartoonBloodFX/Source/Scripts/UI.cs
+  uploadId: 435810

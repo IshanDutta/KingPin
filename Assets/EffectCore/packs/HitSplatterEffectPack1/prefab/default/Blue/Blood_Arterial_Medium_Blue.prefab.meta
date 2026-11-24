@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1a0b93a1a15e34a45b2457abc7f8150d
+timeCreated: 1522299360
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/Blue/Blood_Arterial_Medium_Blue.prefab
+  uploadId: 471979

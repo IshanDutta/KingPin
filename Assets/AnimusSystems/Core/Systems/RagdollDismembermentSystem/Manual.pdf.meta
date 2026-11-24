@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ce46f98b8a316c841aa18cb90b9adbe3
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Systems/RagdollDismembermentSystem/Manual.pdf
+  uploadId: 451426

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fc6c95fc0bc7a634e94ccc04171b2469
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/Blue_URP/Blood_Arterial_Large_Blue_URP.prefab
+  uploadId: 471979

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9c0e9b50cdd06b047a61d55ed8428e12
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/Blue_URP/Blood_Impact_Large_Blue_URP.prefab
+  uploadId: 471979

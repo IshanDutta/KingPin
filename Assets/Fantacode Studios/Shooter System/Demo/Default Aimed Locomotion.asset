@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 555a09215e4191b488985b713551be08, type: 3}
+  m_Name: Default Aimed Locomotion
+  m_EditorClassIdentifier: 
+  clips:
+  - clip: {fileID: 1648865365037849949, guid: 8f072e4ecb95f8643a0df35f9df80758, type: 3}
+    position: {x: 0, y: 0}
+  - clip: {fileID: -8685573938930751677, guid: af6b6a28c1ae50b4ba7a116582fe827a, type: 3}
+    position: {x: 0, y: 0.5}
+  - clip: {fileID: 2699226243278253376, guid: cf011669e399c754ea7999191c101e7e, type: 3}
+    position: {x: 0, y: 1}
+  - clip: {fileID: -5739966924609195724, guid: 7a82f7c0ebc6c82468b08c10827a36f6, type: 3}
+    position: {x: 0, y: -0.5}
+  - clip: {fileID: 4834410384404871937, guid: e72c1651289db8740915556ca65db04a, type: 3}
+    position: {x: 0, y: -1}
+  - clip: {fileID: -6893409134987247592, guid: d219258d926772e4597fb4565349a223, type: 3}
+    position: {x: -0.5, y: 0}
+  - clip: {fileID: -6445051068794620715, guid: c87f46f91337f044aa541887f4412426, type: 3}
+    position: {x: -1, y: 0}
+  - clip: {fileID: 232473724998449804, guid: ec21310f7e69a0f40ad35c500ec63b12, type: 3}
+    position: {x: 0.5, y: 0}
+  - clip: {fileID: 3912193001854795070, guid: 78979a291643aaf42a2e1544c5be1971, type: 3}
+    position: {x: 1, y: 0}
+  crouchClips:
+  - clip: {fileID: -6321102226107132650, guid: e2c5dc6ce1391d843b2c567cd3f48f45, type: 3}
+    position: {x: 0, y: 0}
+  - clip: {fileID: 1856917160920258419, guid: e6d3a77cb2813cc41b16592a47e4437d, type: 3}
+    position: {x: 0, y: 0.5}
+  - clip: {fileID: -6399359369738500829, guid: 89ea5a3af6cdad54dae237a2b903ec85, type: 3}
+    position: {x: 0, y: -0.5}
+  - clip: {fileID: -3128098589284480180, guid: f577107b6f7fc5a4582cc2a3fb81859f, type: 3}
+    position: {x: 0.5, y: 0}
+  - clip: {fileID: 5128550328714001179, guid: 230d1f07e654c0149a0ddcfa58c8ca38, type: 3}
+    position: {x: -0.5, y: 0}

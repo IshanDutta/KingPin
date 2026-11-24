@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 121dba41db9157e499105b789d151d1c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Systems/RagdollDismembermentSystem/Example/Content/Dog/CD-1.prefab
+  uploadId: 451426

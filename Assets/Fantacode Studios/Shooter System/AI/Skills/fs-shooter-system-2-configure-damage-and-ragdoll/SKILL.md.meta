@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 593c22468cb7640b4890b9d9864bdfe8
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/AI/Skills/fs-shooter-system-2-configure-damage-and-ragdoll/SKILL.md
+  uploadId: 996680

@@ -1,0 +1,1359 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9071275557712928993
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Chase To Shoot
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5478189407714438415}
+  toState: {fileID: 3313007080860339497}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 1564539442623916359}
+--- !u!114 &-9037942405415272514
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4f875e8d89e9f448358fd0b8028ae7, type: 3}
+  m_Name: BlackboardIsSetConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: e1187f90-6601-40eb-95fa-423fd35a8551
+    name: FollowTarget
+    type: 6
+    description: 
+  expectedIsSet: 1
+--- !u!114 &-8925907325113516658
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Ragdolling
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 2488881153522422364}
+  toState: {fileID: 5050178093170726106}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -8433054554975808183}
+--- !u!114 &-8791809950207876925
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -8043961790016542694}
+  - {fileID: 7086586635766823679}
+  initialStateIndex: 0
+  transitions:
+  - {fileID: -3318505668109906656}
+  anyStateTransitions:
+  - {fileID: 3226983651104519464}
+  anyStateAsset: {fileID: 3402384378574836915}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: -3318505668109906656}
+  - Transitions:
+    - {fileID: 3226983651104519464}
+--- !u!114 &-8763671157890078194
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188222b300ba1784e9363ab46e6797e0, type: 3}
+  m_Name: Intro Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -202.92567, y: 56.579956}
+  displayName: Intro Behavior
+  behaviorKey:
+    id: b26c20f3-1e22-4dfa-a471-6aacddd1386f
+    name: IntroBehavior
+    type: 8
+    description: 
+--- !u!114 &-8646058079342494813
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b9084140-d503-44c5-80ea-8f7a37cdcd53
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-8433054554975808183
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 06506ef3-69c4-4a86-a48f-b5c21251767e
+    name: IsRagdolling
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-8311082034614173085
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 9eca3643-710b-4ef6-91f7-f6cb23316f5a
+    name: CanInterruptBehavior
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-8289509094955280325
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Authored Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 257.60965, y: 55.147053}
+  name: Authored Behavior
+  childStateMachineAsset: {fileID: 4632980978025832545}
+  behavior: {fileID: 0}
+--- !u!114 &-8287407320443168203
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2544bca3f8b58c3429ac2fe237071cdf, type: 3}
+  m_Name: Chase
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 1.9953269, y: 96.27674}
+  _name: Follow
+  keepDistance: 3
+  runDistance: 6
+  faceTarget: 0
+  targetKey:
+    id: e1187f90-6601-40eb-95fa-423fd35a8551
+    name: FollowTarget
+    type: 6
+    description: 
+--- !u!114 &-8043961790016542694
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Sub-State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -59.18525, y: 100.75069}
+  name: Ambient Behavior
+  childStateMachineAsset: {fileID: 2884832130239512420}
+  behavior: {fileID: 0}
+--- !u!114 &-7169278093968089987
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &-7167914551237107213
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -83.52679, y: -62.232143}
+--- !u!114 &-7060352534727643232
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -8287407320443168203}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -7169278093968089987}
+  stateTransitionCollections: []
+--- !u!114 &-6594161189403322466
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b6108b2253c4714a9ba33f55ee652e6, type: 3}
+  m_Name: Flank
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -435.4547, y: -114.99691}
+  _name: Flank
+  flankSpeed: 2
+--- !u!114 &-6491898587764548690
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263c4e0d13f44bf49a039e3031f052e7, type: 3}
+  m_Name: BlackboardTriggerConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 2e37ea32-364a-41f9-bca8-0fabf1cc1f4d
+    name: FlankRequested
+    type: 1
+    description: 
+--- !u!114 &-6406503919283330365
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f339e67d3145bc74eb74bdf9b32e4fca, type: 3}
+  m_Name: Empty
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -110.09344, y: 126.65985}
+  name: Entry
+--- !u!114 &-5478189407714438415
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b032b9dbb9b9e4393056cbf32154df, type: 3}
+  m_Name: Chase
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -458.65225, y: -0.28823853}
+  name: Chase
+  takeTargetPosFromBlackboard: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  blackboardKey:
+    id: 
+    name: TargetPosition
+    type: 5
+    description: 
+  stoppingDistance: 1
+  moveSpeed: 4
+  faceTargetPosition: 0
+--- !u!114 &-5390393592594549226
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56d49e49942971d48be09414175f9988, type: 3}
+  m_Name: BlackboardFloatConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 18d24d65-bcaf-4d17-8c39-349031eb4571
+    name: Health
+    type: 0
+    description: 
+  compareValue: 0
+  comparison: 4
+--- !u!114 &-5296974747674904549
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Cover To Shoot
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -3983658304896868941}
+  toState: {fileID: 3313007080860339497}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &-4891090187924405551
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a1bffff84ea00b4fa8b45dcf82a3e99, type: 3}
+  m_Name: Idle
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -124.03448, y: 115.72962}
+  name: Idle
+  returnToInitialPosition: 1
+  returnToInitialFacing: 1
+--- !u!114 &-4846841440572109336
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Follow
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -125.65696, y: 222.0183}
+  name: Follow
+  childStateMachineAsset: {fileID: -7060352534727643232}
+  behavior: {fileID: 0}
+--- !u!114 &-4623487949662370200
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd1c4a697de08a4ea23d9a06c0fb440, type: 3}
+  m_Name: Dead
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 259.2686, y: -157.75722}
+--- !u!114 &-4611599139144796678
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Ragdolling To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 5050178093170726106}
+  toState: {fileID: 6986778285422911930}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 6838360606200914727}
+--- !u!114 &-3994105525461049970
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &-3983658304896868941
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7184a6943f307944a0d501306945c66, type: 3}
+  m_Name: Cover
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -2.52332, y: -1.1053132}
+  _name: Cover
+--- !u!114 &-3704545892418741538
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 2120903c-65a9-45a3-a976-277bf2aa1079
+    name: IsTargetReachable
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-3318505668109906656
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Combat To Ambient Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 7086586635766823679}
+  toState: {fileID: -8043961790016542694}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -3994105525461049970}
+--- !u!114 &-3064500141794154634
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 81920035-d4fb-429f-afd3-86bf86bc2a21
+    name: IsTargetInPreferredRange
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &-2691851726155922553
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 81920035-d4fb-429f-afd3-86bf86bc2a21
+    name: IsTargetInPreferredRange
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &-2344545547591481050
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &-1903085223552046740
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 3313007080860339497}
+  - {fileID: -3983658304896868941}
+  - {fileID: -6594161189403322466}
+  - {fileID: -5478189407714438415}
+  initialStateIndex: 3
+  transitions:
+  - {fileID: 3379742971029104578}
+  - {fileID: -5296974747674904549}
+  - {fileID: 240300992734154555}
+  - {fileID: -9071275557712928993}
+  - {fileID: 440232154143761395}
+  - {fileID: -208175211400092498}
+  anyStateTransitions:
+  - {fileID: 2926104000399897960}
+  anyStateAsset: {fileID: -1189342066565189384}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 3379742971029104578}
+  - Transitions:
+    - {fileID: -5296974747674904549}
+  - Transitions:
+    - {fileID: 240300992734154555}
+    - {fileID: -9071275557712928993}
+  - Transitions:
+    - {fileID: 440232154143761395}
+  - Transitions:
+    - {fileID: 2926104000399897960}
+  - Transitions:
+    - {fileID: -208175211400092498}
+--- !u!114 &-1189342066565189384
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -196, y: -108}
+--- !u!114 &-1046190556499159410
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 0, y: 0}
+--- !u!114 &-208175211400092498
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Flank To Shoot
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -6594161189403322466}
+  toState: {fileID: 3313007080860339497}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Shooter StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -4623487949662370200}
+  - {fileID: 6986778285422911930}
+  - {fileID: -8289509094955280325}
+  - {fileID: -8763671157890078194}
+  - {fileID: 5050178093170726106}
+  initialStateIndex: 3
+  transitions:
+  - {fileID: 1293637577388153242}
+  - {fileID: 566284689001110203}
+  - {fileID: 421880735884064464}
+  - {fileID: -4611599139144796678}
+  - {fileID: 3233584458287667717}
+  - {fileID: 4331525492810601896}
+  anyStateTransitions:
+  - {fileID: 6305557592693787329}
+  - {fileID: -8925907325113516658}
+  anyStateAsset: {fileID: 2488881153522422364}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 1293637577388153242}
+    - {fileID: 4331525492810601896}
+  - Transitions:
+    - {fileID: 566284689001110203}
+    - {fileID: 3233584458287667717}
+  - Transitions:
+    - {fileID: 421880735884064464}
+  - Transitions:
+    - {fileID: -4611599139144796678}
+  - Transitions:
+    - {fileID: 6305557592693787329}
+  - Transitions:
+    - {fileID: -8925907325113516658}
+--- !u!114 &240300992734154555
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Chase To Shoot
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -5478189407714438415}
+  toState: {fileID: 3313007080860339497}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -2691851726155922553}
+--- !u!114 &390373166841357971
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 2320439274004452275}
+  - {fileID: -6406503919283330365}
+  initialStateIndex: 0
+  transitions:
+  - {fileID: 7677747756358526234}
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -1046190556499159410}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 7677747756358526234}
+--- !u!114 &421880735884064464
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Default Behavior To Authored Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 6986778285422911930}
+  toState: {fileID: -8289509094955280325}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 2866697249312874228}
+--- !u!114 &440232154143761395
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Shoot To Chase
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 3313007080860339497}
+  toState: {fileID: -5478189407714438415}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -3064500141794154634}
+  - {fileID: -3704545892418741538}
+--- !u!114 &566284689001110203
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Authored Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8289509094955280325}
+  toState: {fileID: 6986778285422911930}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &739291142372488787
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188222b300ba1784e9363ab46e6797e0, type: 3}
+  m_Name: Execute Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -92.618004, y: 25.241247}
+  displayName: Authored Behavior
+  behaviorKey:
+    id: 
+    name: AuthoredBehavior
+    type: 8
+    description: 
+--- !u!114 &871163105881218942
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &1293637577388153242
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Intro Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8763671157890078194}
+  toState: {fileID: 6986778285422911930}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &1564539442623916359
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 2120903c-65a9-45a3-a976-277bf2aa1079
+    name: IsTargetReachable
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &2320439274004452275
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Ranged Combat
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 141.29854, y: 127.373146}
+  name: Ranged Combat
+  childStateMachineAsset: {fileID: -1903085223552046740}
+  behavior: {fileID: 0}
+--- !u!114 &2488881153522422364
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 66.56731, y: -258.66925}
+--- !u!114 &2682264209244406032
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Idle To Follow
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -4891090187924405551}
+  toState: {fileID: -4846841440572109336}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -9037942405415272514}
+--- !u!114 &2866697249312874228
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263c4e0d13f44bf49a039e3031f052e7, type: 3}
+  m_Name: BlackboardTriggerConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 65f8b026-562a-4aee-92dc-247ad39a5fe0
+    name: TriggerAuthoredBehavior
+    type: 1
+    description: 
+--- !u!114 &2884832130239512420
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: Test StateMachine 1
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: -4891090187924405551}
+  - {fileID: 4808119320336538891}
+  - {fileID: 5611328183497631639}
+  - {fileID: -4846841440572109336}
+  initialStateIndex: 2
+  transitions:
+  - {fileID: 7769567225546297845}
+  - {fileID: 7087930294228597089}
+  - {fileID: 2682264209244406032}
+  - {fileID: 7662387656680714397}
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -2344545547591481050}
+  stateTransitionCollections:
+  - Transitions:
+    - {fileID: 7769567225546297845}
+  - Transitions:
+    - {fileID: 7087930294228597089}
+  - Transitions:
+    - {fileID: 2682264209244406032}
+  - Transitions:
+    - {fileID: 7662387656680714397}
+--- !u!114 &2926104000399897960
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Flank
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -1189342066565189384}
+  toState: {fileID: -6594161189403322466}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -6491898587764548690}
+--- !u!114 &3226983651104519464
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Combat
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 3402384378574836915}
+  toState: {fileID: 7086586635766823679}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 871163105881218942}
+--- !u!114 &3233584458287667717
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Authored Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8289509094955280325}
+  toState: {fileID: 6986778285422911930}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 7138019431903330874}
+  - {fileID: -8311082034614173085}
+--- !u!114 &3313007080860339497
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d75610685157304ba4a9c6251fe075b, type: 3}
+  m_Name: Shoot
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -218.18192, y: 0.84414667}
+  _name: Shoot
+--- !u!114 &3379742971029104578
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Shoot To Cover
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 3313007080860339497}
+  toState: {fileID: -3983658304896868941}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &3402384378574836915
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3078d4b87b0220469caacb0640227d9, type: 3}
+  m_Name: Any State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 71.95118, y: -3.7868872}
+--- !u!114 &4331525492810601896
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Intro Behavior To Default Behavior
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -8763671157890078194}
+  toState: {fileID: 6986778285422911930}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -8646058079342494813}
+  - {fileID: 9007369492433033276}
+--- !u!114 &4632980978025832545
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e119545ecda6b1040aa2125104ec8246, type: 3}
+  m_Name: StateMachine
+  m_EditorClassIdentifier: 
+  states:
+  - {fileID: 739291142372488787}
+  initialStateIndex: 0
+  transitions: []
+  anyStateTransitions: []
+  anyStateAsset: {fileID: -7167914551237107213}
+  stateTransitionCollections: []
+--- !u!114 &4786849876342846196
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4f875e8d89e9f448358fd0b8028ae7, type: 3}
+  m_Name: BlackboardIsSetConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b3c04d1e-d382-427a-a45d-09a8d3797d61
+    name: PatrolWaypoints
+    type: 6
+    description: 
+  expectedIsSet: 1
+--- !u!114 &4808119320336538891
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3aa9e4ab7799a74789551270a647dee, type: 3}
+  m_Name: Patrol
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 107.55534, y: 118.298935}
+  _name: Patrol
+  waypointsKey:
+    id: b3c04d1e-d382-427a-a45d-09a8d3797d61
+    name: PatrolWaypoints
+    type: 6
+    description: 
+  takeMoveSpeedFromBlackboard: 0
+  moveSpeed: 2
+  moveSpeedKey:
+    id: 
+    name: 
+    type: 0
+    description: 
+  arrivalThreshold: 0.5
+  loop: 1
+--- !u!114 &5050178093170726106
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f339e67d3145bc74eb74bdf9b32e4fca, type: 3}
+  m_Name: Empty
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -89.3461, y: -152.67365}
+  name: Ragdolling
+--- !u!114 &5495174163906888599
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4f875e8d89e9f448358fd0b8028ae7, type: 3}
+  m_Name: BlackboardIsSetConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: e1187f90-6601-40eb-95fa-423fd35a8551
+    name: FollowTarget
+    type: 6
+    description: 
+  expectedIsSet: 0
+--- !u!114 &5611328183497631639
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188222b300ba1784e9363ab46e6797e0, type: 3}
+  m_Name: Execute Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: -360.64987, y: 118.01321}
+  displayName: Idle Override
+  behaviorKey:
+    id: c075b79e-baa0-49f3-b805-29e817823f2e
+    name: IdleOverrideBehavior
+    type: 8
+    description: 
+--- !u!114 &6305557592693787329
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Any State To Dead
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 2488881153522422364}
+  toState: {fileID: -4623487949662370200}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: -5390393592594549226}
+--- !u!114 &6838360606200914727
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 06506ef3-69c4-4a86-a48f-b5c21251767e
+    name: IsRagdolling
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &6861004875288049116
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: d19997e9-8c37-47ea-9094-945242b0cc0c
+    name: IsCombatTypeMelee
+    type: 1
+    description: 
+  expectedValue: 0
+--- !u!114 &6986778285422911930
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Default Behavior
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 14.585898, y: 57.191208}
+  name: Default Behavior
+  childStateMachineAsset: {fileID: -8791809950207876925}
+  behavior: {fileID: 0}
+--- !u!114 &7086586635766823679
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642566aac90daf04280dbf13bc7a13ab, type: 3}
+  m_Name: Sub-State
+  m_EditorClassIdentifier: 
+  nodePosition: {x: 196.49849, y: 102.32514}
+  name: Combat
+  childStateMachineAsset: {fileID: 390373166841357971}
+  behavior: {fileID: 0}
+--- !u!114 &7087930294228597089
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Execute Behavior To Idle
+  m_EditorClassIdentifier: 
+  fromState: {fileID: 5611328183497631639}
+  toState: {fileID: -4891090187924405551}
+  transitionOnComplete: 1
+  conditions: []
+--- !u!114 &7138019431903330874
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: b9084140-d503-44c5-80ea-8f7a37cdcd53
+    name: IsTargetSet
+    type: 1
+    description: 
+  expectedValue: 1
+--- !u!114 &7662387656680714397
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Follow To Idle
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -4846841440572109336}
+  toState: {fileID: -4891090187924405551}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 5495174163906888599}
+--- !u!114 &7677747756358526234
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Entry To Ranged Combat
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -6406503919283330365}
+  toState: {fileID: 2320439274004452275}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 6861004875288049116}
+--- !u!114 &7769567225546297845
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b84e546b27f4ed42976b2d3a32fb8fc, type: 3}
+  m_Name: Idle To Patrol
+  m_EditorClassIdentifier: 
+  fromState: {fileID: -4891090187924405551}
+  toState: {fileID: 4808119320336538891}
+  transitionOnComplete: 0
+  conditions:
+  - {fileID: 4786849876342846196}
+--- !u!114 &9007369492433033276
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a507e50ba790f144adf6b8dcaf1542d, type: 3}
+  m_Name: BlackboardBoolConditionAsset
+  m_EditorClassIdentifier: 
+  parentCondition: {fileID: 0}
+  key:
+    id: 9eca3643-710b-4ef6-91f7-f6cb23316f5a
+    name: CanInterruptBehavior
+    type: 1
+    description: 
+  expectedValue: 1

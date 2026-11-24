@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d7f608917aa2b6247b2e68772566beb1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/renderpipelines/UniversalRenderPipelineAsset_Renderer.asset
+  uploadId: 471979

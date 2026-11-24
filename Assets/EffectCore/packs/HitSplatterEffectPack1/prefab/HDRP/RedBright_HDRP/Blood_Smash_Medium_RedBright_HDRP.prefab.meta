@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 48631ebad434e5b4f8c36425b31346f7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/RedBright_HDRP/Blood_Smash_Medium_RedBright_HDRP.prefab
+  uploadId: 471979

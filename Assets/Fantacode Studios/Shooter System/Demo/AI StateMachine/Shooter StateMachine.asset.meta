@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: db7154cc3235e534f8efe31b2d6bee5e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Demo/AI StateMachine/Shooter
+    StateMachine.asset
+  uploadId: 996680

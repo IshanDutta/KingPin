@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 580fc60026a4e284c92fa0216c96ac3f
+timeCreated: 1483302225
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/scenes/HitSplatterEffectPack1.unity
+  uploadId: 471979

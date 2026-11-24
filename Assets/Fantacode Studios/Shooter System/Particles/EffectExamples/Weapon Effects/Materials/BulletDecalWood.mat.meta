@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 39babc0a61c17df41bca722640cfc289
+timeCreated: 1473955917
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Particles/EffectExamples/Weapon
+    Effects/Materials/BulletDecalWood.mat
+  uploadId: 996680

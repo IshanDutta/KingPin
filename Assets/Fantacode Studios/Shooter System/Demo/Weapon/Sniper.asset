@@ -1,0 +1,1679 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e957b76737f616548b4f147bd9be718a, type: 3}
+  m_Name: Sniper
+  m_EditorClassIdentifier: 
+  id: 904c2569-d1b4-47c8-a11b-9043d701d517
+  name: Sniper
+  description: 
+  icon: {fileID: 21300000, guid: df7faa50f78e65f4db56860adb7586c3, type: 3}
+  category: {fileID: 11400000, guid: 30bb913b08c765c49b1add0e2c700005, type: 2}
+  overrideCategorySettings: 0
+  overrideCategoryAttributes: 0
+  equipmentSlotIndex: 5
+  modelPrefab: {fileID: 3276858439030713046, guid: 80ac93c944de08b4abc069ee7331aa85, type: 3}
+  attachOnBody: 1
+  modelToAttach: {fileID: 5408217156120571378, guid: 7122ab230034c9c4ab9d854f9e4aed96, type: 3}
+  useCustomAttachmentModel: 1
+  usePhysicsForAttachedItem: 1
+  overridePhysicsPrefab: 0
+  physicsPrefab: {fileID: 0}
+  isSkinnedMesh: 0
+  hasHolder: 0
+  holderPrefab: {fileID: 0}
+  attachBone: 54
+  holderLocalPosition: {x: -0.0000008107169, y: -0.00000002980234, z: 0.00000016856937}
+  holderLocalRotation: {x: -0.000019749566, y: 0.00002000535, z: 268.3499}
+  itemLocalPosition: {x: -0.015, y: 0.092, z: -0.141}
+  itemLocalRotation: {x: 20.025162, y: 90.965775, z: 180.79709}
+  holderAttachReferences:
+  - characterReference:
+      characterId: 208023d3-4f96-4457-8255-57869efb3ea5
+      avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+    localPosition: {x: 0.00000016152626, y: 0.000000014901161, z: 0.000000375323}
+    localRotation: {x: -0.0000030204083, y: -0.00000531471, z: 268.33954}
+  itemAttachReferences:
+  - characterReference:
+      characterId: 208023d3-4f96-4457-8255-57869efb3ea5
+      avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+    localPosition: {x: -0.035, y: 0.055, z: -0.152}
+    localRotation: {x: 14.216226, y: 82.67991, z: 177.62267}
+  sellable: 0
+  droppable: 0
+  stackable: 0
+  weight: 0
+  canCraft: 1
+  priceToCraft:
+    amount: 10
+    currencyIndex: 0
+  canDismantle: 1
+  priceToDismantle:
+    amount: 5
+    currencyIndex: 0
+  ingredients:
+  - item: {fileID: 11400000, guid: c15ad6a5237dcea48961ac5ca832cc27, type: 2}
+    count: 3
+    serialized: 1
+  - item: {fileID: 11400000, guid: eb3db08d49aa6864babc69b3a756929b, type: 2}
+    count: 1
+    serialized: 1
+  overrideDismantleItems: 0
+  dismantleToItems: []
+  price:
+    amount: 15
+    currencyIndex: 0
+  requiresMultipleCurrencies: 0
+  currenciesRequired: []
+  overrideAction: 0
+  itemAction: {fileID: 0}
+  attributeValues:
+  - attributeType: 1
+    attributeName: Fire Frequency
+    stringValue: 
+    intValue: 0
+    floatValue: 2
+  - attributeType: 0
+    attributeName: Magazine Size
+    stringValue: 
+    intValue: 5
+    floatValue: 0
+  - attributeType: 1
+    attributeName: Projectile Speed
+    stringValue: 
+    intValue: 0
+    floatValue: 1000
+  - attributeType: 1
+    attributeName: Damage
+    stringValue: 
+    intValue: 0
+    floatValue: 0
+  overrideAttributes: []
+  pickupPrefab: {fileID: 0}
+  spawnModel: 1
+  holderBone: 18
+  localPositionR: {x: 0.048, y: 0.314, z: 0.05}
+  localRotationR: {x: 274.2437, y: 38.14423, z: 76.471535}
+  localPositionL: {x: 0, y: 0, z: 0}
+  localRotationL: {x: 0, y: 0, z: 0}
+  itemEquipReferences:
+  - characterReference:
+      characterId: 208023d3-4f96-4457-8255-57869efb3ea5
+      avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+    localPosition: {x: 0.073, y: -0.276, z: 0.034}
+    localRotation: {x: 78.50959, y: 45.231705, z: 222.0638}
+  unEquipDuringActions: 1
+  isDualItem: 0
+  overrideController: {fileID: 0}
+  itemEquippedIdleClip: {fileID: 6799907810665706176, guid: 7fc6765e236b79845b37b27972b46b20, type: 3}
+  itemEquippedIdleClipMask: 1
+  itemEnableTime: 0.337
+  equipAudio: {fileID: 0}
+  itemDisableTime: 0.424
+  unEquipAudio: {fileID: 0}
+  equipClip:
+    clip: {fileID: -8173914047618381449, guid: f4673bfca1511d348a25ca65cdd69f46, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  unEquipClip:
+    clip: {fileID: 4690758219677062801, guid: de46e4e98d5bb274ea0e777391ca9ba1, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 1
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  overrideIdleTurns: 0
+  idleTurns: {fileID: 0}
+  isVisibleWhenEquipped: 1
+  weaponDamageType: 4
+  reactionData: {fileID: 11400000, guid: d4735f82c8539d44486e74a9c5de7f5b, type: 2}
+  canBlock: 0
+  blocking: {fileID: 0}
+  blockedDamage: 25
+  blockReactionData: {fileID: 0}
+  overrideMoveSpeed: 0
+  combatMoveSpeed: 2
+  locomotionClipSet2D: {fileID: 0}
+  overrideDodge: 0
+  dodgeData:
+    clip: {fileID: 0}
+    clipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    defaultDirection: 0
+    useDifferentClipsForDirections: 0
+    frontClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    backClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    leftClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    rightClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+  overrideRoll: 0
+  rollData:
+    clip: {fileID: 0}
+    clipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    defaultDirection: 0
+    useDifferentClipsForDirections: 0
+    frontClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    backClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    leftClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+    rightClipInfo:
+      clip: {fileID: 0}
+      customAnimationSpeed: 0
+      useAsGlobalTimeScale: 0
+      speedModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 1
+          height: 3
+        serialized: 1
+      useGravity: 1
+      gravityModifier:
+        currentModifierType: 0
+        constant: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        defaultCurveRect:
+          serializedVersion: 2
+          x: 0
+          y: -2
+          width: 1
+          height: 4
+        serialized: 1
+      showDetails: 0
+      TranistionInAndOut: {x: 0.2, y: 0.2}
+      useLayeredAnimation: 0
+      layerClip: {fileID: 0}
+      layerMask: 2
+      layerIsAdditive: 0
+      events: []
+      onEndAnimation: []
+      serialized: 1
+  ammoData: {fileID: 11400000, guid: 405683cfdddd4a74c86ec2c6daa00745, type: 2}
+  range: 100
+  useReloadAnimationDuration: 1
+  reloadTime: 2
+  playLoadAnimationPerShot: 1
+  ammoEnableTime: 0
+  soundRange: 30
+  fireAudioClip: {fileID: 8300000, guid: d7a7a06ad89a6ef41b9dbd009fda4b29, type: 3}
+  triggerAudioClip: {fileID: 8300000, guid: fef9714740460ce49a062d93a84c2f60, type: 3}
+  autoReload: 1
+  preventManualReload: 0
+  reloadAudioClip: {fileID: 8300000, guid: 7193958b342d7ac44b6db8a0af7c0877, type: 3}
+  loadAmmoAudioClip: {fileID: 8300000, guid: 0e8bb9663982e0645b30ccf416267b15, type: 3}
+  isBurst: 0
+  fireType: 0
+  burstFireBulletCount: 3
+  burstSpreadingAngleRange: {x: 2.5, y: 5}
+  weaponRecoilInfo:
+    CameraRecoilAmount: {x: 3, y: 10}
+    CameraRecoilDuration: 0.5
+    recoilPhasePercentage: 0.16
+    minRecoilAmount: {x: 1, y: 8}
+  bulletSpreadRadius: 0
+  enableRecoil: 1
+  hipFire: 0
+  canAimWithoutAmmo: 1
+  allowJumpingWhileAiming: 1
+  zoomWhileAim: 1
+  aimCameraSettings:
+    distance: 1
+    framingOffset: {x: 0.4, y: 1.5, z: 0}
+    followSmoothTime: 0
+    localRotationOffset: {x: 0, y: 0}
+    sensitivity: 0.1
+    minVerticalAngle: -45
+    maxVerticalAngle: 70
+    invertX: 0
+    invertY: 1
+    enableCameraCollisions: 1
+    minDistanceFromTarget: 0
+    overridedFollowTarget: {fileID: 0}
+    serialized: 1
+  aimClip:
+    clip: {fileID: -1531404803168364885, guid: e358c2fcd80b4aa48a768bd5ed8e7d25, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  reloadClip:
+    clip: {fileID: 13653221563602478, guid: c01ff99b658143f4585b4840c7862cfd, type: 3}
+    customAnimationSpeed: 1
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  reloadAnimationMask: 2
+  loadAmmoClip:
+    clip: {fileID: 9063285738524162831, guid: c882f5fccba008243a5e3886d5c62a0d, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  shootClip:
+    clip: {fileID: -1348491936325801180, guid: 886167ddbdf544b4e82f4575e3f948b3, type: 3}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  playReactionOnTarget: 1
+  targetReactionTag: 
+  aimAnimationMask: 1
+  shootAnimationMask: 2
+  aimedLocomotionClipSet2D: {fileID: 11400000, guid: ce6436cedae2dee47b35a34b015d1b7e, type: 2}
+  isChargedWeapon: 0
+  chargeClip:
+    clip: {fileID: 0}
+    customAnimationSpeed: 0
+    useAsGlobalTimeScale: 0
+    speedModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1
+        height: 3
+      serialized: 1
+    useGravity: 1
+    gravityModifier:
+      currentModifierType: 0
+      constant: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      defaultCurveRect:
+        serializedVersion: 2
+        x: 0
+        y: -2
+        width: 1
+        height: 4
+      serialized: 1
+    showDetails: 0
+    TranistionInAndOut: {x: 0.2, y: 0.2}
+    useLayeredAnimation: 0
+    layerClip: {fileID: 0}
+    layerMask: 2
+    layerIsAdditive: 0
+    events: []
+    onEndAnimation: []
+    serialized: 1
+  chargeAnimationMask: 6
+  chargeForce: 1
+  UseHandIkForIdle: 1
+  aimProfile: {fileID: 11400000, guid: 356feabd6858a46e3b0f7a63f459c6ad, type: 2}
+  upperBodyIK:
+    spineWeight: 0.3
+    chestWeight: 0.3
+    upperChestWeight: 0.4
+    yRotationOffset: 0
+    rotationSmoothSpeed: 10
+  supportHandIK:
+    enableAim: 1
+    enableIdle: 1
+    weight: 1
+    weightBlendSpeed: 10
+    aimData:
+      positionOffset: {x: 0.008371309, y: -0.01661491, z: 0.044718705}
+      rotationOffset: {x: -15.942627, y: -4.2450256, z: 0.75268555}
+      elbowOffset: {x: 0, y: 0, z: 0}
+    idleData:
+      positionOffset: {x: 0.015915465, y: -0.005865082, z: -0.018400963}
+      rotationOffset: {x: -20.667847, y: 353.85614, z: -10.54953}
+      elbowOffset: {x: 0, y: 0, z: 0}
+    references:
+    - characterReferences:
+      - characterId: b9bccd45-a1a0-4321-843a-16ad516efa61
+        avatar: {fileID: 9000000, guid: 5cbc5a3b7232dda49a1781631c6b1327, type: 3}
+      aimData:
+        positionOffset: {x: 0.0457459, y: -0.077145174, z: 0.05188404}
+        rotationOffset: {x: -15.942688, y: -4.244995, z: 0.752594}
+        elbowOffset: {x: 0, y: 0, z: 0}
+      idleData:
+        positionOffset: {x: 0.015915465, y: -0.005865082, z: -0.018400963}
+        rotationOffset: {x: -20.667847, y: 353.85614, z: -10.54953}
+        elbowOffset: {x: 0, y: 0, z: 0}
+  holdHandIK:
+    enableAim: 1
+    enableIdle: 0
+    weight: 1
+    weightBlendSpeed: 10
+    aimData:
+      positionOffset: {x: 0.043126624, y: 0.013863217, z: -0.01085344}
+      rotationOffset: {x: 16.744843, y: 0.31744385, z: -0.08996582}
+      elbowOffset: {x: 0, y: 0, z: 0}
+    idleData:
+      positionOffset: {x: 0, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      elbowOffset: {x: 0, y: 0, z: 0}
+    references:
+    - characterReferences:
+      - characterId: b9bccd45-a1a0-4321-843a-16ad516efa61
+        avatar: {fileID: 9000000, guid: 5cbc5a3b7232dda49a1781631c6b1327, type: 3}
+      aimData:
+        positionOffset: {x: 0.09273255, y: -0.04087637, z: -0.03887236}
+        rotationOffset: {x: 19.81955, y: 1.2785034, z: -0.09970093}
+        elbowOffset: {x: 0, y: 0, z: 0}
+      idleData:
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        elbowOffset: {x: 0, y: 0, z: 0}
+  idleIKData:
+    holdHandPosition: {x: -0.00000062584877, y: -0.0000005271286, z: -0.00000047683716}
+    holdHandRotation: {x: 0.000061035156, y: -0.000030517578, z: -0.000030517578}
+    supportHandPosition: {x: 0.006340023, y: -0.004333414, z: 0.0035577975}
+    supportHandRotation: {x: -21.346313, y: 24.092606, z: -29.590912}
+    holdElbowPosition: {x: 0, y: 0, z: 0}
+    supportElbowPosition: {x: 0, y: 0, z: 0}
+  aimIKData:
+    holdHandPosition: {x: 0.15576348, y: -0.07097128, z: -0.007426113}
+    holdHandRotation: {x: 15.462189, y: 7.434784, z: 0.2795105}
+    supportHandPosition: {x: -0.051521614, y: 0.018101286, z: -0.00021491945}
+    supportHandRotation: {x: -15.808472, y: -300.4449, z: -43.503387}
+    holdElbowPosition: {x: 0, y: 0, z: 0}
+    supportElbowPosition: {x: 0, y: 0, z: 0}
+  iKReferences:
+  - characterReferences:
+    - characterId: 208023d3-4f96-4457-8255-57869efb3ea5
+      avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+    idleIKData:
+      holdHandPosition: {x: -0.00000016763806, y: -0.00000049499795, z: -0.00000044703484}
+      holdHandRotation: {x: 0.00008392334, y: -0.000118255615, z: -0.00015258789}
+      supportHandPosition: {x: 0.024397787, y: -0.042649917, z: -0.048848618}
+      supportHandRotation: {x: 358.4546, y: 337.61658, z: 3.6204224}
+      holdElbowPosition: {x: 0, y: 0, z: 0}
+      supportElbowPosition: {x: 0, y: 0, z: 0}
+    aimIKData:
+      holdHandPosition: {x: 0.048447493, y: 0.020911645, z: 0.011360943}
+      holdHandRotation: {x: -10.132751, y: 22.819885, z: 11.118118}
+      supportHandPosition: {x: -0.019510899, y: -0.00065664575, z: -0.0012468044}
+      supportHandRotation: {x: -0.27478236, y: -0.03881836, z: 1.4846802}
+      holdElbowPosition: {x: 0, y: 0, z: 0}
+      supportElbowPosition: {x: 0, y: 0, z: 0}
+  isInitialized: 0

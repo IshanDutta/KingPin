@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 25a5144322f241a42855821c9fe6c282
+timeCreated: 1522298465
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/materials/blood/bloodDroplets.mat
+  uploadId: 471979

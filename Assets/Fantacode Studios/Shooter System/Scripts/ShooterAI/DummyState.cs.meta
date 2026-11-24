@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fa496b3404c54be4880b36f94f55ba2e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Scripts/ShooterAI/DummyState.cs
+  uploadId: 996680

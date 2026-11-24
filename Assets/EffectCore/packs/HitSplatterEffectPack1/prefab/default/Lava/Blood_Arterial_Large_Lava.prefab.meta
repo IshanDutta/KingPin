@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 7793d73b477595d468a153a5e1e0e083
+timeCreated: 1522299360
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/Lava/Blood_Arterial_Large_Lava.prefab
+  uploadId: 471979

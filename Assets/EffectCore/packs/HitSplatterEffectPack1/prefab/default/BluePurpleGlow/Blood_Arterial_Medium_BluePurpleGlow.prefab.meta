@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: c776ad922139fa94b94b8b51d65298a3
+timeCreated: 1522299360
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/BluePurpleGlow/Blood_Arterial_Medium_BluePurpleGlow.prefab
+  uploadId: 471979

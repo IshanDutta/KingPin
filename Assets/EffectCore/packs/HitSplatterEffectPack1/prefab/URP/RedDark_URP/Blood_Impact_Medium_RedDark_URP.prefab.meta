@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 886e1e52ce7d8c84aa642b3dbb921324
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/RedDark_URP/Blood_Impact_Medium_RedDark_URP.prefab
+  uploadId: 471979

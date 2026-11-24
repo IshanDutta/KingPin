@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5873496c4ce8ed84cbf522e42db4e9c4
+timeCreated: 1522299360
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/Red/Blood_Smash_Large_Red.prefab
+  uploadId: 471979

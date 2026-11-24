@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ad55ff1f248396846ae0db62eb8f4f9c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Fundamentals/Standards/PlayerCameraStandard/Example/Materials/Green.mat
+  uploadId: 451426

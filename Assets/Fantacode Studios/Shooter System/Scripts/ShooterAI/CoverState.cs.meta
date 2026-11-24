@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 58432d0bcc674ef44b94cb42fe1df45a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Scripts/ShooterAI/CoverState.cs
+  uploadId: 996680

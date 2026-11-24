@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 02a5a148cab7b094a9d5e336fbeeb315
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Lava_HDRP/Blood_Smash_Small_Lava_HDRP.prefab
+  uploadId: 471979

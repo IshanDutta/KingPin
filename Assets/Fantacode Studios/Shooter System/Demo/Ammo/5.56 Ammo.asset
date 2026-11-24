@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f5b2173d9f8688458432db5de84eff1, type: 3}
+  m_Name: 5.56 Ammo
+  m_EditorClassIdentifier: 
+  id: 6f86e1b8-dcd5-464b-9ac4-107d11f90634
+  name: 5.56
+  description: 
+  icon: {fileID: 0}
+  category: {fileID: 11400000, guid: 5c0854c985a91f0428a8c08cea01d241, type: 2}
+  overrideCategorySettings: 0
+  overrideCategoryAttributes: 0
+  equipmentSlotIndex: -1
+  attachModel: 0
+  modelPrefab: {fileID: 0}
+  isSkinnedMesh: 1
+  localPosition: {x: 0, y: 0, z: 0}
+  localRotation: {x: 0, y: 0, z: 0}
+  sellable: 0
+  droppable: 0
+  weight: 0
+  canCraft: 0
+  priceToCraft:
+    amount: 0
+    currencyIndex: 0
+  canDismantle: 0
+  priceToDismantle:
+    amount: 0
+    currencyIndex: 0
+  ingredients: []
+  overrideDismantleItems: 0
+  dismantleToItems: []
+  price:
+    amount: 0
+    currencyIndex: 0
+  requiresMultipleCurrencies: 0
+  currenciesRequired: []
+  overrideAction: 0
+  itemAction: {fileID: 0}
+  attributeValues:
+  - attributeType: 1
+    attributeName: Damage
+    stringValue: 
+    intValue: 0
+    floatValue: 2
+  overrideAttributes: []
+  pickupPrefab: {fileID: 0}
+  ammo: {fileID: 1261459277978663382, guid: 408d7961bdd24644b9e6367a14758919, type: 3}
+  hitEffects:
+  - layer:
+      serializedVersion: 2
+      m_Bits: 1
+    hitMarker: {fileID: 3539652916480664259, guid: efc67177e1ecab24eaf1710985fc7321, type: 3}
+    hitEffect: {fileID: 0}
+    hitAudioClip: {fileID: 0}
+  gravity: 0
+  maxLifetime: 5
+  overrideHitIgnoreMask: 0
+  hitIgnoreMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isExplosive: 0
+  explosiveRadius: 3
+  explosionSoundRange: 50
+  minDamage: 3
+  explosionForce: 5
+  enableDirectHit: 0
+  usesTimedExplosion: 0
+  timer: 4
+  explotionPrefab: {fileID: 0}
+  explotionAudio: {fileID: 0}
+  explotionLifeTime: 0
+  bloodEffect: {fileID: 1093524190895648044, guid: 8891f7718792b1f4bbdba4f1c91bec76, type: 3}
+  destroyImmediateAfterHit: 1

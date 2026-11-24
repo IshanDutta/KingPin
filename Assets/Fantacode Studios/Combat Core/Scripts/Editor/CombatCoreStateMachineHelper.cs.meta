@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 341e8e38900344777a658b6f91f0fd49
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Combat Core/Scripts/Editor/CombatCoreStateMachineHelper.cs
+  uploadId: 996680

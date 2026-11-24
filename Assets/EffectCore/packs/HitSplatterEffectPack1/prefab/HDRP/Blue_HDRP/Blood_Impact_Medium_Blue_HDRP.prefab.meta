@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7904d5933949afa419135b929cecc3f3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Blue_HDRP/Blood_Impact_Medium_Blue_HDRP.prefab
+  uploadId: 471979

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f057807946abd004895e9104e95371a7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Green_HDRP/Blood_Smash_Medium_Green_HDRP.prefab
+  uploadId: 471979

@@ -27,6 +27,139 @@ public class BossEnemyAI : MonoBehaviour
     [Header("Player")]
     [SerializeField] private Transform player;
 
+    [Header("Enemy Priority / Gunfire")]
+    [SerializeField] private LayerMask enemyTargetLayers;
+    [SerializeField, Min(0.1f)] private float playerPriorityDistance = 3f;
+    [SerializeField, Min(0.1f)] private float enemyWalkSpeed = 2.7f;
+    [SerializeField] private string enemyWalkState = "Walk";
+    // Live soldier pursuit always uses zero NavMesh stopping distance.
+    // Keep a separate arrival tolerance only for an unseen last-known clue.
+    [UnityEngine.Serialization.FormerlySerializedAs("enemyStoppingDistance")]
+    [SerializeField, Min(0f)] private float enemyClueArrivalDistance = 1.8f;
+    private const float EnemyContactTolerance = 0.05f;
+    [Header("Enemy Attack State")]
+    [SerializeField] private string enemyAttackAnimationState = "Jump Attack";
+    [SerializeField, Min(0.1f)] private float enemyAttackDistance = 2.5f;
+    [SerializeField, Min(0.1f)] private float enemyAttackMaxHeightDifference = 1.5f;
+    [Tooltip("Reach the soldier at this zero-based frame of the Jump Attack clip. Uses the clip's imported sample rate and actual Animator playback time.")]
+    [SerializeField, Min(1)] private int enemyAttackArrivalFrame = 44;
+    [Tooltip("Horizontal landing offset in meters relative to the soldier: X = right, Z = forward. Y is ignored to preserve the boss height.")]
+    [SerializeField] private Vector3 enemyAttackPositionOffset = Vector3.zero;
+    [Header("Enemy Attack Impact")]
+    [SerializeField] private bool ragdollEnemyOnImpact = true;
+    [Tooltip("Zero-based Jump Attack frame at which the ragdoll and visible dismemberment begin; independent of landing frame.")]
+    [SerializeField, Min(0)] private int enemyAttackImpactFrame = 36;
+    [Tooltip("Start preparing hidden asset cuts this many meters before attack range. Only one pursuit target is prewarmed per attack cycle.")]
+    [SerializeField, Min(0f)] private float enemyAttackPrewarmLeadDistance = 20f;
+    [Tooltip("Abort a stalled attack if its Animator makes no progress for this many unscaled seconds.")]
+    [SerializeField, Min(0.25f)] private float enemyAttackAnimationStallSeconds = 1.5f;
+    private float enemyAttackLastProgressAt;
+    private float enemyAttackLastNormalizedTime;
+    private float enemyAttackRetryAt;
+    private Transform enemyAttackPrewarmTarget;
+    [Tooltip("Horizontal outward launch speed in meters per second for each detached part.")]
+    [SerializeField, Min(0f)] private float enemyFragmentSeparationVelocity = 4.5f;
+    [SerializeField, Min(0f)] private float enemyFragmentUpwardVelocity = 2.2f;
+    [Tooltip("Random angular velocity change in radians per second.")]
+    [SerializeField, Min(0f)] private float enemyFragmentSpin = 5f;
+    [Tooltip("Corpse physics layer. Default 0 = Default. Must collide with the floor and be excluded from enemy scans. Legacy value 2 is migrated at impact.")]
+    [SerializeField, Range(0, 31)] private int enemyCorpseLayer = 0;
+    private bool enemyAttackLandingLogged;
+    private bool enemyAttackImpactTriggered;
+    private bool enemyAttackImpactSucceeded;
+    private Transform enemyAttackTarget;
+    private Vector3 enemyAttackAnchor;
+    private Vector3 enemyAttackStartPosition;
+    private Vector3 enemyAttackEndPosition;
+    private int enemyAttackStateHash;
+    private AnimationClip enemyAttackMotionClip;
+    private bool enemyAttackMotionActive;
+    private bool enemyAttackStateEntered;
+    private float enemyAttackMotionProgress;
+    private readonly List<AnimatorClipInfo> enemyAttackClipBuffer = new List<AnimatorClipInfo>();
+    public bool IsInEnemyAttackState => mode == BossMode.EnemyAttack && enemyAttackTarget != null;
+    public Transform EnemyAttackTarget => enemyAttackTarget;
+    [Header("Enemy Detection Memory")]
+    [SerializeField, Min(0.05f)] private float enemyScanInterval = 0.2f;
+    [SerializeField, Min(0.1f)] private float enemyMemorySeconds = 7f;
+    [SerializeField, Min(0.1f)] private float gunfireMemorySeconds = 10f;
+    [Header("Enemy Pursuit Anti-Stuck")]
+    [SerializeField, Min(0.5f)] private float enemyStuckSeconds = 2f;
+    [SerializeField, Min(0.05f)] private float enemyMinimumProgress = 0.25f;
+    [SerializeField, Min(0.2f)] private float enemyPathPendingTimeout = 1.5f;
+    [SerializeField, Min(0.5f)] private float enemyRecoverySearchRadius = 12f;
+    [SerializeField, Min(1f)] private float enemyFailedPointMemory = 10f;
+    [SerializeField, Min(0.1f)] private float enemyNavMeshRecoveryRadius = 1.5f;
+    [SerializeField] private bool debugEnemyRecovery = true;
+    private Vector3 enemyRouteEnd, enemyProgressPosition;
+    private float enemyProgressAt, enemyPendingSince = -1f, nextEnemyNavRecovery;
+    private bool enemyRouteIsDetour;
+    private int enemyRouteFailures;
+    private int enemyOriginalAvoidance = -1;
+    private readonly List<Vector3> enemyFailedPoints = new List<Vector3>();
+    private readonly List<float> enemyFailedExpires = new List<float>();
+    private float patrolProgressAt = -1f;
+    private Vector3 patrolProgressPosition;
+    private float patrolPendingAt = -1f;
+    private Transform visibleEnemy, rememberedEnemy, firingEnemy;
+    private Vector3 rememberedEnemyPosition, firingEnemyPosition;
+    private float enemySeenAt = float.NegativeInfinity;
+    private float enemyShotAt = float.NegativeInfinity;
+    private bool gunfireClueCommitted;
+    [Tooltip("After a gunfire clue has been used, do not immediately rediscover it from another bullet.")]
+    [SerializeField, Min(0.1f)] private float gunfireRediscoveryCooldown = 3f;
+    [SerializeField, Min(0.1f)] private float enemyClueLookSeconds = 0.8f;
+    [SerializeField] private bool debugGunfireDiscovery = false;
+    private float nextGunfireDiscoveryAt = float.NegativeInfinity;
+    private float nextIgnoredGunfireLog;
+    private float enemyClueLookUntil = -1f;
+    private float nextEnemyScan, nextEnemyPath;
+    private Vector3 lastEnemyGoal;
+    private Transform lastEnemyPathTarget;
+    private bool hasEnemyGoal;
+    private bool enemyOwnsMovement, enemyAiWasEnabled, enemyStealthWasEnabled;
+    private StealthAIController enemyStealthController;
+    private bool walkAfterCancelledDetection;
+    private Vector3 detectedAnchor;
+    private bool hasDetectedAnchor;
+    private bool detectionLostSight;
+    private bool playerRedetectionPending;
+    private bool playerDetectionReadyForCharge;
+    private int detectedStartedFrame;
+    private float detectedLastProgressAt;
+    private float detectedLastNormalized;
+    private Vector3 detectedAnimatorLocalPosition;
+    private Quaternion detectedFacing;
+    public Transform PlayerCollisionRoot => player;
+    public bool ConsumeCompletedPlayerDetection()
+    {
+        bool ready = playerDetectionReadyForCharge;
+        playerDetectionReadyForCharge = false;
+        return ready;
+    }
+    // Read evaluated animation progress, not an unrelated windup timer.
+    public static bool TryGetDetectionProgress(Animator animator, int hash, out float progress)
+    {
+        progress = 0f;
+        if (animator == null || !animator.isActiveAndEnabled || !animator.HasState(0, hash)) return false;
+        var current = animator.GetCurrentAnimatorStateInfo(0);
+        if (animator.IsInTransition(0))
+        {
+            var next = animator.GetNextAnimatorStateInfo(0);
+            // During a replay, the incoming state is the new animation instance.
+            if (next.shortNameHash == hash || next.fullPathHash == hash)
+            { progress = next.normalizedTime; return true; }
+        }
+        if (current.shortNameHash == hash || current.fullPathHash == hash)
+        { progress = current.normalizedTime; return true; }
+        return false;
+    }
+    private int enemyWalkHash;
+    private Transform priorityEnemy;
+    private Transform lastReportedPriorityEnemy;
+    private Vector3 priorityEnemyPosition;
+    public bool EnemyTakesPriority => priorityEnemy != null;
+
     [Header("Vision")]
     [SerializeField] private float visionDistance = 25f;
     [SerializeField, Range(1f, 360f)]
@@ -318,7 +451,9 @@ public class BossEnemyAI : MonoBehaviour
         Search,
         Detected,
         Chase,
-        Melee
+        Melee,
+        EnemyWalk,
+        EnemyAttack
     }
 
     private BossMode mode = BossMode.Cover;
@@ -401,7 +536,6 @@ public class BossEnemyAI : MonoBehaviour
     private readonly HashSet<Cover> inspectedCovers = new HashSet<Cover>();
     private readonly Dictionary<Cover, int> failedCoverApproaches = new Dictionary<Cover, int>();
     private float investigationLookStartTime;
-    private float detectionEndTime;
     private float lastPlayerSeenTime = float.NegativeInfinity;
     private float searchStartTime;
     private float searchPointStartTime;
@@ -519,7 +653,8 @@ public class BossEnemyAI : MonoBehaviour
     // Visual awareness remains available during charging.
     // Hearing alone never makes this true.
     public bool HasVisualCombatTarget =>
-        (mode == BossMode.Detected || mode == BossMode.Chase) &&
+        !EnemyTakesPriority &&
+        mode == BossMode.Chase &&
         trackedPlayer != null &&
         (
             (chargeAttack != null && chargeAttack.IsCharging) ||
@@ -539,6 +674,8 @@ public class BossEnemyAI : MonoBehaviour
         awareness = GetComponent<AwarenessSystem>();
         agent = GetComponent<NavMeshAgent>();
         chargeAttack = GetComponent<BossChargeAttack>();
+        enemyStealthController = GetComponent<StealthAIController>();
+        enemyWalkHash = Animator.StringToHash(enemyWalkState);
 
         Animator parentAnimator = GetComponent<Animator>();
 
@@ -576,6 +713,8 @@ public class BossEnemyAI : MonoBehaviour
         if (!bossAnimator.HasState(0, idleHash))
             Debug.LogWarning("BossEnemyAI: Animator layer 0 needs a state named exactly 'Idle'.", this);
         runHash = Animator.StringToHash(runState);
+        if (!bossAnimator.HasState(0, enemyWalkHash) && !bossAnimator.HasState(0, Animator.StringToHash("walk")))
+            Debug.LogWarning("BossEnemyAI: Assign Enemy Walk State to your actual walking state; using existing run state as fallback.", this);
         // Cover attacks always use the exact Animator state named "Attack".
         // This also avoids an old serialized Inspector value of "attack".
         attackHash = Animator.StringToHash("Attack");
@@ -619,6 +758,8 @@ public class BossEnemyAI : MonoBehaviour
 
     private void OnDisable()
     {
+        ReleaseEnemyMovement();
+        hasDetectedAnchor = false;
         if (!AgentReady())
             return;
 
@@ -633,9 +774,28 @@ public class BossEnemyAI : MonoBehaviour
 
     private void Update()
     {
-        if (!initialized || ai.Damagable.IsDead)
+        if (!initialized || ai == null || (ai.Damagable != null && ai.Damagable.IsDead))
+        {
+            ReleaseEnemyAttackHold();
             return;
+        }
 
+        // A committed attack is not a pursuit: no target scans, cover searches,
+        // navigation recovery, player switches, or gunfire can restart movement.
+        if (mode == BossMode.EnemyAttack)
+        {
+            if ((IsEnemyAlive(enemyAttackTarget) || (enemyAttackImpactSucceeded && enemyAttackTarget != null)) && !ChargeBusy)
+            {
+                HoldEnemyAttackPosition();
+                UpdateUnifiedAwareness();
+                return;
+            }
+            ReleaseEnemyAttackHold();
+            mode = BossMode.EnemyWalk;
+            nextEnemyScan = 0f;
+            ResetEnemyRouteRecovery();
+        }
+        UpdateEnemyPriority();
         if (ChargeBusy)
         {
             // Keep checking vision during the charge.
@@ -650,8 +810,41 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
+        // A full detection is a committed player sequence, not a soldier scan.
+        if (playerDetectionReadyForCharge && mode == BossMode.Chase)
+        {
+            CheckVision();
+            if (!CanContinuePlayerWindup())
+            {
+                BeginPlayerRedetectionSearch();
+                return;
+            }
+            if (chargeAttack != null && chargeAttack.isActiveAndEnabled && AgentReady())
+            {
+                StopAgent();
+                UpdateUnifiedAwareness();
+                return;
+            }
+            playerDetectionReadyForCharge = false;
+        }
         // Exactly one navigation / scan / cover-facing request per frame.
         hasRequestedBodyRotation = false;
+
+        if (EnemyTakesPriority)
+        {
+            UpdateMeasuredVelocity();
+            if (mode != BossMode.EnemyWalk) EnterEnemyWalk();
+            UpdateEnemyWalk();
+            UpdateUnifiedAwareness();
+            return;
+        }
+        if (mode == BossMode.EnemyWalk)
+        {
+            bool closePlayer = TryGetVisiblePlayer(out Transform closeTarget) &&
+                Vector3.Distance(transform.position, closeTarget.position) <= playerPriorityDistance;
+            ResumeWalkingAfterDetection();
+            if (closePlayer) DetectPlayer(closeTarget);
+        }
 
         if (pendingPostChargeSuspicion)
         {
@@ -723,7 +916,22 @@ public class BossEnemyAI : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!initialized || ai.Damagable.IsDead) return;
+        if (!initialized || ai == null || (ai.Damagable != null && ai.Damagable.IsDead)) return;
+        if (IsInEnemyAttackState && !ChargeBusy)
+        {
+            // Read the evaluated animation here, rather than integrate deltaTime.
+            // Update already locks navigation at the previous horizontal anchor.
+            UpdateEnemyAttackMotion();
+            if (!IsInEnemyAttackState) return; // A failed animation may have released the hold.
+            if (enemyAttackStateEntered && EnemyImpactAnimationFinished())
+            {
+                EndEnemyAttackState();
+                return;
+            }
+            HoldEnemyAttackPosition();
+            UpdateUnifiedAwareness();
+            return;
+        }
         if (ChargeBusy)
         {
             // BossChargeAttack owns yaw for Detected -> Dash -> Stunned.
@@ -734,7 +942,12 @@ public class BossEnemyAI : MonoBehaviour
 
         // Our script is the only system allowed to rotate this NavMeshAgent.
         // Never allow automatic agent rotation to fight search scans / cover facing.
-        if (AgentReady()) agent.updateRotation = false;
+        if (AgentReady())
+        {
+            agent.updateRotation = false;
+            if (mode == BossMode.EnemyWalk && enemyOwnsMovement)
+                agent.stoppingDistance = 0f;
+        }
 
         // Keep the UI driven by the same suspicion value as the boss.
         // Some third-party AI components also update AwarenessSystem in Update.
@@ -746,8 +959,14 @@ public class BossEnemyAI : MonoBehaviour
             attackingCover && hasLockedCoverRotation)
             RequestBodyRotation(lockedCoverRotation, movementTurnSpeed);
 
-        if (mode == BossMode.Detected && trackedPlayer != null)
-            FacePosition(trackedPlayer.position, turnSpeed);
+        if (mode == BossMode.Detected)
+        {
+            HoldDetectedPosition();
+            // Preserve yaw as well as the translation for the authored clip.
+            stableBodyRotation = detectedFacing;
+            stableBodyRotationInitialized = true;
+            hasRequestedBodyRotation = false;
+        }
 
         // Final single writer of the boss's body yaw. Using the previous
         // authored rotation (rather than another component's transient yaw)
@@ -1106,7 +1325,7 @@ public class BossEnemyAI : MonoBehaviour
                       " | state=" + mode, this);
 
         // An actual sighting and charge/combat outrank any audio sample.
-        if (hadVisualContactLastScan || mode == BossMode.Chase ||
+        if (playerRedetectionPending || hadVisualContactLastScan || mode == BossMode.Chase ||
             mode == BossMode.Detected || mode == BossMode.Melee)
             return;
 
@@ -1710,6 +1929,861 @@ public class BossEnemyAI : MonoBehaviour
     // VISION
     // =====================================================
 
+    private bool TryGetVisiblePlayer(out Transform target)
+    {
+        target = null;
+        if (Time.time < visionSuppressedUntil || playerStimuli == null) return false;
+        float best = float.PositiveInfinity;
+        foreach (VisualStimulus stimulus in playerStimuli)
+        {
+            if (stimulus == null || !stimulus.gameObject.activeInHierarchy ||
+                stimulus.Type != VisualStimulusType.Player || stimulus.IsConcealed ||
+                HidingArea.IsHidden(stimulus) || !CanSeePlayer(stimulus.transform)) continue;
+            float distance = Vector3.Distance(transform.position, stimulus.transform.position);
+            if (distance >= best) continue;
+            best = distance;
+            target = stimulus.transform;
+        }
+        return target != null;
+    }
+
+    // Called by the charge component BEFORE Dash. This is a live LOS check,
+    // not HasVisualCombatTarget, which intentionally excludes busy states.
+    public bool CanContinuePlayerWindup()
+    {
+        if (trackedPlayer == null || Time.time < visionSuppressedUntil || playerStimuli == null) return false;
+        foreach (var stimulus in playerStimuli)
+        {
+            if (stimulus == null || !stimulus.gameObject.activeInHierarchy ||
+                stimulus.Type != VisualStimulusType.Player || stimulus.IsConcealed || HidingArea.IsHidden(stimulus)) continue;
+            var seen = stimulus.transform;
+            if (seen != trackedPlayer && !seen.IsChildOf(trackedPlayer) && !trackedPlayer.IsChildOf(seen)) continue;
+            if (CanSeePlayer(seen)) return true;
+        }
+        return false;
+    }
+
+    private int EnemyMask => enemyTargetLayers.value != 0 ? enemyTargetLayers.value : LayerMask.GetMask("Enemy");
+
+    private bool IsEnemyAlive(Transform candidate)
+    {
+        if (candidate == null || !candidate.gameObject.activeInHierarchy ||
+            candidate == transform || candidate.IsChildOf(transform) || transform.IsChildOf(candidate)) return false;
+        if (player != null && (candidate == player || candidate.IsChildOf(player) || player.IsChildOf(candidate))) return false;
+        if (BossSoldierRagdollImpact.IsImpacted(candidate)) return false;
+        var fighter = candidate.GetComponent<FS_CombatCore.FighterCore>();
+        if (fighter != null && fighter.IsDead) return false;
+        AIController other = candidate.GetComponent<AIController>();
+        return other == null || other.Damagable == null || !other.Damagable.IsDead;
+    }
+
+    private Transform ResolveEnemy(Collider collider)
+    {
+        if (collider == null) return null;
+        AIController controller = collider.GetComponentInParent<AIController>();
+        Transform actor = controller != null ? controller.transform : null;
+        if (actor != null && ((EnemyMask & (1 << actor.gameObject.layer)) != 0 ||
+            (EnemyMask & (1 << collider.gameObject.layer)) != 0)) return actor;
+        // Also support non-Fantacode enemies on an explicitly selected layer.
+        for (Transform t = collider.transform; t != null; t = t.parent)
+            if ((EnemyMask & (1 << t.gameObject.layer)) != 0) return t;
+        return null;
+    }
+
+    private bool CanSeeEnemy(Transform actor, Vector3 point)
+    {
+        Vector3 eye = transform.position + Vector3.up * eyeHeight;
+        Vector3 delta = point - eye;
+        if (delta.magnitude > visionDistance) return false;
+        Vector3 flat = Vector3.ProjectOnPlane(delta, Vector3.up);
+        if (flat.sqrMagnitude > 0.001f && Vector3.Angle(transform.forward, flat) > visionAngle * 0.5f) return false;
+        return !IsBlocked(eye, point, visionBlockingLayers, actor);
+    }
+
+    private void ScanEnemies()
+    {
+        visibleEnemy = null;
+        float best = float.PositiveInfinity;
+        if (EnemyMask == 0) return;
+        foreach (Collider col in Physics.OverlapSphere(transform.position, visionDistance, ~0, QueryTriggerInteraction.Collide))
+        {
+            Transform actor = ResolveEnemy(col);
+            if (!IsEnemyAlive(actor) || !CanSeeEnemy(actor, col.bounds.center)) continue;
+            float distance = Vector3.Distance(transform.position, actor.position);
+            // Strict nearest visible enemy. Only keep the previous target on an exact tie.
+            if (distance > best || (distance == best && actor != rememberedEnemy)) continue;
+            best = distance;
+            visibleEnemy = actor;
+        }
+        if (visibleEnemy != null)
+        {
+            rememberedEnemy = visibleEnemy;
+            rememberedEnemyPosition = visibleEnemy.position;
+            enemySeenAt = Time.time;
+        }
+    }
+
+    private bool HasRememberedEnemy()
+    {
+        return IsEnemyAlive(rememberedEnemy) &&
+            Time.time - enemySeenAt <= enemyMemorySeconds;
+    }
+
+    private bool HasGunfireClue()
+    {
+        return IsEnemyAlive(firingEnemy) &&
+            Time.time - enemyShotAt <= gunfireMemorySeconds;
+    }
+
+    private void ClearGunfireClue()
+    {
+        // Only start the cooldown when an actual clue was consumed or expired.
+        // UpdateEnemyPriority calls this even when there is no clue.
+        if (gunfireClueCommitted || !float.IsNegativeInfinity(enemyShotAt))
+            nextGunfireDiscoveryAt = Time.time + Mathf.Max(0.1f, gunfireRediscoveryCooldown);
+        firingEnemy = null;
+        enemyShotAt = float.NegativeInfinity;
+        gunfireClueCommitted = false;
+    }
+
+    // Gunfire is discovery only. It must never steal a known enemy target.
+    // Retain the nearest pending gunfire clue if several shots arrive before
+    // the next boss Update. Once selected, that clue cannot be replaced by shots.
+    public void NotifyShotAt(Transform shooter)
+    {
+        if (!isActiveAndEnabled || !IsEnemyAlive(shooter)) return;
+        AIController sourceAI = shooter.GetComponentInParent<AIController>();
+        if (sourceAI != null) shooter = sourceAI.transform;
+        if (!IsEnemyAlive(shooter)) return;
+        // A bullet is information, never an animation or movement command.
+        // Do not interrupt an existing pursuit, the player charge, or its recovery.
+        if (IsInEnemyAttackState || HasRememberedEnemy() || IsEnemyAlive(priorityEnemy) ||
+            (mode == BossMode.EnemyWalk && gunfireClueCommitted) ||
+            ChargeBusy || pendingPostChargeSuspicion || pendingPostChargeSearch ||
+            Time.time < nextGunfireDiscoveryAt)
+        {
+            if (debugGunfireDiscovery && Time.time >= nextIgnoredGunfireLog)
+            {
+                nextIgnoredGunfireLog = Time.time + 1f;
+                Log("GUNFIRE IGNORED - existing target, recovery or discovery cooldown; movement unchanged");
+            }
+            return;
+        }
+
+        if (HasGunfireClue())
+        {
+            // The boss is already pursuing a gunfire clue. Do not let another
+            // soldier (or repeated shots) change or indefinitely refresh it.
+            if (gunfireClueCommitted) return;
+            float currentDistance = (firingEnemyPosition - transform.position).sqrMagnitude;
+            float newDistance = (shooter.position - transform.position).sqrMagnitude;
+            if (newDistance >= currentDistance) return;
+        }
+
+        gunfireClueCommitted = false;
+        firingEnemy = shooter;
+        firingEnemyPosition = shooter.position;
+        enemyShotAt = Time.time;
+        nextEnemyScan = 0f;
+        audibleAwareness = Mathf.Max(audibleAwareness, hearingAwarenessLevel);
+        lastAudibleContactTime = Time.time;
+        Log("BOSS DISCOVERED ENEMY BY GUNFIRE: " + shooter.name);
+    }
+
+    private void UpdateEnemyPriority()
+    {
+        if (mode == BossMode.Detected || playerRedetectionPending || playerDetectionReadyForCharge ||
+            (chargeAttack != null && (chargeAttack.IsWindingUp || chargeAttack.IsPositioning)))
+        {
+            priorityEnemy = null;
+            return;
+        }
+        if (Time.time >= nextEnemyScan)
+        {
+            nextEnemyScan = Time.time + Mathf.Max(0.05f, enemyScanInterval);
+            ScanEnemies();
+        }
+
+        priorityEnemy = null;
+        // Sight wins over gunfire. ScanEnemies has already selected the closest
+        // visible actor without any shooting bonus or distance bias.
+        // When none is visible, keep the last seen enemy for the memory window.
+        if (HasRememberedEnemy())
+        {
+            priorityEnemy = rememberedEnemy;
+            priorityEnemyPosition = rememberedEnemyPosition;
+            ClearGunfireClue();
+        }
+        else if (HasGunfireClue())
+        {
+            // Walk to the last reported firing position, not an unseen moving
+            // target's live position. Normal vision can then acquire an enemy.
+            gunfireClueCommitted = true;
+            priorityEnemy = firingEnemy;
+            priorityEnemyPosition = firingEnemyPosition;
+        }
+        else
+        {
+            ClearGunfireClue();
+        }
+
+        // Preserve the existing very-close, visible player exception.
+        if (priorityEnemy != null && TryGetVisiblePlayer(out Transform closePlayer) &&
+            Vector3.Distance(transform.position, closePlayer.position) <= playerPriorityDistance)
+            priorityEnemy = null;
+
+        if (priorityEnemy != lastReportedPriorityEnemy)
+        {
+            lastReportedPriorityEnemy = priorityEnemy;
+            if (priorityEnemy != null)
+                Log("BOSS ENEMY TARGET: " + priorityEnemy.name +
+                    " | distance=" + Vector3.Distance(transform.position, priorityEnemyPosition).ToString("F1") +
+                    " | source=" + (priorityEnemy == rememberedEnemy ? "vision/memory" : "gunfire discovery"));
+        }
+    }
+
+    private void EnterEnemyWalk()
+    {
+        InterruptCoverAttack();
+        CancelSearch();
+        investigationCover = null;
+        chaseObstacleCover = null;
+        pendingPostChargeSuspicion = pendingPostChargeSearch = false;
+        postChargeSuspicionActive = false;
+        trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
+        hadVisualContactLastScan = hasPartialVisualContact = partialVisualInvestigationStarted = false;
+        hasDetectedAnchor = false;
+        suspicion = 0f;
+        if (ai.Target != null) ai.TargetHandler.TrySetTarget(null);
+        if (!enemyOwnsMovement)
+        {
+            enemyAiWasEnabled = ai.enabled;
+            enemyStealthWasEnabled = enemyStealthController != null && enemyStealthController.enabled;
+            if (enemyStealthController != null) enemyStealthController.enabled = false;
+            ai.enabled = false;
+            enemyOwnsMovement = true;
+        }
+        mode = BossMode.EnemyWalk;
+        if (agent != null) agent.stoppingDistance = 0f;
+        enemyClueLookUntil = -1f;
+        ResetEnemyRouteRecovery();
+        nextEnemyPath = 0f;
+        hasEnemyGoal = false;
+        currentAnimationHash = 0;
+        Log("BOSS PRIORITIZING ENEMY - WALK ONLY: " + priorityEnemy.name);
+    }
+
+    private void ReleaseEnemyMovement()
+    {
+        ReleaseEnemyAttackHold();
+        if (!enemyOwnsMovement) return;
+        enemyOwnsMovement = false;
+        if (agent != null) agent.stoppingDistance = originalStoppingDistance;
+        enemyClueLookUntil = -1f;
+        ResetEnemyRouteRecovery();
+        if (ai != null) ai.enabled = enemyAiWasEnabled;
+        if (enemyStealthController != null) enemyStealthController.enabled = enemyStealthWasEnabled;
+    }
+
+    private void ResetEnemyRouteRecovery()
+    {
+        hasEnemyGoal = false;
+        enemyRouteIsDetour = false;
+        enemyRouteFailures = 0;
+        enemyPendingSince = -1f;
+        nextEnemyPath = 0f;
+        enemyFailedPoints.Clear();
+        enemyFailedExpires.Clear();
+        if (agent != null && enemyOriginalAvoidance >= 0)
+            agent.avoidancePriority = enemyOriginalAvoidance;
+        enemyOriginalAvoidance = -1;
+    }
+
+    private bool RecoverEnemyNavMesh()
+    {
+        if (AgentReady()) return true;
+        if (agent == null || !gameObject.activeInHierarchy || Time.time < nextEnemyNavRecovery) return false;
+        nextEnemyNavRecovery = Time.time + 0.75f;
+        var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
+        NavMeshHit hit;
+        if (!NavMesh.SamplePosition(transform.position, out hit, enemyNavMeshRecoveryRadius, filter)) return false;
+        Vector3 offset = Vector3.up * Mathf.Max(0.3f, agent.radius);
+        if (IsBlocked(transform.position + offset, hit.position + offset, visionBlockingLayers)) return false;
+        if (!agent.enabled) agent.enabled = true;
+        if (!agent.Warp(hit.position) || !AgentReady()) return false;
+        agent.updatePosition = true;
+        agent.updateRotation = false;
+        ResetEnemyRouteRecovery();
+        if (debugEnemyRecovery) Log("ENEMY PURSUIT - restored nearby NavMesh");
+        return true;
+    }
+
+    private void FailEnemyRoute(string reason)
+    {
+        if (hasEnemyGoal)
+        {
+            enemyFailedPoints.Add(enemyRouteEnd);
+            enemyFailedExpires.Add(Time.time + Mathf.Max(1f, enemyFailedPointMemory));
+            if (enemyFailedPoints.Count > 32) { enemyFailedPoints.RemoveAt(0); enemyFailedExpires.RemoveAt(0); }
+        }
+        hasEnemyGoal = false;
+        enemyPendingSince = -1f;
+        nextEnemyPath = 0f;
+        enemyRouteFailures = Mathf.Min(12, enemyRouteFailures + 1);
+        if (AgentReady())
+        {
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            agent.isStopped = true;
+            if (enemyOriginalAvoidance < 0) enemyOriginalAvoidance = agent.avoidancePriority;
+            // Give the large boss priority over soldier avoidance, varying on retry.
+            agent.avoidancePriority = Mathf.Clamp(5 + enemyRouteFailures % 8, 0, 99);
+        }
+        if (debugEnemyRecovery) Log("ENEMY PURSUIT RECOVERY #" + enemyRouteFailures + ": " + reason);
+    }
+
+    private void ConsiderEnemyRoute(Vector3 raw, Vector3 target, bool detour,
+        ref float best, ref NavMeshPath bestPath, ref Vector3 bestPoint, ref bool bestDetour)
+    {
+        var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
+        NavMeshHit hit;
+        if (!NavMesh.SamplePosition(raw, out hit, 1.3f, filter)) return;
+        if (Vector3.Distance(transform.position, hit.position) < (detour ? 0.65f : 0.025f)) return;
+        for (int i = 0; i < enemyFailedPoints.Count; i++)
+            if (enemyFailedExpires[i] > Time.time && FlatDistance(hit.position, enemyFailedPoints[i]) < 1.2f) return;
+        NavMeshPath path = new NavMeshPath();
+        if (!agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) return;
+        float length = PathDistance(path);
+        if (float.IsInfinity(length) || float.IsNaN(length)) return;
+        // Favor routes that close distance while permitting a short sideways escape.
+        float score = FlatDistance(hit.position, target) * 2f + length * 0.35f + (detour ? 0.6f : 0f);
+        if (score >= best) return;
+        best = score; bestPath = path; bestPoint = hit.position; bestDetour = detour;
+    }
+
+    private bool PlanEnemyRoute(Vector3 target)
+    {
+        for (int i = enemyFailedPoints.Count - 1; i >= 0; i--)
+            if (enemyFailedExpires[i] <= Time.time) { enemyFailedPoints.RemoveAt(i); enemyFailedExpires.RemoveAt(i); }
+        NavMeshPath bestPath = null;
+        Vector3 bestPoint = Vector3.zero;
+        bool detour = false;
+        float best = float.PositiveInfinity;
+        ConsiderEnemyRoute(target, target, false, ref best, ref bestPath, ref bestPoint, ref detour);
+        if (bestPath == null || enemyRouteFailures > 0)
+        {
+            float maxRadius = Mathf.Min(enemyRecoverySearchRadius, 3f + enemyRouteFailures * 2f);
+            for (int ring = 1; ring <= 3; ring++)
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = (i + ring * 0.5f) * Mathf.PI / 6f;
+                    Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * Mathf.Max(1.5f, maxRadius * ring / 3f);
+                    ConsiderEnemyRoute(target + offset, target, true, ref best, ref bestPath, ref bestPoint, ref detour);
+                    if (enemyRouteFailures > 0)
+                        ConsiderEnemyRoute(transform.position + offset, target, true, ref best, ref bestPath, ref bestPoint, ref detour);
+                }
+        }
+        if (bestPath == null) return false;
+        if (!agent.SetPath(bestPath)) return false;
+        if (!hasEnemyGoal)
+        {
+            enemyProgressAt = Time.time;
+            enemyProgressPosition = transform.position;
+        }
+        hasEnemyGoal = true;
+        enemyRouteEnd = bestPoint;
+        enemyRouteIsDetour = detour;
+        lastEnemyGoal = target;
+        agent.isStopped = false;
+        return true;
+    }
+
+    private bool TryEnterEnemyAttack()
+    {
+        // Close contact is checked live, not against the last vision scan or its cone.
+        if (!IsEnemyAlive(priorityEnemy) || ChargeBusy || Time.unscaledTime < enemyAttackRetryAt) return false;
+        Vector3 point = priorityEnemy.position;
+        if (FlatDistance(transform.position, point) > Mathf.Max(0.1f, enemyAttackDistance) ||
+            Mathf.Abs(transform.position.y - point.y) > enemyAttackMaxHeightDifference) return false;
+        // Two independent straight lines allow close contact even if the tall boss's
+        // eye ray is occluded. Both blocked means there is still an obstacle.
+        if (IsBlocked(transform.position + Vector3.up * eyeHeight,
+                point + Vector3.up * targetHeight, visionBlockingLayers, priorityEnemy) &&
+            IsBlocked(transform.position + Vector3.up * 0.65f,
+                point + Vector3.up * 0.65f, visionBlockingLayers, priorityEnemy)) return false;
+        if (bossAnimator == null || !bossAnimator.isActiveAndEnabled ||
+            !bossAnimator.HasState(0, Animator.StringToHash(enemyAttackAnimationState)))
+        {
+            enemyAttackRetryAt = Time.unscaledTime + 1f;
+            Debug.LogWarning("BossEnemyAI: Cannot enter Jump Attack; Animator or state is missing. Pursuit stays active.", this);
+            return false;
+        }
+
+        enemyAttackTarget = priorityEnemy;
+        enemyAttackAnchor = transform.position;
+        enemyAttackStartPosition = enemyAttackAnchor;
+        // Snapshot the soldier's horizontal orientation at attack entry.
+        // Offsets are in meters, independent of the soldier's transform scale.
+        Vector3 targetForward = Vector3.ProjectOnPlane(enemyAttackTarget.forward, Vector3.up);
+        if (targetForward.sqrMagnitude < 0.0001f)
+            targetForward = Vector3.ProjectOnPlane(enemyAttackTarget.up, Vector3.up);
+        if (targetForward.sqrMagnitude < 0.0001f)
+            targetForward = Vector3.forward;
+        targetForward.Normalize();
+        Vector3 targetRight = Vector3.Cross(Vector3.up, targetForward);
+        Vector3 landingPoint = point + targetRight * enemyAttackPositionOffset.x
+            + targetForward * enemyAttackPositionOffset.z;
+        enemyAttackEndPosition = new Vector3(landingPoint.x, enemyAttackAnchor.y, landingPoint.z);
+        enemyAttackMotionClip = null;
+        enemyAttackMotionActive = false;
+        enemyAttackStateEntered = false;
+        enemyAttackMotionProgress = 0f;
+        enemyAttackLandingLogged = false;
+        enemyAttackImpactTriggered = false;
+        enemyAttackImpactSucceeded = false;
+        mode = BossMode.EnemyAttack;
+        ResetEnemyRouteRecovery();
+        // Message avoids a reverse assembly dependency from Fantacode to this boss.
+        // Only the selected soldier receives the hold, never every nearby soldier.
+        enemyAttackTarget.BroadcastMessage("BeginBossEnemyAttackHold", transform, SendMessageOptions.DontRequireReceiver);
+        HoldEnemyAttackPosition();
+        enemyAttackStateHash = Animator.StringToHash(enemyAttackAnimationState);
+        // Do not gate the attack on the asynchronous mesh queue. Start the
+        // animation immediately; the impact will commit only a complete batch.
+        Vector3 facing = Vector3.ProjectOnPlane(point - transform.position, Vector3.up);
+        if (facing.sqrMagnitude > 0.0001f)
+        {
+            transform.rotation = Quaternion.LookRotation(facing);
+            stableBodyRotation = transform.rotation;
+        }
+        StartPreparedEnemyAttackAnimation();
+        if (ragdollEnemyOnImpact)
+        {
+            var preparation = enemyAttackTarget.GetComponent<BossSoldierRagdollImpact>();
+            if (preparation == null) preparation = enemyAttackTarget.gameObject.AddComponent<BossSoldierRagdollImpact>();
+            preparation.PrepareForAttack();
+        }
+        Log("ENEMY ATTACK STATE - BOTH STOPPED: " + enemyAttackTarget.name);
+        return true;
+    }
+
+    private void StartPreparedEnemyAttackAnimation()
+    {
+        bossAnimator.CrossFadeInFixedTime(enemyAttackStateHash, animationBlend, 0, 0f);
+        currentAnimationHash = enemyAttackStateHash;
+        enemyAttackLastProgressAt = Time.unscaledTime;
+        enemyAttackLastNormalizedTime = -1f;
+        enemyAttackMotionActive = true;
+    }
+
+    private bool IsEnemyAttackAnimation(AnimatorStateInfo state)
+    {
+        return state.shortNameHash == enemyAttackStateHash ||
+               state.fullPathHash == enemyAttackStateHash;
+    }
+
+    private void UpdateEnemyAttackMotion()
+    {
+        if (enemyAttackTarget == null) return;
+        if (bossAnimator == null || !bossAnimator.isActiveAndEnabled)
+        {
+            AbortStalledEnemyAttack("Animator unavailable");
+            return;
+        }
+        if (Time.unscaledTime - enemyAttackLastProgressAt > Mathf.Max(0.25f, enemyAttackAnimationStallSeconds))
+        {
+            AbortStalledEnemyAttack("Jump Attack Animator stopped progressing");
+            return;
+        }
+        // Continue observing animation progress even after landing so a frozen
+        // final animation cannot indefinitely hold the boss.
+        // During the entry crossfade, the destination state is already playing.
+        // Prefer its playback time so the blend does not add a timing delay.
+        bool transitioning = bossAnimator.IsInTransition(0);
+        AnimatorStateInfo state = bossAnimator.GetCurrentAnimatorStateInfo(0);
+        bool useNext = false;
+        if (transitioning)
+        {
+            AnimatorStateInfo next = bossAnimator.GetNextAnimatorStateInfo(0);
+            if (IsEnemyAttackAnimation(next))
+            {
+                state = next;
+                useNext = true;
+            }
+        }
+        if (!IsEnemyAttackAnimation(state))
+        {
+            if (enemyAttackStateEntered)
+            {
+                if (enemyAttackImpactSucceeded) EndEnemyAttackState();
+                else AbortStalledEnemyAttack("Jump Attack exited before impact");
+            }
+            return;
+        }
+        enemyAttackStateEntered = true;
+        if (state.normalizedTime > enemyAttackLastNormalizedTime + 0.0001f)
+        {
+            enemyAttackLastNormalizedTime = state.normalizedTime;
+            enemyAttackLastProgressAt = Time.unscaledTime;
+        }
+        if (!enemyAttackMotionActive) return;
+
+        if (enemyAttackMotionClip == null)
+        {
+            enemyAttackClipBuffer.Clear();
+            if (useNext) bossAnimator.GetNextAnimatorClipInfo(0, enemyAttackClipBuffer);
+            else bossAnimator.GetCurrentAnimatorClipInfo(0, enemyAttackClipBuffer);
+            float bestWeight = -1f;
+            foreach (AnimatorClipInfo info in enemyAttackClipBuffer)
+            {
+                if (info.clip != null && info.weight > bestWeight)
+                {
+                    bestWeight = info.weight;
+                    enemyAttackMotionClip = info.clip;
+                }
+            }
+            if (enemyAttackMotionClip == null) return;
+            float lastFrame = enemyAttackMotionClip.length * enemyAttackMotionClip.frameRate;
+            if (lastFrame + 0.01f < enemyAttackArrivalFrame)
+                Debug.LogWarning("BossEnemyAI: Jump Attack clip has fewer than " + enemyAttackArrivalFrame +
+                    " frames. Reaching the target at the end of the available clip instead.", this);
+        }
+
+        // The animation's source clip time is normalizedTime * clip.length.
+        // This automatically follows Animator speed, state speed and speed multipliers.
+        float availableFrames = enemyAttackMotionClip.length * enemyAttackMotionClip.frameRate;
+        if (availableFrames <= 0f) return;
+        float arrivalFrame = Mathf.Min(Mathf.Max(1, enemyAttackArrivalFrame), availableFrames);
+        float playedFrames = Mathf.Max(0f, state.normalizedTime) * availableFrames;
+        float progress = Mathf.Clamp01(playedFrames / arrivalFrame);
+        enemyAttackMotionProgress = Mathf.Max(enemyAttackMotionProgress, progress);
+        enemyAttackAnchor = Vector3.Lerp(enemyAttackStartPosition, enemyAttackEndPosition, enemyAttackMotionProgress);
+        // Deliberately never interpolate toward the soldier's height.
+        enemyAttackAnchor.y = enemyAttackStartPosition.y;
+        // Position first, then trigger impact at its OWN animation frame.
+        // Keep the original landing snapshot even after the soldier becomes a ragdoll.
+        HoldEnemyAttackPosition();
+        float impactFrame = Mathf.Min(Mathf.Max(0, enemyAttackImpactFrame), availableFrames);
+        if (ragdollEnemyOnImpact && !enemyAttackImpactTriggered && playedFrames + 0.0001f >= impactFrame)
+            TriggerEnemyAttackImpact(playedFrames);
+        if (!IsInEnemyAttackState) return;
+
+        if (enemyAttackMotionProgress >= 1f && !enemyAttackLandingLogged)
+        {
+            enemyAttackLandingLogged = true;
+            enemyAttackAnchor = enemyAttackEndPosition;
+            Log("ENEMY JUMP ATTACK - reached target XZ at arrival frame " + arrivalFrame);
+        }
+        if (enemyAttackMotionProgress >= 1f && (!ragdollEnemyOnImpact || enemyAttackImpactTriggered ||
+            availableFrames + 0.01f < impactFrame))
+        {
+            enemyAttackMotionActive = false;
+            if (ragdollEnemyOnImpact && !enemyAttackImpactTriggered)
+                Debug.LogWarning("BossEnemyAI: no impact because the clip does not contain impact frame " + impactFrame, this);
+        }
+    }
+
+    private void AbortStalledEnemyAttack(string reason)
+    {
+        Debug.LogWarning("BossEnemyAI: Released failed enemy attack: " + reason, this);
+        enemyAttackRetryAt = Time.unscaledTime + 0.35f;
+        EndEnemyAttackState();
+        if (bossAnimator != null && bossAnimator.isActiveAndEnabled) ForceAnimation(ResolveWalkHash());
+    }
+
+    private void TriggerEnemyAttackImpact(float playedFrames)
+    {
+        if (enemyAttackImpactTriggered || enemyAttackTarget == null) return;
+        enemyAttackImpactTriggered = true;
+        var impact = enemyAttackTarget.GetComponent<BossSoldierRagdollImpact>();
+        if (impact == null) impact = enemyAttackTarget.gameObject.AddComponent<BossSoldierRagdollImpact>();
+        try
+        {
+            enemyAttackImpactSucceeded = impact.Execute(enemyAttackStartPosition, enemyFragmentSeparationVelocity,
+                enemyCorpseLayer, transform, enemyFragmentUpwardVelocity, enemyFragmentSpin);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex, this);
+            AbortStalledEnemyAttack("ragdoll impact threw an exception");
+            return;
+        }
+        if (enemyAttackImpactSucceeded)
+        {
+            if (rememberedEnemy == enemyAttackTarget) rememberedEnemy = null;
+            if (visibleEnemy == enemyAttackTarget) visibleEnemy = null;
+            if (firingEnemy == enemyAttackTarget) ClearGunfireClue();
+            Log("ENEMY JUMP ATTACK - impact requested frame " + enemyAttackImpactFrame +
+                " | evaluated clip frame=" + playedFrames.ToString("F2") + " | landing frame=" + enemyAttackArrivalFrame);
+        }
+    }
+
+    private bool EnemyImpactAnimationFinished()
+    {
+        if (bossAnimator == null || !bossAnimator.isActiveAndEnabled) return true;
+        var state = bossAnimator.GetCurrentAnimatorStateInfo(0);
+        if (bossAnimator.IsInTransition(0))
+        {
+            var next = bossAnimator.GetNextAnimatorStateInfo(0);
+            if (IsEnemyAttackAnimation(next)) return next.normalizedTime >= 1f;
+        }
+        return !IsEnemyAttackAnimation(state) || state.normalizedTime >= 1f;
+    }
+
+    private void HoldEnemyAttackPosition()
+    {
+        if (enemyAttackTarget == null) return;
+        priorityEnemy = enemyAttackTarget;
+        hasRequestedBodyRotation = false;
+        measuredVelocity = Vector3.zero;
+        previousPosition = enemyAttackAnchor;
+        if (AgentReady())
+        {
+            agent.stoppingDistance = 0f;
+            agent.isStopped = true;
+            if (agent.hasPath || agent.pathPending) agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            agent.updatePosition = false;
+            agent.updateRotation = false;
+            agent.nextPosition = enemyAttackAnchor;
+        }
+        if (bossAnimator != null && bossAnimator.applyRootMotion) bossAnimator.applyRootMotion = false;
+        transform.position = enemyAttackAnchor;
+        // Leave the attack animation alone while both characters are held.
+    }
+
+    private void ReleaseEnemyAttackHold()
+    {
+        Transform target = enemyAttackTarget;
+        enemyAttackTarget = null;
+        enemyAttackPrewarmTarget = null;
+        enemyAttackImpactTriggered = false;
+        enemyAttackImpactSucceeded = false;
+        enemyAttackMotionActive = false;
+        enemyAttackMotionClip = null;
+        enemyAttackClipBuffer.Clear();
+        if (mode != BossMode.EnemyAttack && target == null) return;
+        mode = BossMode.EnemyWalk;
+        if (target != null)
+            target.BroadcastMessage("EndBossEnemyAttackHold", transform, SendMessageOptions.DontRequireReceiver);
+        if (AgentReady())
+        {
+            agent.nextPosition = transform.position;
+            agent.updatePosition = true;
+        }
+    }
+
+    // An attack animation event can call this to end the hold.
+    // A living target still in range can trigger a new attack on a later update.
+    public void EndEnemyAttackState()
+    {
+        ReleaseEnemyAttackHold();
+        ResetEnemyRouteRecovery();
+        nextEnemyScan = 0f;
+    }
+
+    private void UpdateEnemyWalk()
+    {
+        if (agent != null) agent.stoppingDistance = 0f;
+        if (TryEnterEnemyAttack()) return;
+        // The asset can take several frames to prepare all hidden cuts. Give
+        // the closest visible target a head start without killing or moving it.
+        if (ragdollEnemyOnImpact && enemyAttackPrewarmLeadDistance > 0f &&
+            enemyAttackPrewarmTarget != priorityEnemy && IsEnemyAlive(priorityEnemy) && visibleEnemy == priorityEnemy &&
+            Mathf.Abs(transform.position.y - priorityEnemy.position.y) <= enemyAttackMaxHeightDifference &&
+            FlatDistance(transform.position, priorityEnemy.position) <= enemyAttackDistance + enemyAttackPrewarmLeadDistance)
+        {
+            enemyAttackPrewarmTarget = priorityEnemy;
+            var preparation = priorityEnemy.GetComponent<BossSoldierRagdollImpact>();
+            if (preparation == null) preparation = priorityEnemy.gameObject.AddComponent<BossSoldierRagdollImpact>();
+            preparation.PrepareForAttack();
+        }
+        if (!RecoverEnemyNavMesh()) return;
+        if (lastEnemyPathTarget != priorityEnemy)
+        {
+            lastEnemyPathTarget = priorityEnemy;
+            enemyClueLookUntil = -1f;
+            ResetEnemyRouteRecovery();
+            // Keep the old path until the replacement route is calculated.
+            // A closest-enemy switch must not first zero the agent velocity.
+        }
+        agent.updatePosition = true;
+        agent.updateRotation = false;
+        agent.autoBraking = true;
+        agent.speed = Mathf.Max(0.1f, enemyWalkSpeed);
+        if (bossAnimator != null) bossAnimator.applyRootMotion = false;
+        bool targetActuallyVisible = visibleEnemy == priorityEnemy;
+        float arrivalTolerance = targetActuallyVisible ? EnemyContactTolerance : enemyClueArrivalDistance + 0.15f;
+        bool near = FlatDistance(transform.position, priorityEnemyPosition) <= arrivalTolerance &&
+            Mathf.Abs(transform.position.y - priorityEnemyPosition.y) < Mathf.Max(1f, agent.height);
+        bool unobstructed = !IsBlocked(transform.position + Vector3.up * eyeHeight,
+            priorityEnemyPosition + Vector3.up * targetHeight, visionBlockingLayers, priorityEnemy);
+        if (targetActuallyVisible || !near || !unobstructed)
+            enemyClueLookUntil = -1f;
+        if (near && unobstructed && targetActuallyVisible)
+        {
+            // An animation failure has a bounded retry, not a permanent arrival idle.
+            FacePosition(priorityEnemyPosition, turnSpeed);
+            nextEnemyScan = 0f;
+            nextEnemyPath = 0f;
+        }
+        // Reaching a last-known location is not a new detection. Give vision
+        // one short chance to reacquire before returning to patrol, and then
+        // suppress immediate rediscovery from continuous gunfire.
+        if (near && !targetActuallyVisible && unobstructed)
+        {
+            if (enemyClueLookUntil < 0f)
+            {
+                enemyClueLookUntil = Time.time + Mathf.Max(0.1f, enemyClueLookSeconds);
+                nextEnemyScan = 0f;
+                StopAgent();
+                if (agent.hasPath || agent.pathPending) agent.ResetPath();
+                ResetEnemyRouteRecovery();
+            }
+            if (Time.time < enemyClueLookUntil)
+            {
+                FacePosition(priorityEnemyPosition, turnSpeed);
+                PlayAnimation(idleHash);
+                return;
+            }
+            enemyClueLookUntil = -1f;
+            if (rememberedEnemy == priorityEnemy) enemySeenAt = float.NegativeInfinity;
+            if (firingEnemy == priorityEnemy) ClearGunfireClue();
+            nextGunfireDiscoveryAt = Time.time + Mathf.Max(0.1f, gunfireRediscoveryCooldown);
+            nextEnemyScan = 0f;
+            priorityEnemy = null;
+            ResumeWalkingAfterDetection();
+            return;
+        }
+        if (hasEnemyGoal)
+        {
+            if (FlatDistance(transform.position, enemyProgressPosition) >= enemyMinimumProgress)
+            {
+                enemyProgressPosition = transform.position;
+                enemyProgressAt = Time.time;
+            }
+            if (agent.pathPending)
+            {
+                if (enemyPendingSince < 0f) enemyPendingSince = Time.time;
+                if (Time.time - enemyPendingSince >= enemyPathPendingTimeout) FailEnemyRoute("path pending timeout");
+            }
+            else
+            {
+                enemyPendingSince = -1f;
+                bool reached = FlatDistance(transform.position, enemyRouteEnd) <= (enemyRouteIsDetour ? 0.35f : EnemyContactTolerance) &&
+                    Mathf.Abs(transform.position.y - enemyRouteEnd.y) <= Mathf.Max(1f, Mathf.Abs(agent.baseOffset) + 0.5f);
+                if (reached) FailEnemyRoute("route ended before target was reached");
+                else if (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete ||
+                    Time.time - enemyProgressAt >= enemyStuckSeconds)
+                    FailEnemyRoute("path lost or boss stopped moving");
+            }
+        }
+        // Replanning a moving target must not reset the progress watchdog.
+        if (Time.time >= nextEnemyPath && (!hasEnemyGoal || (!agent.pathPending && !enemyRouteIsDetour &&
+            FlatDistance(lastEnemyGoal, priorityEnemyPosition) > (targetActuallyVisible ? 0.15f : 1.25f))))
+        {
+            nextEnemyPath = Time.time + Mathf.Max(0.2f, chasePathRefreshInterval);
+            if (!PlanEnemyRoute(priorityEnemyPosition) && !hasEnemyGoal)
+            {
+                enemyRouteFailures = Mathf.Min(12, enemyRouteFailures + 1);
+                nextEnemyPath = Time.time + 0.45f;
+                if (debugEnemyRecovery && (enemyRouteFailures == 1 || enemyRouteFailures == 4))
+                    Log("ENEMY PURSUIT - no complete route; expanding search");
+            }
+        }
+        agent.stoppingDistance = 0f;
+        agent.isStopped = !hasEnemyGoal;
+        if (hasEnemyGoal)
+        {
+            FaceMovementDirection();
+            bool moving = agent.velocity.sqrMagnitude > 0.04f || measuredVelocity.sqrMagnitude > 0.04f;
+            bool startingRoute = Time.time - enemyProgressAt < 0.25f && !agent.isStopped && agent.hasPath;
+            PlayAnimation(moving || startingRoute ? ResolveWalkHash() : idleHash);
+        }
+        else { FacePosition(priorityEnemyPosition, turnSpeed); PlayAnimation(idleHash); }
+    }
+
+    private int ResolveWalkHash()
+    {
+        if (bossAnimator.HasState(0, enemyWalkHash)) return enemyWalkHash;
+        int lower = Animator.StringToHash("walk");
+        return bossAnimator.HasState(0, lower) ? lower : runHash;
+    }
+
+    // Cancel only the anticipation phase. No stun, Dash, or forced search.
+    public void ResumeWalkingAfterDetection()
+    {
+        playerDetectionReadyForCharge = false;
+        playerRedetectionPending = false;
+        ReleaseEnemyMovement();
+        if (ai != null && ai.Target != null) ai.TargetHandler.TrySetTarget(null);
+        trackedPlayer = null;
+        lastPlayerSeenTime = float.NegativeInfinity;
+        hadVisualContactLastScan = hasPartialVisualContact = partialVisualInvestigationStarted = false;
+        suspicion = 0f;
+        investigatingVisualClue = postChargeSuspicionActive = lostPlayerCoverSearch = false;
+        pendingPostChargeSuspicion = pendingPostChargeSearch = false;
+        hasDetectedAnchor = false;
+        InterruptCoverAttack();
+        CancelSearch();
+        patrolScanning = false;
+        hasWanderDestination = false;
+        nextCoverDecision = Time.time + NextPatrolCoverInterval();
+        mode = BossMode.Cover;
+        walkAfterCancelledDetection = true;
+        if (AgentReady())
+        {
+            agent.updatePosition = true;
+            agent.updateRotation = false;
+            agent.isStopped = false;
+            agent.speed = wanderSpeed;
+        }
+        UpdateUnifiedAwareness();
+        if (EnemyTakesPriority)
+        {
+            EnterEnemyWalk();
+            UpdateEnemyWalk();
+        }
+        else
+        {
+            UpdateWandering();
+            ForceAnimation(AgentReady() && agent.hasPath ? ResolveWalkHash() : idleHash);
+        }
+        Log("BOSS CANCELLED DETECTION - WALKING");
+    }
+
+    public void ReleaseDetectedPositionForCharge()
+    {
+        if (!hasDetectedAnchor) return;
+        hasDetectedAnchor = false;
+        if (AgentReady())
+        {
+            agent.nextPosition = transform.position;
+            agent.updatePosition = true;
+        }
+    }
+
+    private void HoldDetectedPosition()
+    {
+        if (!hasDetectedAnchor) { detectedAnchor = transform.position; hasDetectedAnchor = true; }
+        if (AgentReady())
+        {
+            agent.isStopped = true;
+            if (agent.hasPath || agent.pathPending) agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            agent.updatePosition = false;
+            agent.nextPosition = detectedAnchor;
+        }
+        if (bossAnimator != null)
+        {
+            bossAnimator.applyRootMotion = false;
+            if (bossAnimator.transform != transform) bossAnimator.transform.localPosition = detectedAnimatorLocalPosition;
+        }
+        transform.position = detectedAnchor;
+        transform.rotation = detectedFacing;
+    }
+
     private void CheckVision()
     {
         if (Time.time < visionSuppressedUntil)
@@ -1779,6 +2853,11 @@ public class BossEnemyAI : MonoBehaviour
             if (ChargeBusy)
                 return;
 
+            if (playerRedetectionPending && mode != BossMode.Detected)
+            {
+                DetectPlayer(seenTarget);
+                return;
+            }
             if (mode == BossMode.Chase || mode == BossMode.Detected || mode == BossMode.Melee)
                 return;
 
@@ -1940,6 +3019,9 @@ public class BossEnemyAI : MonoBehaviour
                 continue;
             }
 
+            // Corpses are transparent to gameplay queries in EVERY AI state.
+            if (BossSoldierRagdollImpact.IsCorpseCollider(hit.collider)) continue;
+
             // Treat every collider belonging to the player as the target,
             // not as a wall. A sibling collider otherwise blocks vision of a
             // VisualStimulus on the same character after reappearing.
@@ -2000,7 +3082,23 @@ public class BossEnemyAI : MonoBehaviour
         hasLockedCoverRotation = false;
 
         mode = BossMode.Detected;
-        detectionEndTime = Time.time + detectedDuration;
+        playerRedetectionPending = false;
+        playerDetectionReadyForCharge = false;
+        detectionLostSight = false;
+        priorityEnemy = null;
+        walkAfterCancelledDetection = false;
+        detectedStartedFrame = Time.frameCount;
+        detectedLastProgressAt = Time.unscaledTime;
+        detectedLastNormalized = -1f;
+        var facing = Vector3.ProjectOnPlane(target.position - transform.position, Vector3.up);
+        if (facing.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(facing);
+        detectedFacing = transform.rotation;
+        stableBodyRotation = detectedFacing;
+        stableBodyRotationInitialized = true;
+        hasRequestedBodyRotation = false;
+        detectedAnchor = transform.position;
+        hasDetectedAnchor = true;
+        if (bossAnimator != null) detectedAnimatorLocalPosition = bossAnimator.transform.localPosition;
 
         UpdateUnifiedAwareness();
 
@@ -2008,7 +3106,7 @@ public class BossEnemyAI : MonoBehaviour
             ai.TargetHandler.TrySetTarget(target);
 
         StopAgent();
-        FacePosition(target.position, turnSpeed);
+        HoldDetectedPosition();
         ForceAnimation(detectedHash);
 
         Log("BOSS SEES PLAYER - DETECTED ANIMATION");
@@ -2016,30 +3114,66 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateDetection()
     {
-        StopAgent();
-
-        if (trackedPlayer != null)
-            FacePosition(trackedPlayer.position, turnSpeed);
-
-        if (Time.time < detectionEndTime)
-            return;
-
-        if (trackedPlayer == null ||
-            Time.time - lastPlayerSeenTime > losePlayerAfter)
+        HoldDetectedPosition();
+        bool visible = CanContinuePlayerWindup();
+        if (!visible) detectionLostSight = true;
+        // Do not mistake the outgoing previous instance for a completed replay.
+        if (Time.frameCount == detectedStartedFrame) return;
+        if (Time.timeScale <= 0f) { detectedLastProgressAt = Time.unscaledTime; return; }
+        bool statePresent = TryGetDetectionProgress(bossAnimator, detectedHash, out float progress);
+        if (statePresent && progress > detectedLastNormalized + 0.0001f)
         {
-            LosePlayer();
+            detectedLastNormalized = progress;
+            detectedLastProgressAt = Time.unscaledTime;
+        }
+        if (!statePresent || progress < 0.999f)
+        {
+            if (Time.unscaledTime - detectedLastProgressAt > Mathf.Max(2f, detectedDuration))
+            {
+                Debug.LogWarning("[Boss Detection] Detected missing, interrupted, or stalled. Check Animator transitions and speed; retrying sight instead of charging.", this);
+                BeginPlayerRedetectionSearch();
+            }
             return;
         }
-
+        if (detectionLostSight || !visible)
+        {
+            Log("DETECTED FINISHED - LOS WAS LOST; REACQUIRING BEFORE CHARGE");
+            BeginPlayerRedetectionSearch();
+            return;
+        }
         mode = BossMode.Chase;
+        playerDetectionReadyForCharge = true;
+        ReleaseDetectedPositionForCharge();
         nextChasePath = 0f;
-
-        if (AgentReady())
-            agent.isStopped = false;
-
+        // Keep the agent stopped until the charge script takes over this frame.
+        StopAgent();
         currentAnimationHash = 0;
+        Log("DETECTED FINISHED - PLAYER VISIBLE, CHARGE AUTHORIZED");
+    }
 
-        Log("BOSS CHASING PLAYER");
+    // Called only after a full anticipation clip has played (or a broken
+    // animator was detected). Investigate the last actually seen location.
+    public void BeginPlayerRedetectionSearch()
+    {
+        playerDetectionReadyForCharge = false;
+        playerRedetectionPending = true;
+        priorityEnemy = null;
+        ReleaseDetectedPositionForCharge();
+        if (ai != null && ai.Target != null) ai.TargetHandler.TrySetTarget(null);
+        trackedPlayer = null;
+        hasPartialVisualContact = partialVisualInvestigationStarted = false;
+        pendingPostChargeSuspicion = pendingPostChargeSearch = false;
+        if (AgentReady())
+        {
+            agent.updatePosition = true;
+            agent.updateRotation = false;
+            agent.isStopped = false;
+        }
+        mode = BossMode.Search;
+        if (!BeginMovementInvestigation(lastKnownPlayerPosition)) StartSearch(lastKnownPlayerPosition);
+        investigatingVisualClue = true;
+        if (TryGetVisiblePlayer(out Transform seen)) DetectPlayer(seen);
+        else Log("BOSS MOVING TO LAST SEEN PLAYER POSITION - REDETECTION REQUIRED");
     }
 
     private void UpdateChasing()
@@ -3211,6 +4345,7 @@ public class BossEnemyAI : MonoBehaviour
 
     private void FinishSearch()
     {
+        playerRedetectionPending = false;
         Log("BOSS SEARCH COMPLETE | elapsed=" +
             (Time.time - searchStartTime).ToString("F1") +
             "s | cover passes=" + coverSweepPassesFinished +
@@ -3262,7 +4397,12 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateWandering()
     {
-        if (!AgentReady()) return;
+        if (!RecoverEnemyNavMesh()) return;
+        if (!agent.updatePosition)
+        {
+            agent.nextPosition = transform.position;
+            agent.updatePosition = true;
+        }
 
         // A patrol cover attack is a committed task, not a regular wander step.
         // Sight/hearing can interrupt it at any frame via the existing modes.
@@ -3305,6 +4445,31 @@ public class BossEnemyAI : MonoBehaviour
             return;
         }
 
+        if (hasWanderDestination)
+        {
+            if (patrolProgressAt < 0f || FlatDistance(transform.position, patrolProgressPosition) >= enemyMinimumProgress)
+            {
+                patrolProgressAt = Time.time;
+                patrolProgressPosition = transform.position;
+            }
+            if (agent.pathPending)
+            {
+                if (patrolPendingAt < 0f) patrolPendingAt = Time.time;
+            }
+            else patrolPendingAt = -1f;
+            bool pendingTimeout = patrolPendingAt >= 0f && Time.time - patrolPendingAt >= enemyPathPendingTimeout;
+            bool stalled = !agent.pathPending && FlatDistance(transform.position, wanderDestination) > 1.2f &&
+                (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete || Time.time - patrolProgressAt >= enemyStuckSeconds);
+            if (pendingTimeout || stalled)
+            {
+                agent.ResetPath();
+                hasWanderDestination = false;
+                patrolProgressAt = patrolPendingAt = -1f;
+                if (debugEnemyRecovery) Log("PATROL RECOVERY - selecting another waypoint");
+            }
+        }
+        else patrolProgressAt = patrolPendingAt = -1f;
+
         bool arrived = hasWanderDestination && !agent.pathPending &&
             ((agent.hasPath && agent.remainingDistance <= 1.2f) ||
              Vector3.Distance(transform.position, wanderDestination) <= 1.2f);
@@ -3346,6 +4511,9 @@ public class BossEnemyAI : MonoBehaviour
                 if (!agent.SetPath(path)) continue;
                 wanderDestination = hit.position;
                 hasWanderDestination = true;
+                patrolProgressAt = Time.time;
+                patrolProgressPosition = transform.position;
+                patrolPendingAt = -1f;
                 agent.isStopped = false;
                 agent.speed = wanderSpeed;
                 agent.stoppingDistance = 0.7f;
@@ -3851,9 +5019,9 @@ public class BossEnemyAI : MonoBehaviour
 
     private void UpdateMovementAnimation()
     {
-        if (bossAnimator == null || ChargeBusy ||
+        if (bossAnimator == null || ChargeBusy || playerDetectionReadyForCharge ||
             mode == BossMode.Melee || mode == BossMode.Detected ||
-            mode == BossMode.Suspicious) return;
+            mode == BossMode.Suspicious || mode == BossMode.EnemyAttack) return;
 
         if (attackingCover &&
             (mode == BossMode.Search || (mode == BossMode.Cover && patrolCoverHuntActive)))
@@ -3882,7 +5050,7 @@ public class BossEnemyAI : MonoBehaviour
                  Time.time - lastActuallyMovingTime < movementAnimationGrace)
             moving = true;
 
-        PlayAnimation(moving ? runHash : idleHash);
+        PlayAnimation(moving ? (mode == BossMode.Cover && walkAfterCancelledDetection ? ResolveWalkHash() : runHash) : idleHash);
     }
 
     private void PlayAnimation(int hash)

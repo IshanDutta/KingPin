@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4bf2bb043c66562428070a34d7b74a27
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Blue_HDRP/Blood_Smash_Large_Blue_HDRP.prefab
+  uploadId: 471979

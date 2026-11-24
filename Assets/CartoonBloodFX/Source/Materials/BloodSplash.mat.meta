@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4064b000538db9c41b753aec6cb83951
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 8629
+  packageName: Cartoon Blood FX
+  packageVersion: 2
+  assetPath: Assets/CartoonBloodFX/Source/Materials/BloodSplash.mat
+  uploadId: 435810

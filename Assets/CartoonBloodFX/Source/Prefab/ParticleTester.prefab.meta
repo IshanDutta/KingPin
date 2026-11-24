@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 491f30da11e7c604586863fae2c3e514
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 8629
+  packageName: Cartoon Blood FX
+  packageVersion: 2
+  assetPath: Assets/CartoonBloodFX/Source/Prefab/ParticleTester.prefab
+  uploadId: 435810

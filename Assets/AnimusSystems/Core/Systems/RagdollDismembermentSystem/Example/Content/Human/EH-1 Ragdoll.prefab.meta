@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cbdf44e83bc7d3848a4951440ac89733
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Systems/RagdollDismembermentSystem/Example/Content/Human/EH-1
+    Ragdoll.prefab
+  uploadId: 451426

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a74c41ebea02c7047840985620bf0183
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Fundamentals/Standards/PlayerCameraStandard/Core/UI/Player
+    Camera layout.prefab
+  uploadId: 451426

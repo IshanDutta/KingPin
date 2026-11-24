@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9e7678b74e1337b42b25276d787f0bd4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Red_HDRP/Blood_Arterial_Medium_Red_HDRP.prefab
+  uploadId: 471979

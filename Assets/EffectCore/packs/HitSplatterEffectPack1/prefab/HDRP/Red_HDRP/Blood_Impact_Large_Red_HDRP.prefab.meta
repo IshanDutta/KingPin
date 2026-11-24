@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a9c9fb0cd74411e46b8b697be557ea7f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/Red_HDRP/Blood_Impact_Large_Red_HDRP.prefab
+  uploadId: 471979

@@ -248,7 +248,15 @@ public class BossChargeAttack : MonoBehaviour
     private bool hasDodgeLastKnownPosition;
     private float chargeStartTime;
     private float postDodgeStartedAt;
-    private float windupEndTime;
+    private int windupStartedFrame;
+    private bool windupLostSight;
+    private float windupLastNormalized;
+    private float windupLastProgressAt;
+    private Quaternion windupFacing;
+    private Vector3 windupAnchor;
+    private bool windupPositionLocked;
+    private Vector3 windupAnimatorLocalPosition;
+    private bool windupAnimatorPositionSaved;
     private float recoveryEndTime;
 
     private Vector3 chargeDirection;
@@ -389,27 +397,42 @@ public class BossChargeAttack : MonoBehaviour
         Vector3 towardPlayer = player.position - transform.position;
         towardPlayer.y = 0f;
         if (towardPlayer.sqrMagnitude < 0.0001f)
-            return;
+            towardPlayer = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
 
         // Prepare dynamic cover obstacles before judging the lane. A carved
         // obstacle may force a real detour even if the target is straight ahead.
         if (!savedControllerState)
         {
+            if (boss != null) boss.ReleaseDetectedPositionForCharge();
             SaveAndPauseControllers();
             PrepareCoverNavMeshObstacles();
         }
 
+        bool alreadyPlayed = boss != null && boss.ConsumeCompletedPlayerDetection();
+        if (boss == null || !boss.CanContinuePlayerWindup())
+        {
+            CancelPlayerPreparation("Sight lost before charge handoff");
+            return;
+        }
         if (navigateAroundWallsBeforeCharging && !HasClearPreChargeLane())
         {
             BeginPreChargePositioning();
             return;
         }
+        if (alreadyPlayed)
+        {
+            BeginCharge();
+            return;
+        }
 
-        if (agent != null && agent.enabled && agent.isOnNavMesh)
-            agent.isStopped = true;
         transform.rotation = Quaternion.LookRotation(towardPlayer.normalized);
+        windupFacing = transform.rotation;
+        LockWindupPosition();
         IsWindingUp = true;
-        windupEndTime = Time.time + chargeWindupDuration;
+        windupLostSight = false;
+        windupStartedFrame = Time.frameCount;
+        windupLastNormalized = -1f;
+        windupLastProgressAt = Time.unscaledTime;
         PlayState(detectedAnimation, detectedCrossfade);
         Log("CHARGE WINDUP - NavMesh pursuit next");
     }
@@ -425,6 +448,7 @@ public class BossChargeAttack : MonoBehaviour
             AbortPreChargePositioning("Agent unavailable");
             return;
         }
+        UnlockWindupPosition();
         IsPositioning = true;
         preChargePositioningStartedAt = Time.time;
         nextPreChargePathRefresh = 0f;
@@ -450,6 +474,11 @@ public class BossChargeAttack : MonoBehaviour
 
     private void UpdatePreChargePositioning()
     {
+        if (boss == null || !boss.CanContinuePlayerWindup())
+        {
+            CancelPlayerPreparation("Lost sight or enemy priority");
+            return;
+        }
         if (player == null || agent == null || !agent.enabled || !agent.isOnNavMesh)
         {
             AbortPreChargePositioning("Lost target or agent");
@@ -632,7 +661,7 @@ public class BossChargeAttack : MonoBehaviour
 
     private bool IsPreChargeBlockingCollider(Collider collider)
     {
-        if (collider == null) return false;
+        if (collider == null || BossSoldierRagdollImpact.IsCorpseCollider(collider)) return false;
         Transform t = collider.transform;
         if (t == transform || t.IsChildOf(transform)) return false;
         if (player != null && (t == player || t.IsChildOf(player) ||
@@ -656,28 +685,97 @@ public class BossChargeAttack : MonoBehaviour
         Log("COULD NOT REACH CLEAR CHARGE LANE - INVESTIGATING INSTEAD: " + reason);
     }
 
+    private void LockWindupPosition()
+    {
+        windupAnchor = transform.position;
+        windupPositionLocked = true;
+        windupAnimatorPositionSaved = bossAnimator != null && bossAnimator.transform != transform;
+        if (windupAnimatorPositionSaved) windupAnimatorLocalPosition = bossAnimator.transform.localPosition;
+        HoldWindupPosition();
+    }
+
+    private void HoldWindupPosition()
+    {
+        if (!windupPositionLocked) return;
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            if (agent.hasPath || agent.pathPending) agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            agent.updatePosition = false;
+            agent.updateRotation = false;
+            agent.nextPosition = windupAnchor;
+        }
+        if (bossAnimator != null)
+        {
+            if (bossAnimator.applyRootMotion) bossAnimator.applyRootMotion = false;
+            if (windupAnimatorPositionSaved) bossAnimator.transform.localPosition = windupAnimatorLocalPosition;
+        }
+        transform.position = windupAnchor;
+        transform.rotation = windupFacing;
+    }
+
+    private void UnlockWindupPosition()
+    {
+        if (!windupPositionLocked) return;
+        HoldWindupPosition();
+        windupPositionLocked = false;
+        windupAnimatorPositionSaved = false;
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.nextPosition = transform.position;
+            agent.updatePosition = true;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (IsWindingUp) HoldWindupPosition();
+    }
+
+    private void CancelPlayerPreparation(string reason)
+    {
+        UnlockWindupPosition();
+        IsWindingUp = false;
+        IsPositioning = false;
+        RestoreControllers();
+        if (boss != null) boss.BeginPlayerRedetectionSearch();
+        Log("DETECTED CANCELLED - " + reason);
+    }
+
     private void UpdateWindup()
     {
-        if (facePlayerDuringWindup && player != null)
+        // Do not cancel an in-flight Detected clip when the player ducks away.
+        HoldWindupPosition();
+        bool visible = boss != null && boss.CanContinuePlayerWindup();
+        if (!visible) windupLostSight = true;
+        if (Time.frameCount == windupStartedFrame) return;
+        if (Time.timeScale <= 0f) { windupLastProgressAt = Time.unscaledTime; return; }
+        bool present = BossEnemyAI.TryGetDetectionProgress(bossAnimator, Animator.StringToHash(detectedAnimation), out float progress);
+        if (present && progress > windupLastNormalized + 0.0001f)
         {
-            Vector3 direction = player.position - transform.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude > 0.0001f)
-                transform.rotation = Quaternion.RotateTowards(
-                    transform.rotation, Quaternion.LookRotation(direction.normalized),
-                    chargeTurnSpeed * Time.deltaTime);
+            windupLastNormalized = progress;
+            windupLastProgressAt = Time.unscaledTime;
         }
-
-        if (Time.time >= windupEndTime)
+        if (!present || progress < 0.999f)
         {
-            IsWindingUp = false;
-            if (navigateAroundWallsBeforeCharging && !HasClearPreChargeLane())
-            {
-                BeginPreChargePositioning();
-                return;
-            }
-            BeginCharge();
+            if (Time.unscaledTime - windupLastProgressAt > Mathf.Max(2f, chargeWindupDuration))
+                CancelPlayerPreparation("Detected animation missing, interrupted, or stalled");
+            return;
         }
+        if (windupLostSight || !visible)
+        {
+            CancelPlayerPreparation("Detected finished; sight lost during animation");
+            return;
+        }
+        UnlockWindupPosition();
+        IsWindingUp = false;
+        if (navigateAroundWallsBeforeCharging && !HasClearPreChargeLane())
+        {
+            BeginPreChargePositioning();
+            return;
+        }
+        BeginCharge();
     }
 
     private void BeginCharge()
@@ -691,12 +789,12 @@ public class BossChargeAttack : MonoBehaviour
 
         Vector3 direction = player.position - transform.position;
         direction.y = 0f;
-        if (direction.sqrMagnitude < 0.0001f ||
-            agent == null || !agent.enabled || !agent.isOnNavMesh)
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh)
         {
-            RestoreControllers();
+            CancelPlayerPreparation("Agent unavailable at charge start");
             return;
         }
+        if (direction.sqrMagnitude < 0.0001f) direction = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
 
         chargeDirection = direction.normalized;
         chargeStartPosition = transform.position;
@@ -1629,7 +1727,7 @@ public class BossChargeAttack : MonoBehaviour
     private bool ProcessHit(Collider collider, bool stopForSolidCollision,
         bool allowHeavyImpact)
     {
-        if (collider == null) return false;
+        if (collider == null || BossSoldierRagdollImpact.IsCorpseCollider(collider)) return false;
         Transform target = collider.transform;
         if (target == transform || target.IsChildOf(transform)) return false;
         if (ignoredDebrisColliders.Contains(collider)) return false;
@@ -2394,6 +2492,7 @@ public class BossChargeAttack : MonoBehaviour
 
     private void RestoreControllers()
     {
+        UnlockWindupPosition();
         if (!savedControllerState) return;
 
         bool ready = false;

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b6da01a8ecb907845a0d8d354433f29c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Demo/Navmesh/First Person Demo/NavMesh-NavMeshSurface.asset
+  uploadId: 996680

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ea5a2e5d5257ade448c0e0097480ed90
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/Blue_URP/Blood_Smash_Medium_Blue_URP.prefab
+  uploadId: 471979

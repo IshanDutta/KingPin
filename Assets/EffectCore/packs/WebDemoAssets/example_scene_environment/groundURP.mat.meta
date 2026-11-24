@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dc3002def2b808445845f11fc013c71e
+timeCreated: 1478433466
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/WebDemoAssets/example_scene_environment/groundURP.mat
+  uploadId: 471979

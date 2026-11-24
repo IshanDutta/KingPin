@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 225f41f0b0085d74e9e1468b6720e284
+timeCreated: 1484492000
+licenseType: Store
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/Tips & Documentations
+    HitSplatterEffectPack1.txt
+  uploadId: 471979

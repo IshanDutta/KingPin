@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c3a809026897b0f43b23141cc732ad6b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/RedBright_HDRP/Blood_Arterial_Small_RedBright_HDRP.prefab
+  uploadId: 471979

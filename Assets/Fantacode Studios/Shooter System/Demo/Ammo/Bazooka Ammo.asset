@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f5b2173d9f8688458432db5de84eff1, type: 3}
+  m_Name: Bazooka Ammo
+  m_EditorClassIdentifier: 
+  id: de5646b8-f535-4374-bc59-bfab18054e28
+  name: Rocket
+  description: 
+  icon: {fileID: 0}
+  category: {fileID: 11400000, guid: 5c0854c985a91f0428a8c08cea01d241, type: 2}
+  overrideCategorySettings: 0
+  overrideCategoryAttributes: 0
+  equipmentSlotIndex: -1
+  attachModel: 0
+  modelPrefab: {fileID: 0}
+  isSkinnedMesh: 1
+  localPosition: {x: 0, y: 0, z: 0}
+  localRotation: {x: 0, y: 0, z: 0}
+  sellable: 0
+  droppable: 0
+  weight: 0
+  canCraft: 0
+  priceToCraft:
+    amount: 0
+    currencyIndex: 0
+  canDismantle: 0
+  priceToDismantle:
+    amount: 0
+    currencyIndex: 0
+  ingredients: []
+  overrideDismantleItems: 0
+  dismantleToItems: []
+  price:
+    amount: 0
+    currencyIndex: 0
+  requiresMultipleCurrencies: 0
+  currenciesRequired: []
+  overrideAction: 0
+  itemAction: {fileID: 0}
+  attributeValues:
+  - attributeType: 1
+    attributeName: Damage
+    stringValue: 
+    intValue: 0
+    floatValue: 50
+  overrideAttributes: []
+  pickupPrefab: {fileID: 0}
+  ammo: {fileID: 8071249827131128127, guid: 604283e92dab48b46a61a71069d934ab, type: 3}
+  hitEffects: []
+  gravity: 9.8
+  maxLifetime: 5
+  overrideHitIgnoreMask: 0
+  hitIgnoreMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isExplosive: 1
+  explosiveRadius: 3
+  minDamage: 10
+  explosionForce: 20
+  enableDirectHit: 0
+  usesTimedExplosion: 0
+  timer: 4
+  explotionPrefab: {fileID: 1121192042590650, guid: e1b08032bec16ba4eb1ae23cbd572664, type: 3}
+  explotionAudio: {fileID: 8300000, guid: 1056b5e82404625449d36df44b24d7a8, type: 3}
+  explotionLifeTime: 3
+  bloodEffect: {fileID: 0}
+  destroyImmediateAfterHit: 1

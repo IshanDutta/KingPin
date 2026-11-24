@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e04a0de3e8931a445adbe3483664b4e9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/Green_URP/Blood_Dripping_Green_URP.prefab
+  uploadId: 471979

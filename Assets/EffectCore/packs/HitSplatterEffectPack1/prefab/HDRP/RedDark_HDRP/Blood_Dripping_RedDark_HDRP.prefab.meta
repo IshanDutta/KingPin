@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7dc1a64ab14f7154f971c45ba261c1ce
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/HDRP/RedDark_HDRP/Blood_Dripping_RedDark_HDRP.prefab
+  uploadId: 471979

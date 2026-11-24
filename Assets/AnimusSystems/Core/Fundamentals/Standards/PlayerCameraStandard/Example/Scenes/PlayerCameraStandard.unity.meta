@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8d9c65c9de64a6841b3df66eaae29673
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132866
+  packageName: Ragdoll dismemberment system
+  packageVersion: 2.2
+  assetPath: Assets/AnimusSystems/Core/Fundamentals/Standards/PlayerCameraStandard/Example/Scenes/PlayerCameraStandard.unity
+  uploadId: 451426

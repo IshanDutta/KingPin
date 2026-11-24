@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9d13db99aea2fb64cb6d03edae7aa775
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/RedDark_URP/Blood_Smash_Small_RedDark_URP.prefab
+  uploadId: 471979

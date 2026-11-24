@@ -10,6 +10,9 @@ TagManager:
   - Slide
   - NavmeshLink
   - NavmeshSurface
+  - ground
+  - Weapon
+  - Monster
   layers:
   - Default
   - TransparentFX
@@ -34,7 +37,7 @@ TagManager:
   - OcuppantObject
   - Crate
   - Tunnel
-  - 
+  - Monster
   - 
   - 
   - 

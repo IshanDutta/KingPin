@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: efc8ab9a9e5d7b24c877ec847a4058e4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Shooter System/Demo/Scripts/DestructionHandler.cs
+  uploadId: 996680

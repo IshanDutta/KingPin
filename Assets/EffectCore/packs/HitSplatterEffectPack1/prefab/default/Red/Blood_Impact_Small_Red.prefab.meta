@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 46cb51842826d77438ecf64a2ff442ae
+timeCreated: 1522517085
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/default/Red/Blood_Impact_Small_Red.prefab
+  uploadId: 471979

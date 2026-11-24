@@ -1,0 +1,27 @@
+Third-Party Notices
+
+This package includes third-party components licensed under various open licenses. These components are allowed for commercial use and redistribution under their respective terms.
+
+---
+
+The fonts used by this package ship inside the Third Person Controller folder. Their SIL Open Font License terms are covered in Third Person Controller/Third-Party-Notices.txt.
+
+---
+
+### Audio Files (Pixabay)
+
+This package includes sound effects obtained from Pixabay, a royalty-free audio platform. All Pixabay content is free to use for commercial and non-commercial purposes. Attribution is not required.
+
+Included Audio Files:
+- Bazuka Launch
+- Blast
+- Load Sniper Ammo
+- Pistol Shot
+- Rifle Reload
+- Rifle Shot
+- Rifle Trigger
+- Sniper Shot
+
+License:
+Pixabay License – Free for commercial use, no attribution required  
+More info: https://pixabay.com/service/license-summary/

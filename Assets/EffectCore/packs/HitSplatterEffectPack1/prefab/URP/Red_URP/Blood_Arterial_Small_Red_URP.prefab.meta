@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c96a345c5c267934982b4910917181e6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 109052
+  packageName: Hit Splatter Effects Pack 1
+  packageVersion: 1.8
+  assetPath: Assets/EffectCore/packs/HitSplatterEffectPack1/prefab/URP/Red_URP/Blood_Arterial_Small_Red_URP.prefab
+  uploadId: 471979

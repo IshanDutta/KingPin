@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 919baa328b5b71f4e8ec8bd00edd2553
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 388278
+  packageName: FS Shooter System 2
+  packageVersion: 2.0.2
+  assetPath: Assets/Fantacode Studios/Combat Core/Scripts/AIStates/GettingHitState.cs
+  uploadId: 996680
